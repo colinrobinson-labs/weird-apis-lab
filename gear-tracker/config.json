@@ -1,21 +1,518 @@
 {
-  "home": {"name": "La Mesa, CA", "lat": 32.7678, "lon": -117.0231},
-  "states": ["CA", "AZ", "NV", "OR", "UT"],
-  "max_miles": 700,
-  "post_when_empty": false,
-  "initial_scan_limit": 15,
-  "exclude": ["parts only", "salvage", "inoperable", "scrap", "for parts", "not operational", "non-operational"],
-  "_value_note": "Rough used-market ranges for working gear, used to score deals. Tune these to your own experience. per_kw = dollars per kW of generator output; per_qty = dollars per unit when a quantity is listed.",
-  "categories": [
-    {"name": "Generator", "emoji": "⚡", "keywords": ["generator", "genset", "gen set"], "max_bid": 20000, "value": {"per_kw": [180, 380], "fallback": [3000, 12000]}},
-    {"name": "Light tower", "emoji": "💡", "keywords": ["light tower", "light plant", "lighting tower", "light cart"], "max_bid": 9000, "value": {"fixed": [3500, 9000]}},
-    {"name": "Truck / van", "emoji": "🚚", "keywords": ["box truck", "cargo van", "stake bed", "flatbed truck", "step van"], "max_bid": 30000, "value": {"fixed": [9000, 30000]}},
-    {"name": "Trailer", "emoji": "🛻", "keywords": ["enclosed trailer", "utility trailer", "stage trailer", "cargo trailer", "flatbed trailer", "office trailer"], "max_bid": 15000, "value": {"fixed": [2500, 9000]}},
-    {"name": "Lift / forklift", "emoji": "🏗️", "keywords": ["forklift", "telehandler", "scissor lift", "boom lift", "genie lift", "man lift"], "max_bid": 30000, "value": {"fixed": [6000, 22000]}},
-    {"name": "Barricade / fencing", "emoji": "🚧", "keywords": ["barricade", "barricades", "crowd control", "bike rack", "fencing", "jersey barrier"], "max_bid": 6000, "value": {"per_qty": [35, 90], "fallback": [500, 3000]}},
-    {"name": "Staging / tents", "emoji": "🎪", "keywords": ["staging", "stage", "riser", "platform", "frame tent", "tent", "canopy"], "max_bid": 10000, "value": {"fixed": [800, 6000]}},
-    {"name": "Audio / radios", "emoji": "📻", "keywords": ["speaker", "public address", "pa system", "amplifier", "mixer", "two-way radio", "radios", "motorola"], "max_bid": 6000, "value": {"per_qty": [60, 180], "fallback": [300, 2500]}},
-    {"name": "Power distro", "emoji": "🔌", "keywords": ["distribution box", "power distribution", "cable ramp", "cord reel", "spider box"], "max_bid": 4000, "value": {"fixed": [300, 2500]}},
-    {"name": "Sanitation / water", "emoji": "🚰", "keywords": ["portable toilet", "restroom trailer", "water trailer", "water tank", "water buffalo"], "max_bid": 15000, "value": {"fixed": [1500, 12000]}}
-  ]
+ "home": {
+  "name": "La Mesa",
+  "lat": 32.7678,
+  "lon": -117.0231
+ },
+ "states": [
+  "CA",
+  "AZ",
+  "NV",
+  "OR",
+  "UT"
+ ],
+ "max_miles": 700,
+ "post_when_empty": false,
+ "initial_scan_limit": 15,
+ "max_posts_per_run": 25,
+ "reminder_hours": 24,
+ "reminder_min_score": 3,
+ "max_bid_pct_of_low": 0.6,
+ "_haul_note": "Dollars per mile, charged for the round trip, by how the item has to come home. tow = you or a tower hauls it on its own wheels or a trailer; freight = needs a flatbed or lowboy; pickup = fits in a truck bed.",
+ "haul_per_mile": {
+  "tow": 1.6,
+  "freight": 3.5,
+  "pickup": 0.7
+ },
+ "exclude": [
+  "parts only",
+  "salvage",
+  "inoperable",
+  "scrap",
+  "for parts",
+  "not operational",
+  "non-operational",
+  "non operational",
+  "scrap metal"
+ ],
+ "_value_note": "Rough used-market ranges for working gear, used to score deals. Tune these to your own experience. per_kw = dollars per kW of generator output; per_qty = dollars per unit when a quantity is listed. 'not' words stop a false match (e.g. 'cement mixer' is not an audio mixer).",
+ "categories": [
+  {
+   "name": "Light tower",
+   "emoji": "💡",
+   "haul": "tow",
+   "keywords": [
+    "light tower",
+    "light towers",
+    "light plant",
+    "lighting tower",
+    "light cart",
+    "light trailer"
+   ],
+   "max_bid": 9000,
+   "value": {
+    "fixed": [
+     3500,
+     9000
+    ]
+   }
+  },
+  {
+   "name": "Generator",
+   "emoji": "⚡",
+   "haul": "tow",
+   "keywords": [
+    "generator",
+    "generators",
+    "genset",
+    "gen set",
+    "generator set"
+   ],
+   "not": [
+    "signal generator",
+    "function generator",
+    "ozone generator",
+    "steam generator",
+    "foam generator",
+    "nitrogen generator",
+    "smoke generator",
+    "tone generator",
+    "pulse generator"
+   ],
+   "max_bid": 20000,
+   "value": {
+    "per_kw": [
+     180,
+     380
+    ],
+    "fallback": [
+     3000,
+     12000
+    ]
+   }
+  },
+  {
+   "name": "Golf cart / UTV",
+   "emoji": "🛺",
+   "haul": "tow",
+   "keywords": [
+    "golf cart",
+    "golf carts",
+    "utility vehicle",
+    "utv",
+    "gator",
+    "kawasaki mule",
+    "polaris ranger",
+    "club car",
+    "e-z-go",
+    "ezgo",
+    "cushman",
+    "taylor dunn",
+    "rtv",
+    "polaris ranger 1000",
+    "ranger utv",
+    "ranger crew",
+    "global electric",
+    "gem car",
+    "low speed vehicle",
+    "side by side"
+   ],
+   "max_bid": 15000,
+   "value": {
+    "fixed": [
+     4000,
+     15000
+    ]
+   }
+  },
+  {
+   "name": "Lift / forklift",
+   "emoji": "🏗️",
+   "haul": "freight",
+   "keywords": [
+    "forklift",
+    "fork lift",
+    "telehandler",
+    "scissor lift",
+    "boom lift",
+    "genie lift",
+    "man lift",
+    "personnel lift",
+    "pallet jack"
+   ],
+   "max_bid": 30000,
+   "value": {
+    "fixed": [
+     6000,
+     22000
+    ]
+   },
+   "not": [
+    "forklift attachment",
+    "forklift tines"
+   ]
+  },
+  {
+   "name": "Container / reefer",
+   "emoji": "📦",
+   "haul": "freight",
+   "keywords": [
+    "conex",
+    "shipping container",
+    "storage container",
+    "refrigerated container",
+    "reefer",
+    "walk-in cooler",
+    "walk in cooler",
+    "walk-in freezer"
+   ],
+   "max_bid": 12000,
+   "value": {
+    "fixed": [
+     2500,
+     9000
+    ]
+   },
+   "not": [
+    "vital signs",
+    "monitor"
+   ]
+  },
+  {
+   "name": "Sanitation / water",
+   "emoji": "🚰",
+   "haul": "tow",
+   "keywords": [
+    "portable toilet",
+    "portable toilets",
+    "restroom trailer",
+    "shower trailer",
+    "water trailer",
+    "water tank",
+    "water buffalo",
+    "hand wash station"
+   ],
+   "max_bid": 15000,
+   "value": {
+    "fixed": [
+     1500,
+     12000
+    ]
+   },
+   "not": [
+    "water truck"
+   ]
+  },
+  {
+   "name": "Trailer",
+   "emoji": "🛻",
+   "haul": "tow",
+   "keywords": [
+    "enclosed trailer",
+    "utility trailer",
+    "stage trailer",
+    "cargo trailer",
+    "flatbed trailer",
+    "office trailer",
+    "equipment trailer",
+    "mobile stage",
+    "trailer",
+    "trailers",
+    "travel trailer",
+    "toy hauler",
+    "dual axle trailer",
+    "tilt trailer"
+   ],
+   "max_bid": 15000,
+   "value": {
+    "fixed": [
+     2500,
+     9000
+    ]
+   },
+   "not": [
+    "semi-trailer",
+    "semi trailer",
+    "boat",
+    "water trailer",
+    "water buffalo",
+    "restroom trailer",
+    "shower trailer",
+    "light trailer",
+    "stage trailer",
+    "tank transporter",
+    "tractor trailer"
+   ]
+  },
+  {
+   "name": "Truck / van",
+   "emoji": "🚚",
+   "haul": "pickup",
+   "keywords": [
+    "box truck",
+    "cargo van",
+    "stake bed",
+    "flatbed truck",
+    "step van",
+    "pickup truck",
+    "liftgate",
+    "f150",
+    "f-150",
+    "f250",
+    "f-250",
+    "f350",
+    "f-350",
+    "f450",
+    "f550",
+    "silverado",
+    "gmc sierra",
+    "ram 1500",
+    "ram 2500",
+    "ram 3500",
+    "tacoma",
+    "tundra",
+    "ford transit",
+    "express van",
+    "savana",
+    "sprinter",
+    "water truck",
+    "utility truck",
+    "service truck"
+   ],
+   "max_bid": 35000,
+   "value": {
+    "fixed": [
+     10000,
+     32000
+    ]
+   },
+   "not": [
+    "dump truck",
+    "fire truck",
+    "bumper",
+    "tow truck",
+    "military"
+   ]
+  },
+  {
+   "name": "Barricade / fencing",
+   "emoji": "🚧",
+   "haul": "freight",
+   "keywords": [
+    "barricade",
+    "barricades",
+    "crowd control",
+    "bike rack",
+    "bike racks",
+    "fence panels",
+    "temporary fencing",
+    "jersey barrier"
+   ],
+   "max_bid": 6000,
+   "value": {
+    "per_qty": [
+     35,
+     90
+    ],
+    "fallback": [
+     500,
+     3000
+    ]
+   }
+  },
+  {
+   "name": "Staging / tents",
+   "emoji": "🎪",
+   "haul": "freight",
+   "keywords": [
+    "staging",
+    "stage deck",
+    "stage platform",
+    "risers",
+    "frame tent",
+    "pole tent",
+    "tents",
+    "canopy",
+    "canopies",
+    "pop up tent",
+    "shelter system"
+   ],
+   "not": [
+    "multi stage",
+    "two stage",
+    "single stage"
+   ],
+   "max_bid": 10000,
+   "value": {
+    "fixed": [
+     800,
+     6000
+    ]
+   }
+  },
+  {
+   "name": "Audio / radios",
+   "emoji": "📻",
+   "haul": "pickup",
+   "keywords": [
+    "speaker",
+    "speakers",
+    "public address",
+    "pa system",
+    "amplifier",
+    "audio mixer",
+    "mixing console",
+    "two-way radio",
+    "two way radio",
+    "radios",
+    "motorola",
+    "wireless microphone"
+   ],
+   "not": [
+    "cement mixer",
+    "concrete mixer",
+    "mortar mixer",
+    "car radio"
+   ],
+   "max_bid": 6000,
+   "value": {
+    "per_qty": [
+     60,
+     180
+    ],
+    "fallback": [
+     300,
+     2500
+    ]
+   }
+  },
+  {
+   "name": "Power distro",
+   "emoji": "🔌",
+   "haul": "pickup",
+   "keywords": [
+    "distribution box",
+    "power distribution",
+    "cable ramp",
+    "cable protector",
+    "cord reel",
+    "spider box",
+    "camlok",
+    "cam lock"
+   ],
+   "max_bid": 4000,
+   "value": {
+    "fixed": [
+     300,
+     2500
+    ]
+   }
+  },
+  {
+   "name": "Cooling",
+   "emoji": "❄️",
+   "haul": "pickup",
+   "keywords": [
+    "spot cooler",
+    "portable air conditioner",
+    "evaporative cooler",
+    "misting fan",
+    "portable ac"
+   ],
+   "max_bid": 4000,
+   "value": {
+    "per_qty": [
+     250,
+     900
+    ],
+    "fallback": [
+     300,
+     2000
+    ]
+   }
+  },
+  {
+   "name": "Concessions / kitchen",
+   "emoji": "🍳",
+   "haul": "pickup",
+   "keywords": [
+    "commercial kitchen",
+    "ice machine",
+    "ice maker",
+    "food truck",
+    "concession trailer",
+    "griddle",
+    "fryer",
+    "commercial refrigerator",
+    "beverage cooler",
+    "chest freezer"
+   ],
+   "max_bid": 8000,
+   "value": {
+    "fixed": [
+     300,
+     4000
+    ]
+   }
+  },
+  {
+   "name": "Tables / seating",
+   "emoji": "🪑",
+   "haul": "pickup",
+   "keywords": [
+    "folding tables",
+    "folding table",
+    "folding chairs",
+    "stacking chairs",
+    "banquet tables",
+    "bleachers",
+    "seating"
+   ],
+   "not": [
+    "car seat",
+    "seat cover"
+   ],
+   "max_bid": 3000,
+   "value": {
+    "per_qty": [
+     10,
+     40
+    ],
+    "fallback": [
+     150,
+     1200
+    ]
+   }
+  },
+  {
+   "name": "Lighting",
+   "emoji": "🔦",
+   "haul": "pickup",
+   "keywords": [
+    "flood lights",
+    "floodlights",
+    "work lights",
+    "led lights",
+    "lights",
+    "lighting",
+    "stage lights"
+   ],
+   "not": [
+    "light tower",
+    "light bar",
+    "traffic light",
+    "dental light",
+    "surgical light",
+    "exam light",
+    "emergency light"
+   ],
+   "max_bid": 3000,
+   "value": {
+    "fixed": [
+     150,
+     1500
+    ]
+   }
+  }
+ ]
 }
