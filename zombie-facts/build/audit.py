@@ -70,6 +70,31 @@ def notice_text(doi):
     return ""
 
 
+def cochrane_reason(notice):
+    """Withdrawal reason for a Cochrane review, from PubMed's record or the Cochrane Library page."""
+    import urllib.request
+    out = []
+    try:
+        ids = get("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?" + urllib.parse.urlencode(
+            {"db": "pubmed", "term": notice + "[doi]", "retmode": "json"}), tries=2)["esearchresult"]["idlist"]
+        if ids:
+            x = get("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?" + urllib.parse.urlencode(
+                {"db": "pubmed", "id": ids[0], "rettype": "abstract", "retmode": "text"}), tries=2, raw=True)
+            out.append("PUBMED " + re.sub(r"\s+", " ", x.decode("utf-8", "replace"))[:900])
+    except Exception as e:
+        out.append(f"pubmed failed {e}")
+    try:
+        req = urllib.request.Request(f"https://www.cochranelibrary.com/cdsr/doi/{notice}/full",
+                                     headers={"User-Agent": "Mozilla/5.0"})
+        h = urllib.request.urlopen(req, timeout=40).read().decode("utf-8", "replace")
+        t = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", h))
+        hits = [t[max(0, m.start() - 200): m.start() + 400] for m in re.finditer(r"withdraw", t, re.I)][:3]
+        out.append("COCHRANE " + " ... ".join(hits))
+    except Exception as e:
+        out.append(f"cochrane failed {e}")
+    return " ## ".join(out)
+
+
 def notices():
     data = json.load(open(OUT))
     for p in data["papers"]:
@@ -78,6 +103,8 @@ def notices():
         t = notice_text(p["notice"]) if p.get("notice") else ""
         if not t.strip(" |"):
             t = notice_text(p["doi"])
+        if p["doi"].startswith("10.1002/14651858") and p.get("notice"):
+            print("COCHRANE", p["doi"], cochrane_reason(p["notice"]))
         print("NOTICE", json.dumps({"doi": p["doi"], "notice": p.get("notice"), "reasons": p["reasons"],
                                     "pages": [w["page"] for w in p["wiki"] if w["status"] == "zombie"],
                                     "text": t[:700]}, ensure_ascii=False))
