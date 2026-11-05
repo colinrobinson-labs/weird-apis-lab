@@ -21,7 +21,7 @@ OUTREACH = os.path.join(os.path.dirname(__file__), "..", "outreach.json")
 CONTEXT_DUMP = os.environ.get("ZF_DUMP_CONTEXT")  # optional path: write raw wikitext around each open citation
 
 SIG = re.compile(
-    r"\[\[\s*(?:User|User talk|Special:Contributions)\s*:\s*([^|\]/#]+)[^\]]*\]\]"  # user link
+    r"\[\[\s*(?:(?:User|User talk)\s*:|Special:Contributions\s*/)\s*([^|\]/#]+)[^\]]*\]\]"  # user or IP link
     r"(?:(?!\[\[\s*(?:User|User talk)\s*:).){0,240}?"                               # rest of signature
     r"(\d{1,2}:\d{2}, \d{1,2} [A-Z][a-z]+ \d{4} \(UTC\))", re.S)
 
@@ -191,6 +191,9 @@ def main():
     s["zombie_citations"] = sum(p["zombies"] for p in data["papers"])
     s["zombie_papers"] = sum(1 for p in data["papers"] if p["zombies"])
     s["monthly_reach"] = sum(p["reach"] for p in data["papers"])
+    s["flagged_citations"] = sum(len(p["wiki"]) - p["zombies"] for p in data["papers"])
+    s["zombie_pages"] = len({w["page"] for p in data["papers"] for w in p["wiki"] if w["status"] == "zombie"})
+    s["pages"] = len({w["page"] for p in data["papers"] for w in p["wiki"]})
     save(OUT, data)
     if outreach.get("notes"):
         save(OUTREACH, outreach, pretty=True)

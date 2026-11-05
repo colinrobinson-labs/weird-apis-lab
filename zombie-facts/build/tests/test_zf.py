@@ -96,6 +96,35 @@ x
         self.assertIsNone(R.find_section(self.TXT, "Missing"))
 
 
+    def test_ip_reply(self):
+        body = ("Note. [[User:ZombieFacts|ZombieFacts]] 12:00, 6 November 2026 (UTC)\n"
+                ":Fixed it. <small>[[Special:Contributions/203.0.113.7|203.0.113.7]]</small> 08:00, 9 November 2026 (UTC)\n")
+        rs = R.parse_replies(body, ["ZombieFacts"])
+        self.assertEqual([r["user"] for r in rs], ["203.0.113.7"])
+
+
+class Posting(unittest.TestCase):
+    def setUp(self):
+        import post_notes as P
+        self.P = P
+
+    def test_duplicate_section_detected(self):
+        P = self.P
+        orig = P.wikitext
+        P.wikitext = lambda page: "== Old ==\nx\n==  Retracted source:  Foo bar ==\nhi\n"
+        try:
+            self.assertTrue(P.already_posted("X", "Retracted source: Foo bar"))
+            self.assertFalse(P.already_posted("X", "Retracted source: Other"))
+        finally:
+            P.wikitext = orig
+
+    def test_no_nocreate_flag(self):
+        # MediaWiki treats any nocreate value as true, which blocks posting to talk pages that don't exist yet
+        with open(os.path.join(HERE, "..", "post_notes.py")) as f:
+            src = f.read()
+        self.assertNotIn('"nocreate"', src)
+
+
 class DataFile(unittest.TestCase):
     def test_shape(self):
         d = json.load(open(DATA))

@@ -13,7 +13,7 @@ approval before scheduling this; until then run it by hand (workflow_dispatch).
 Each note is re-checked against the live article first, so a citation fixed in
 the meantime is never reported.
 """
-import http.cookiejar, json, os, sys, time, urllib.parse, urllib.request
+import http.cookiejar, json, os, re, sys, time, urllib.parse, urllib.request
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -45,11 +45,22 @@ def login():
     return api({"action": "query", "meta": "tokens"})["query"]["tokens"]["csrftoken"]
 
 
-def still_cited(page, doi):
+def wikitext(page):
     r = api({"action": "query", "prop": "revisions", "rvprop": "content", "rvslots": "main", "titles": page})
     pg = (r.get("query", {}).get("pages") or [{}])[0]
-    txt = ((pg.get("revisions") or [{}])[0].get("slots", {}).get("main", {}).get("content") or "").lower()
-    return doi in txt
+    return (pg.get("revisions") or [{}])[0].get("slots", {}).get("main", {}).get("content") or ""
+
+
+def still_cited(page, doi):
+    txt = wikitext(page).lower()
+    return doi in txt or urllib.parse.quote(doi, safe="/").lower() in txt
+
+
+def already_posted(page, section):
+    """True when the talk page already has a section with this heading (a retry after a lost save)."""
+    want = re.sub(r"\s+", " ", section).strip().lower()
+    heads = re.findall(r"^==+\s*(.+?)\s*==+\s*$", wikitext("Talk:" + page), flags=re.M)
+    return any(re.sub(r"\s+", " ", h).strip().lower() == want for h in heads)
 
 
 def main():
@@ -64,21 +75,27 @@ def main():
     for n in queue:
         if not still_cited(n["page"], n["doi"]):
             n["status"] = "skipped"; n["why_skipped"] = "citation already gone before posting"
-            log("skip, already fixed:", n["page"]); continue
+            log("skip, already fixed:", n["page"]); save(OUTREACH, out, pretty=True); continue
+        if already_posted(n["page"], n["section"]):
+            n.update(status="posted", by=n.get("by") or account, posted=n.get("posted") or
+                     datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"))
+            log("already on the talk page, marking posted:", n["page"]); save(OUTREACH, out, pretty=True); continue
         if DRY:
             log("DRY RUN would post to Talk:" + n["page"], "|", n["section"]); continue
+        # never send nocreate: MediaWiki treats any value of it, even "0", as true, and many talk pages don't exist yet
         r = api({"action": "edit", "title": "Talk:" + n["page"], "section": "new", "sectiontitle": n["section"],
                  "text": n["text"], "summary": "Note: a cited source was retracted (Zombie Facts)",
-                 "token": csrf, "nocreate": "0"}, post=True)
+                 "token": csrf}, post=True)
         e = r.get("edit", {})
         if e.get("result") != "Success":
             log("post failed", n["page"], json.dumps(r)[:300]); n["status"] = "error"; n["error"] = json.dumps(r)[:300]
+            save(OUTREACH, out, pretty=True)
             continue
         n.update(status="posted", by=account, posted=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
                  diff=f"https://en.wikipedia.org/w/index.php?diff={e.get('newrevid')}")
+        save(OUTREACH, out, pretty=True)  # after every post, so a crash later can't cause a double post
         log("posted", n["page"], e.get("newrevid"))
         time.sleep(12)  # stay well under any editing rate limit
-    save(OUTREACH, out, pretty=True)
 
 
 if __name__ == "__main__":
