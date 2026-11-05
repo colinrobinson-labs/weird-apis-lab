@@ -5,33 +5,61 @@ on:
     - cron: "0 1 * * *"    # 5–6pm Pacific
   workflow_dispatch:
     inputs:
-      initial:
-        description: "First run: post a ranked summary of everything that matches"
-        type: boolean
-        default: false
+      mode:
+        description: "What to do"
+        type: choice
+        default: post
+        options:
+          - post            # normal run. The very first one posts the full first scan.
+          - first-scan      # post the ranked first scan again
+          - preview-only    # no Slack: build gear-tracker/live-preview.html from live data
 permissions:
   contents: write
 concurrency: gear-tracker
 jobs:
   scan:
     runs-on: ubuntu-latest
-    if: ${{ vars.GEAR_TRACKER_ENABLED == 'true' || github.event_name == 'workflow_dispatch' }}
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: gear-tracker
+    env:
+      GSA_API_KEY: ${{ secrets.GSA_API_KEY }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      MODE: ${{ inputs.mode || 'post' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Check setup
+        id: check
+        run: |
+          if [ "$MODE" = "preview-only" ]; then echo "go=yes" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if [ -z "$GSA_API_KEY" ] || [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "::notice::Gear tracker is not set up yet: add the GSA_API_KEY and SLACK_WEBHOOK_URL secrets (see gear-tracker/setup.html). Skipping."
+            echo "go=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=yes" >> "$GITHUB_OUTPUT"
+          fi
       - name: Scan and post
-        env:
-          GSA_API_KEY: ${{ secrets.GSA_API_KEY }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: python gear_tracker.py ${{ inputs.initial && '--initial' || '' }}
-      - name: Remember what was posted
+        if: steps.check.outputs.go == 'yes'
+        run: |
+          case "$MODE" in
+            preview-only) python gear_tracker.py --preview live-preview.html --dump live-sample.json ;;
+            first-scan)   python gear_tracker.py --initial ;;
+            *)            python gear_tracker.py ;;
+          esac
+      - name: Save state
+        if: steps.check.outputs.go == 'yes'
         run: |
           git config user.name "gear-tracker"
           git config user.email "actions@users.noreply.github.com"
-          git add seen.json digest.md
-          git diff --cached --quiet || (git commit -m "gear tracker: update seen lots" && git push)
+          for f in seen.json zipcache.json digest.md live-preview.html live-sample.json; do if [ -f "$f" ]; then git add "$f"; fi; done
+          git diff --cached --quiet && exit 0
+          git commit -q -m "gear tracker: $MODE run [skip ci]"
+          for i in 1 2 3 4; do
+            git pull -q --rebase origin "$GITHUB_REF_NAME" && git push -q origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep $((i * 5))
+          done
+          echo "::error::Could not save seen.json"; exit 1
