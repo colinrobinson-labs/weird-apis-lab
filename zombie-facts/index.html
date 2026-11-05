@@ -81,7 +81,7 @@ h1 .l2 i{font-style:normal;display:inline-block;animation:twitch 7s infinite ste
 .ekg .l-a{left:var(--pad);color:var(--ink)}.ekg .l-r{left:50%;transform:translateX(-50%);color:var(--blood)}.ekg .l-z{right:var(--pad);color:var(--acidInk)}
 
 /* ticker */
-.ticker{overflow:hidden;border-bottom:1px solid var(--ink);margin:0 calc(var(--pad)*-1);background:var(--ink);color:var(--paper)}
+.ticker{overflow:hidden;border-bottom:1px solid var(--ink);margin:0 calc(var(--pad)*-1);background:#141412;color:#ebe8dc}
 .ticker .row{display:flex;gap:44px;width:max-content;padding:11px 0;animation:tick 160s linear infinite;font:italic 400 17px/1.3 var(--serif)}
 .ticker:hover .row{animation-play-state:paused}
 .ticker .it{white-space:nowrap}
@@ -414,8 +414,9 @@ function lifeSVG(p,h=30,big){
 }
 const undeadYears=p=>{const r=yr(p.retracted);return r?Math.max(0,NY-r):0};
 const ago=p=>{const u=undeadYears(p);return u<1?Math.max(1,Math.round(u*12))+" months":(u<2?"1 year":Math.floor(u)+" years")};
-const z1=p=>(p.wiki||[]).find(w=>w.status==="zombie")||p.wiki[0];
-const said=(w,max=260)=>{let s=(w&&w.said||"").trim();if(s.length<12)return "";if(s.length>max)s="…"+s.slice(-max).replace(/^\S*\s/,"");return s};
+const z1=p=>(p.wiki||[]).find(w=>w.status==="zombie"&&said(w))||(p.wiki||[]).find(w=>w.status==="zombie")||p.wiki[0];
+const LISTSEC=/^(references|further reading|bibliography|sources|notes|external links|citations|works cited|literature)/i;
+const said=(w,max=260)=>{if(!w||LISTSEC.test(w.section||""))return "";let s=(w.said||"").trim();if(s.length<25||/^[\W\d]+$/.test(s)||/^(doi|isbn|pmid)\b/i.test(s))return "";if(s.length>max)s="…"+s.slice(-max).replace(/^\S*\s/,"");return s};
 
 /* ---------- data ---------- */
 let D=null,ZP=[];
