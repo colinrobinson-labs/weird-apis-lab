@@ -1,55 +1,45 @@
-# Gear Deal Tracker
+# Gear Tracker
 
-A Slack channel that posts federal surplus auction lots for event-production gear, such as generators, light towers, trucks, trailers, lifts, barricades, staging, radios, power distro and sanitation. Each post is a card with:
+A Slack bot that watches every open federal surplus auction (GSA Auctions) in CA, AZ, NV, OR and UT and posts event-production gear to a Slack channel: light towers, generators, UTVs and golf carts, forklifts, reefers and containers, water trailers and trucks, trailers, pickups and box trucks, barricades, staging, radios, power distro, cooling, concessions gear, seating and lighting.
 
-- **Photo**, when GSA has one
-- **Current bid**, plus how many bidders
-- **Deal score** (🔥 to 🔥🔥🔥🔥🔥), which compares the bid with a rough used-market range. Generators are valued per kW and barricades and radios per unit, and the ranges live in `config.json`.
-- **Condition**, read from the listing ("runs", "operational", "untested", "rust", hours, year). A bad sign costs one 🔥.
-- **Location and distance** from La Mesa, with a Directions button
-- **How to buy**: online auction, bid increment, reserve, soft-close rules, inspection instructions and the contracting officer's contact details
-- **Compare sold prices**, which opens eBay sold listings for the same item
+**Set it up:** open [setup.html](https://colinrobinson-labs.github.io/weird-apis-lab/gear-tracker/setup.html). It's five steps in the browser, about 10 minutes.
+**See the posts:** [preview.html](https://colinrobinson-labs.github.io/weird-apis-lab/gear-tracker/preview.html) is built from real GSA lots.
 
-It runs twice a day and only posts lots it hasn't posted before. The first run (`--initial`) posts a ranked summary plus the top 15 lots.
+## What each post tells you
 
-See [preview.html](preview.html) for what the cards look like. It's rendered from `sample.json`.
+| | |
+|---|---|
+| Photo | GSA's lot photo |
+| Current bid | plus bidder count, or "no bids yet" |
+| Typical used value | a rough range for working gear. Generators are valued per kW, and barricades, radios and seating per unit |
+| All-in cost | next bid plus round-trip hauling from La Mesa |
+| Deal score | 🔥 to 🔥🔥🔥🔥🔥, all-in cost vs the value range. Condition risk costs flames |
+| Walk-away bid | 60% of the low value, minus hauling. Bid up to this and it's still a good deal |
+| Condition | GSA's own grade (new, used, repairable, salvage), plus what the listing says (runs, operable, hours, mileage, leaks, missing parts) |
+| Location | address, miles and drive time from La Mesa, selling agency, Directions button |
+| Format | bid only (GSA has no Buy Now), increment, reserve or hidden reserve, soft-close rule |
+| How to buy | 5 steps: register, inspect (with the lot's own instructions), bid, pay by the real deadline, remove by the real deadline |
+| Contacts | GSA sales officer and the on-site contact, with an Email button |
 
-## Setup (about 15 minutes)
+It checks at about 7am and 5pm Pacific and only posts lots it hasn't posted before. A good deal (🔥🔥🔥+) you've already seen gets one ⏰ reminder in its last 24 hours. The very first run posts a ranked summary plus the top 15.
 
-1. **Get the API key.** Sign up free at https://api.data.gov/signup/. The key arrives by email.
-2. **Create the Slack channel.** In Slack, make a channel such as `#gear-deals` and invite anyone you want in it.
-3. **Create the Slack app.** Go to https://api.slack.com/apps → Create New App → From an app manifest → pick your workspace → paste this:
-   ```yaml
-   display_information:
-     name: Gear Tracker
-     description: Event gear deals from government surplus auctions
-     background_color: "#1a1d21"
-   features:
-     bot_user:
-       display_name: Gear Tracker
-   oauth_config:
-     scopes:
-       bot:
-         - incoming-webhook
-   ```
-   Then go to Install to Workspace → choose `#gear-deals` → Allow. Under **Incoming Webhooks**, copy the webhook URL.
-4. **Add the secrets to GitHub.** In this repo, go to Settings → Secrets and variables → Actions:
-   - Under Secrets, add `GSA_API_KEY` and `SLACK_WEBHOOK_URL`.
-   - Under Variables, add `GEAR_TRACKER_ENABLED` = `true`. This turns on the twice-daily schedule.
-5. **Run the first scan.** Go to Actions → Gear tracker → Run workflow, tick "First run", and click Run. The channel gets the summary and the top lots within about a minute.
+## Files
 
-## Tune it (`config.json`)
-- `home`: where distance is measured from.
-- `states`, `max_miles`: where to look.
-- `exclude`: words that drop a lot (for example "parts only").
-- Each category has `keywords`, a `max_bid` cap, and a `value` range used for the deal score.
+- `gear_tracker.py`: the bot. Python 3.9+, no packages.
+- `config.json`: what to look for. Edit `states`, `max_miles`, `exclude`, each category's `keywords`, `not` (false matches to skip), `max_bid` and `value`, and `haul_per_mile`.
+- `seen.json`, `zipcache.json`: the bot's memory, saved by the workflow.
+- `../.github/workflows/gear-tracker.yml`: the schedule. **Run workflow** has three modes: `post` (normal), `first-scan` (post the ranked scan again), `preview-only` (rebuild `live-preview.html` from live data, no Slack).
 
-## Test without keys
+## Test locally
 ```
-python gear_tracker.py --fixture sample.json --initial --preview preview.html
+python gear_tracker.py --fixture sample.json --initial --preview out.html
+python gear_tracker.py --preview out.html          # live data, uses DEMO_KEY if GSA_API_KEY isn't set
 ```
 
 ## Limits
-- Federal surplus only (GSA Auctions). State and city surplus (GovDeals, PublicSurplus) has no public API.
-- Values are rules of thumb, not appraisals. The "Compare sold prices" button is the reality check.
-- Bids usually climb in the final hours, so the score is a snapshot of right now.
+
+- Federal surplus only. State and city surplus (GovDeals, PublicSurplus) has no public API.
+- The feed gives the closing date but not the time. The exact time is on the lot page.
+- Values are rules of thumb, not appraisals. The "Sold prices on eBay" button is the reality check.
+- Bids usually climb in the last hours, so the score is a snapshot.
+- GSA's documentation lists PascalCase field names (`ItemName`) but the live feed sends camelCase (`itemName`) and puts the full description in HTML (`lotInfo`). The bot handles both.

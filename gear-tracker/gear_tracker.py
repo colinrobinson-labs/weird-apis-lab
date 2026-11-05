@@ -147,7 +147,7 @@ def summary_of(lot):
     keep = []
     for line in lot.get("_info", "").split("\n"):
         line = line.strip(" •")
-        if len(line) < 8 or BOILER.search(line):
+        if len(line) < 8 or BOILER.search(line) or re.fullmatch(r"(?i)(overview|specifications?|key features|description|details|condition & markings)\W*", line):
             continue
         keep.append(line.rstrip(".") + ".")
         if sum(len(x) for x in keep) > 260:
@@ -507,7 +507,8 @@ def money_s(v):
 
 def esc(x):
     """Escape for Slack mrkdwn."""
-    return s(x).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    x = re.sub(r"[*_~`]{2,}|(?<!\w)[*_~`]|[*_~`](?!\w)", "", s(x))  # GSA uses ***emphasis***, which breaks Slack formatting
+    return x.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
 def end_s(a):
@@ -765,7 +766,9 @@ def main():
             sys.exit("Set GSA_API_KEY (free at https://api.data.gov/signup/)")
         lots = fetch_lots(key)
         if args.dump:
-            slim = [{**{k: v for k, v in l.items() if k != "lotInfo"}, "lotInfo": s(l.get("lotInfo"))[:6000]} for l in lots if isinstance(l, dict)]
+            want = set(cfg.get("states") or [])
+            slim = [{**{k: v for k, v in l.items() if k != "lotInfo"}, "lotInfo": s(l.get("lotInfo"))[:6000]} for l in lots
+                    if isinstance(l, dict) and (not want or s(l.get("propertyState") or l.get("PropertyState")).upper() in want)]
             Path(args.dump).write_text(json.dumps({"fetched": now.isoformat(), "total": len(lots), "lots": slim}, indent=0))
     lots = [x for x in (normalize(l) for l in lots) if x]
     log(f"{len(lots)} open lots from GSA")
@@ -809,8 +812,13 @@ def main():
 
     save_zip_cache()
     if args.preview:
-        note = ("Built from live GSA data on " + now.strftime("%b %d, %Y") + ".") if not args.fixture else \
-               "Sample data, so you can see the layout. Real posts use live GSA listings and their photos."
+        fetched = load_json(args.fixture, {}).get("fetched") if args.fixture else now.isoformat()
+        if fetched:
+            when = dt.datetime.fromisoformat(fetched).astimezone(PACIFIC)
+            note = (f"These are real GSA lots, pulled {when.strftime('%b')} {when.day} at {when.strftime('%-I:%M %p')} PT, exactly as the bot would post them. "
+                    "Bids and deadlines will have moved since. Distances and hauling are from La Mesa.")
+        else:
+            note = "Sample data, so you can see the layout. Real posts use live GSA listings and their photos."
         Path(args.preview).write_text(preview_html(groups, note))
         print("preview written to", args.preview)
         return
