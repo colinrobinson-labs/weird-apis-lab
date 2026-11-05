@@ -514,7 +514,8 @@ async function load(){
   if(!D||!D.papers||!D.papers.length){fallback();return}
   ZP=D.papers.map((p,i)=>({...p,title:cleanT(p.title),i,_c:causesOf(p),_sup:!causesOf(p).some(c=>CAUSES.some(x=>x[0]===c))&&(p.reasons||[]).some(r=>SUP.test(r)),_s:(p.title+" "+p.journal+" "+(p.authors||[]).join(" ")+" "+p.wiki.map(w=>w.page).join(" ")+" "+(p.subject||[]).join(" ")).toLowerCase()}));
   const S=D.stats;
-  ZP.forEach(p=>p._z=p._sup?0:p.zombies);
+  const DIS=new Set(OUT.filter(n=>n.status==="dismissed").map(n=>n.key));
+  ZP.forEach(p=>{p.wiki.forEach(w=>{if(w.status==="zombie"&&DIS.has(p.doi+"|"+w.page))w.status="reviewed"});p.zombies=p.wiki.filter(w=>w.status==="zombie").length;p.reach=p.wiki.reduce((a,w)=>a+(w.status==="zombie"?w.views:0),0);p.wiki.sort((a,b)=>(a.status!=="zombie")-(b.status!=="zombie")||b.views-a.views);p._z=p._sup?0:p.zombies});
   const LZ=ZP.filter(p=>p._z),pg={};LZ.forEach(p=>p.wiki.forEach(w=>{if(w.status==="zombie")pg[w.page]=w.views}));
   const C={zc:LZ.reduce((a,p)=>a+p._z,0),zp:Object.keys(pg).length,mr:Object.values(pg).reduce((a,b)=>a+b,0)};
   document.querySelectorAll("[data-c]").forEach(el=>countUp(el,C[el.dataset.c]));
@@ -573,7 +574,7 @@ function render(){
       ${s?`<p class="said"><b>${esc(w.page)}</b>“${esc(s)}”</p>`:`<p class="said"><b>${esc(w.page)}</b></p>`}</div>
     <div class="st"><div class="c3"><span class="k">Zombie cites</span><span class="v ${p.zombies?"z":""}">${p.zombies}${p.wiki.length>p.zombies?`<small class="mono" style="font-size:11px;color:var(--flag)"> +${p.wiki.length-p.zombies}</small>`:""}</span></div>
     <div class="c4"><span class="k">Undead</span><span class="v">${ago(p).replace(" years","y").replace(" year","y").replace(" months","mo")}</span></div></div></li>`}).join("");
-  $("more").hidden=L.length<=shown;$("more").textContent=`Show ${Math.min(30,L.length-shown)} more of ${full(L.length-shown)}`;
+  $("more").hidden=L.length<=shown;$("more").textContent=L.length-shown>30?`Show 30 more · ${full(L.length-shown)} left`:`Show the last ${full(L.length-shown)}`;
   bindOpen($("reg"),"li[data-i]");
 }
 $("more").onclick=()=>{shown+=30;render()};
@@ -617,7 +618,7 @@ function show(p){
    <p class="by">${esc((p.authors||[]).slice(0,4).join(", "))}${(p.authors||[]).length>4?" et al.":""}<br>${esc(p.journal)}${p.publisher?" · "+esc(p.publisher):""}${p.cites?` · cited ${full(p.cites)} times by other papers`:""}</p>
    <div class="tl">${lifeSVG(p,56,1)}<div class="ty"><span>Published ${esc(fmtDate(p.published)||"?")}</span><span style="color:var(--blood)">Retracted ${esc(fmtDate(p.retracted))}</span><span style="color:var(--acidInk)">Now · ${ago(p)} undead</span></div></div>
    ${p.reasons&&p.reasons.length?`<div class="cause">${p.reasons.slice(0,8).map(r=>`<span>${esc(r)}</span>`).join("")}</div>`:""}
-   <div class="ws"><h4>Where Wikipedia still uses it</h4>${ws.map((w,wi)=>`<div class="w ${w.status==="zombie"?"":"fl"}"><div class="wt"><a href="${wurl(w.page,w.section)}" target="_blank" rel="noopener">${esc(w.page)}</a><span class="pill ${w.status==="zombie"?"z":"fl"}">${w.status==="author"?"author's own page":w.status}</span></div>
+   <div class="ws"><h4>Where Wikipedia still uses it</h4>${ws.map((w,wi)=>`<div class="w ${w.status==="zombie"?"":"fl"}"><div class="wt"><a href="${wurl(w.page,w.section)}" target="_blank" rel="noopener">${esc(w.page)}</a><span class="pill ${w.status==="zombie"?"z":"fl"}">${w.status==="author"?"author's own page":w.status==="reviewed"?"reviewed · ok":w.status}</span></div>
      ${said(w,500)?`<blockquote>${esc(said(w,500))}</blockquote>`:""}<div class="wm">${w.section?esc(w.section)+" · ":""}${full(w.views)} views in the last 30 days</div>${w.status==="zombie"?fixRow(p,w,wi):""}</div>`).join("")}</div>
    <div class="acts"><a class="p" href="https://doi.org/${esc(p.notice||p.doi)}" target="_blank" rel="noopener">Retraction notice</a><a href="https://doi.org/${esc(p.doi)}" target="_blank" rel="noopener">The paper</a>${p.zombies?`<button id="cpy">Copy note to editors</button>`:""}<button id="shr">Share</button>${p.zombies&&said(z1(p))?`<button id="card">Save share image</button>`:""}</div>`;
   const z=ws.find(w=>w.status==="zombie");
