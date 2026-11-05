@@ -4,228 +4,328 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Zombie Facts</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="description" content="Research that was officially retracted but is still being cited on Wikipedia. Found live from Crossref and Wikipedia.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0f1210;--panel:#171c18;--line:#2a332c;--ink:#e8efe6;--mute:#93a294;--zombie:#9be15d;--warn:#ffb547;--dead:#ff5d5d;--ok:#5dc8ff}
-@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f4f6f1;--panel:#fff;--line:#dde3da;--ink:#141a15;--mute:#5d6b5f;--zombie:#3f8a12;--warn:#b86a00;--dead:#c62828;--ok:#0b6fa8}}
-:root[data-theme="dark"]{--bg:#0f1210;--panel:#171c18;--line:#2a332c;--ink:#e8efe6;--mute:#93a294;--zombie:#9be15d;--warn:#ffb547;--dead:#ff5d5d;--ok:#5dc8ff}
+:root{--paper:#efebe0;--card:#f8f5ec;--ink:#121210;--mute:#6b675c;--rule:#1212101f;--hl:#c8ff2e;--rot:#3d7a18;--dead:#b3261e;--flag:#2b5fa8;
+ --head:"Anton",Impact,sans-serif;--serif:"Newsreader",Georgia,serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#0f100d;--card:#171813;--ink:#ecebe2;--mute:#9b988c;--rule:#ecebe21f;--hl:#b6f01e;--rot:#a6e34f;--dead:#ff7468;--flag:#7fb0ff;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0f100d;--card:#171813;--ink:#ecebe2;--mute:#9b988c;--rule:#ecebe21f;--hl:#b6f01e;--rot:#a6e34f;--dead:#ff7468;--flag:#7fb0ff;color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
-.wrap{max-width:1100px;margin:0 auto;padding:24px 16px 80px}
-h1{font-family:"Archivo Black",sans-serif;font-size:clamp(34px,7vw,64px);line-height:1;margin:0;letter-spacing:-.02em}
-h1 span{color:var(--zombie)}
-.tag{color:var(--mute);margin:10px 0 22px;max-width:680px}
-.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px}
-button,select{font:inherit;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer}
-button.primary{background:var(--zombie);color:#0f1210;border-color:var(--zombie);font-weight:600}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px}
-.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
-.stat b{display:block;font-family:"Archivo Black",sans-serif;font-size:28px}
-.stat small{color:var(--mute)}
-.status{font:12px "IBM Plex Mono",monospace;color:var(--mute);margin-bottom:12px;min-height:18px}
-.grid{display:grid;grid-template-columns:1fr;gap:12px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:8px}
-.card.zombie{border-left:4px solid var(--zombie)}
-.card.clean{opacity:.75}
-.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.pill{font:600 11px "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.04em;padding:3px 8px;border-radius:99px;border:1px solid currentColor}
-.p-z{color:var(--zombie)}.p-r{color:var(--dead)}.p-c{color:var(--mute)}.p-w{color:var(--warn)}.p-o{color:var(--ok)}
-.title{font-weight:600;font-size:16px}
-.meta{color:var(--mute);font-size:13px}
-.meta a,.card a{color:var(--ok)}
-ul.hits{margin:4px 0 0;padding-left:18px}
-ul.hits li{margin:2px 0}
-.outreach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:12px "IBM Plex Mono",monospace;color:var(--mute)}
-.step{padding:3px 8px;border-radius:6px;border:1px dashed var(--line)}
-.step.on{border-style:solid;border-color:var(--zombie);color:var(--ink)}
-details{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-top:22px}
-summary{cursor:pointer;font-weight:600}
-table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
-td,th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
-pre{white-space:pre-wrap;font:12px/1.5 "IBM Plex Mono",monospace;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
-.demo{color:var(--warn);font-weight:600}
+html,body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.5 var(--serif)}
+body{padding:0 16px}
+.wrap{max-width:1120px;margin:0 auto;padding:18px 0 80px}
+a{color:inherit;text-decoration-thickness:1px;text-underline-offset:2px}
+.mast{display:flex;justify-content:space-between;align-items:center;font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--mute);border-bottom:3px double var(--ink);padding-bottom:8px}
+.mast button{font:inherit;background:none;border:1px solid var(--rule);color:var(--ink);padding:4px 8px;border-radius:4px;cursor:pointer}
+h1{font:400 clamp(64px,15vw,190px)/.86 var(--head);letter-spacing:-.01em;margin:22px 0 4px;text-transform:uppercase}
+h1 em{font-style:normal;background:var(--hl);color:#121210;padding:0 .06em}
+.dek{display:grid;grid-template-columns:2fr 1fr;gap:28px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:14px 0;margin-top:14px}
+@media (max-width:760px){.dek{grid-template-columns:1fr}}
+.dek p{margin:0;font-size:20px;line-height:1.4}
+.dek p:first-letter{font:400 56px/.8 var(--head);float:left;margin:4px 8px 0 0}
+.tally{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:start}
+.tally div{border-left:3px solid var(--ink);padding-left:10px}
+.tally b{display:block;font:400 40px/1 var(--head)}
+.tally span{font:11px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--mute)}
+.tabs{display:flex;gap:0;margin:28px 0 0;border-bottom:3px solid var(--ink);overflow-x:auto}
+.tabs button{font:400 22px var(--head);text-transform:uppercase;letter-spacing:.02em;background:none;border:0;color:var(--mute);padding:8px 16px 6px;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--paper);background:var(--ink)}
+section[hidden]{display:none}
+.intro{display:flex;justify-content:space-between;gap:16px;align-items:end;flex-wrap:wrap;margin:16px 0}
+.intro p{margin:0;max-width:66ch;color:var(--mute);font-size:16px}
+.go{font:600 13px var(--mono);text-transform:uppercase;letter-spacing:.06em;background:var(--ink);color:var(--paper);border:0;padding:12px 18px;cursor:pointer;border-radius:2px}
+.go:disabled{opacity:.5;cursor:wait}
+.status{font:12px var(--mono);color:var(--mute);min-height:18px;margin:6px 0 12px}
+.status i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--rot);margin-right:6px;animation:p 1s ease-in-out infinite}
+@keyframes p{50%{opacity:.2}}
+.grid{columns:3 320px;column-gap:20px}
+.ob{break-inside:avoid;background:var(--card);border:1px solid var(--rule);border-top:6px solid var(--ink);padding:14px 16px 12px;margin:0 0 20px;animation:rise .4s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}}
+@media (prefers-reduced-motion:reduce){.ob,.status i{animation:none}}
+.ob.z{border-top-color:var(--rot)}
+.ob .tag{display:flex;gap:6px;flex-wrap:wrap;font:600 10.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.tag span{padding:2px 6px;border:1px solid currentColor}
+.t-z{color:var(--rot);background:color-mix(in srgb,var(--hl) 35%,transparent)}
+.t-d{color:var(--dead)}
+.t-f{color:var(--flag)}
+.t-m{color:var(--mute)}
+.ob h3{font:600 20px/1.2 var(--serif);margin:0 0 6px}
+.ob .who{font:italic 15px var(--serif);color:var(--mute);margin:0 0 8px}
+.life{display:flex;align-items:center;gap:8px;font:600 12px var(--mono);margin:8px 0}
+.life .bar{flex:1;height:6px;background:linear-gradient(90deg,var(--ink) var(--a),var(--dead) var(--a),var(--dead) calc(var(--a) + 2px),var(--rot) calc(var(--a) + 2px));opacity:.85}
+.cites{list-style:none;padding:0;margin:8px 0 0;font-size:15px;border-top:1px dashed var(--rule)}
+.cites li{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--rule)}
+.cites li small{font:600 10px var(--mono);text-transform:uppercase;white-space:nowrap;align-self:center}
+.foot{display:flex;justify-content:space-between;gap:8px;margin-top:10px;font:11px var(--mono);color:var(--mute);flex-wrap:wrap}
+.foot button{font:inherit;background:none;border:1px solid var(--rule);color:var(--ink);padding:3px 7px;cursor:pointer}
+.why{font-size:15px;margin:6px 0 0}
+.scan{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.scan input{flex:1 1 320px;font:16px var(--serif);padding:12px;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:0}
+.chips{display:flex;gap:6px;flex-wrap:wrap;font:12px var(--mono);color:var(--mute);align-items:center}
+.chips button{font:12px var(--mono);background:none;border:1px solid var(--rule);color:var(--ink);padding:4px 8px;cursor:pointer}
+.method{margin-top:48px;border-top:3px double var(--ink);padding-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.method h4{font:400 24px var(--head);text-transform:uppercase;margin:0 0 6px}
+.method p,.method li{font-size:15px;color:var(--mute)}
+.method ol{padding-left:20px;margin:0}
+pre{white-space:pre-wrap;font:12px/1.5 var(--mono);background:var(--card);border:1px solid var(--rule);padding:12px;margin:0}
+footer{margin-top:30px;font:11px var(--mono);color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+.empty{font-style:italic;color:var(--mute);padding:20px 0}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);font:12px var(--mono);padding:8px 12px;opacity:0;transition:.2s;pointer-events:none}
+.toast.on{opacity:1}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>ZOMBIE <span>FACTS</span></h1>
-  <p class="tag">Facts that officially died but keep walking around. We pull fresh retractions from Crossref (which includes the Retraction Watch database), then check whether Wikipedia is still citing them. Every match is a zombie. v0.1: detection is live, outreach is a mock.</p>
-
-  <div class="bar">
-    <button class="primary" id="run">Scan latest retractions</button>
-    <select id="rows"><option value="20">20 retractions</option><option value="40" selected>40 retractions</option><option value="80">80 retractions</option></select>
-    <select id="filter"><option value="all">Show all</option><option value="zombie" selected>Zombies only</option></select>
-    <button id="theme" aria-label="Toggle theme">◐</button>
+  <div class="mast"><span>The register of facts that died and kept walking</span><span id="today"></span><button id="theme" aria-label="Toggle theme">◐</button></div>
+  <h1>Zombie<br><em>Facts</em></h1>
+  <div class="dek">
+    <p>Science corrects itself, but citations don't. When a paper is retracted, the people who cited it are never told. Zombie Facts checks the official retraction record against Wikipedia, live, and shows every place a dead paper is still being used as evidence.</p>
+    <div class="tally">
+      <div><b id="nRet">0</b><span>retractions checked</span></div>
+      <div><b id="nZ">0</b><span>zombie citations</span></div>
+      <div><b id="nF">0</b><span>already flagged</span></div>
+      <div><b id="nP">0</b><span>Wikipedia pages hit</span></div>
+    </div>
   </div>
 
-  <div class="stats">
-    <div class="stat"><b id="sRet">–</b><small>retractions scanned</small></div>
-    <div class="stat"><b id="sZ">–</b><small>zombies (still cited)</small></div>
-    <div class="stat"><b id="sCit">–</b><small>live Wikipedia citations</small></div>
-    <div class="stat"><b id="sAge">–</b><small>oldest zombie (yrs since pub)</small></div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="famous">Famous zombies</button>
+    <button role="tab" aria-selected="false" data-tab="sweep">Random sweep</button>
+    <button role="tab" aria-selected="false" data-tab="fresh">Fresh retractions</button>
+    <button role="tab" aria-selected="false" data-tab="scan">Scan an article</button>
+  </nav>
+
+  <section id="famous">
+    <div class="intro"><p>High-profile retractions, re-verified against Crossref every time you load this page. Below each one, every English Wikipedia article that still cites it, sorted into <b style="color:var(--rot)">zombie</b> (cited with no mention of the retraction nearby) or <b style="color:var(--flag)">flagged</b> (the article already says it was retracted).</p></div>
+    <div class="status" id="sFamous"></div>
+    <div class="grid" id="gFamous"></div>
+  </section>
+
+  <section id="sweep" hidden>
+    <div class="intro"><p>Pulls a random sample of 100 retraction notices from the whole Crossref record (which includes the Retraction Watch database), ranks the dead papers by how often they were cited, then checks the top 30 against Wikipedia.</p><button class="go" id="bSweep">Run a sweep</button></div>
+    <div class="status" id="sSweep"></div>
+    <div class="grid" id="gSweep"></div>
+  </section>
+
+  <section id="fresh" hidden>
+    <div class="intro"><p>The newest retraction notices. Most are too new to have been cited on Wikipedia yet, which is the point: this is the list to watch.</p><button class="go" id="bFresh">Load the latest 40</button></div>
+    <div class="status" id="sFresh"></div>
+    <div class="grid" id="gFresh"></div>
+  </section>
+
+  <section id="scan" hidden>
+    <div class="intro"><p>Paste any English Wikipedia article. We pull every DOI it cites and ask Crossref whether any of them have been retracted.</p></div>
+    <div class="scan"><input id="qScan" placeholder="Article title or URL, e.g. Hydroxychloroquine"><button class="go" id="bScan">Scan</button></div>
+    <div class="chips">Try: <button>Hydroxychloroquine</button><button>Amyloid beta</button><button>Room-temperature superconductor</button><button>MMR vaccine and autism</button><button>Stem cell</button></div>
+    <div class="status" id="sScan"></div>
+    <div class="grid" id="gScan"></div>
+  </section>
+
+  <div class="method">
+    <div><h4>How it works</h4><ol>
+      <li>Retractions come from Crossref. A retraction notice links to the paper it kills, and we confirm that link live.</li>
+      <li>Wikipedia is searched for the exact DOI in article source.</li>
+      <li>For each hit we read the citation and the text around it. If it says “retracted” or uses Wikipedia's Retracted template, it's <b>flagged</b>. If not, it's a <b>zombie</b>.</li></ol></div>
+    <div><h4>What a zombie isn't</h4><p>A zombie citation is not an accusation. Some articles cite a retracted paper on purpose, to discuss the retraction. Our check catches most of those as flagged, but a human should read the context before anyone edits. Every card links to the exact article and the official notice.</p></div>
+    <div><h4>Notice we'd send</h4><pre id="tpl">Hi, a note from Zombie Facts, a free public tracker of retracted research.
+
+"{PAGE}" cites:
+  {TITLE}
+  https://doi.org/{DOI}
+which was retracted ({NOTICE}).
+
+If the citation is there on purpose, no action needed. Otherwise you may want to replace it or mark it with {{Retracted}}.</pre></div>
   </div>
-  <div class="status" id="status">Press scan. Each retraction takes one Crossref lookup and one Wikipedia search.</div>
-  <div class="grid" id="list"></div>
-
-  <details>
-    <summary>How detection works (and how reliable it is)</summary>
-    <table>
-      <tr><th>Step</th><th>Source</th><th>Reliability</th></tr>
-      <tr><td>1. Find retraction notices, newest first</td><td>Crossref REST API, <code>filter=update-type:retraction</code>. Notices carry <code>update-to</code> pointing at the original DOI.</td><td>A. Publisher-registered, and Retraction Watch data merged into Crossref.</td></tr>
-      <tr><td>2. Look up the original paper</td><td>Crossref <code>/works/{doi}</code></td><td>A</td></tr>
-      <tr><td>3. Is it still cited?</td><td>Wikipedia search, <code>insource:"DOI"</code> across English Wikipedia</td><td>B. An exact DOI match is strong. A page may already say "retracted" next to it, which v0.2 will check before flagging.</td></tr>
-      <tr><td>4. News still citing it</td><td>GDELT DOC API (planned v0.2)</td><td>C. Fuzzy title match needs human review.</td></tr>
-    </table>
-    <p class="meta">Rule: we never call the people citing it liars. A zombie is a citation that predates or ignores an official correction. The outreach message says exactly that.</p>
-  </details>
-
-  <details>
-    <summary>Outreach loop (mock, needs a backend in v0.2)</summary>
-    <p class="meta">Detected → Notified (polite note to the page talk/editor or newsroom corrections desk) → Responded → Fixed or Declined. Every step is public with timestamps. Draft notice:</p>
-    <pre id="draft">Hi, a quick heads-up from Zombie Facts, a free public tracker of facts that were officially corrected.
-
-Your page "{PAGE}" cites:
-  {TITLE} ({DOI})
-That paper was retracted by {PUBLISHER} on {DATE}. Notice: https://doi.org/{NOTICE}
-
-No action is required. If you update or annotate the citation, reply and we'll mark it fixed publicly. If you think the retraction doesn't affect your use of it, tell us and we'll publish your response alongside.
-
-Thanks for keeping things accurate.</pre>
-  </details>
+  <footer>Zombie Facts · prototype v0.2 · data: Crossref REST API (incl. Retraction Watch), Wikipedia API · not affiliated with either</footer>
 </div>
+<div class="toast" id="toast"></div>
 
 <script>
-const $ = id => document.getElementById(id);
-const UA_MAILTO = ''; // add a contact address before production for Crossref's polite pool
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-let usingDemo = false;
+(()=>{
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const CR="https://api.crossref.org";
+$("today").textContent=new Date().toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+$("theme").onclick=()=>{const r=document.documentElement,d=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=d?"light":"dark"};
+const toast=m=>{const e=$("toast");e.textContent=m;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1500)};
 
-$('theme').onclick = () => {
-  const r = document.documentElement;
-  const dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-  r.dataset.theme = dark ? 'light' : 'dark';
-};
+/* tabs */
+const loaded={};
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));document.querySelectorAll("section").forEach(s=>s.hidden=s.id!==b.dataset.tab)});
 
-async function getJSON(url){
-  const res = await fetch(url);
-  if(!res.ok) throw new Error(res.status + ' ' + url);
-  return res.json();
-}
+/* tallies */
+const tally={ret:new Set(),z:0,f:0,p:new Set()};
+const bump=()=>{$("nRet").textContent=tally.ret.size;$("nZ").textContent=tally.z;$("nF").textContent=tally.f;$("nP").textContent=tally.p.size};
 
-const DEMO = [
-  {notice:'10.1000/demo.notice1', original:'10.1000/demo.paper1', title:'Demo: Hydroxy compound reduces viral load in hospitalized patients', publisher:'Demo Journal of Medicine', retracted:'2026-10-21', published:2020, hits:[{title:'Demo article A'},{title:'Demo article B'}]},
-  {notice:'10.1000/demo.notice2', original:'10.1000/demo.paper2', title:'Demo: Superconductivity at room temperature in a doped lattice', publisher:'Demo Physics Letters', retracted:'2026-10-18', published:2023, hits:[{title:'Demo article C'}]},
-  {notice:'10.1000/demo.notice3', original:'10.1000/demo.paper3', title:'Demo: Effects of image duplication on nothing at all', publisher:'Demo Cell Reports', retracted:'2026-10-15', published:2019, hits:[]}
-];
+/* fetch with polite retry */
+async function getJSON(u,tries=2){for(let i=0;i<=tries;i++){try{const r=await fetch(u);if(r.status===429){await sleep(1500*(i+1));continue}if(!r.ok)throw new Error(r.status);return await r.json()}catch(e){if(i===tries)throw e;await sleep(600)}}}
+/* simple concurrency pool */
+async function pool(items,n,fn){const out=[];let i=0;await Promise.all([...Array(n)].map(async()=>{while(i<items.length){const k=i++;out[k]=await fn(items[k],k)}}));return out}
 
-async function fetchRetractions(rows){
-  const q = `https://api.crossref.org/works?filter=update-type:retraction&sort=created&order=desc&rows=${rows}&select=DOI,title,publisher,created,update-to${UA_MAILTO?'&mailto='+UA_MAILTO:''}`;
-  const j = await getJSON(q);
-  const out = [];
-  const seen = new Set();
-  for(const n of j.message.items){
-    for(const u of (n['update-to']||[])){
-      if(u.type !== 'retraction' || !u.DOI || seen.has(u.DOI.toLowerCase())) continue;
-      seen.add(u.DOI.toLowerCase());
-      const d = u.updated && u.updated['date-parts'] ? u.updated['date-parts'][0] : (n.created && n.created['date-parts'][0]);
-      out.push({notice:n.DOI, original:u.DOI, publisher:n.publisher||'', retracted: d ? d.map(x=>String(x).padStart(2,'0')).join('-') : ''});
-    }
-  }
+/* ---------- Crossref ---------- */
+async function worksByDOI(dois){
+  const out={};for(let i=0;i<dois.length;i+=40){const chunk=dois.slice(i,i+40);
+    let j;try{j=await getJSON(`${CR}/works?filter=${chunk.map(d=>"doi:"+encodeURIComponent(d)).join(",")}&rows=40&select=DOI,title,author,issued,container-title,is-referenced-by-count,publisher,updated-by`)}catch(e){if(dois.length<=40)throw e;continue}
+    j.message.items.forEach(w=>out[w.DOI.toLowerCase()]=w)}
   return out;
 }
+function retractionOf(w){ // from the original's "updated-by" (Crossref + Retraction Watch)
+  const r=(w&&w["updated-by"]||[]).filter(u=>/retract/i.test(u.type||"")&&!/withdraw/i.test(u.type||""));if(!r.length)return null;
+  r.sort((a,b)=>(dateOf(b.updated)||"").localeCompare(dateOf(a.updated)||""));
+  const pub=r.find(x=>x.DOI&&x.source==="publisher")||r.find(x=>x.DOI)||r[0];
+  return {notice:pub.DOI||"",date:dateOf(r[0].updated)};
+}
+async function retractionsOf(dois){const w=await worksByDOI(dois),out={};Object.entries(w).forEach(([k,v])=>{const r=retractionOf(v);if(r)out[k]=r});return out}
+const dateOf=x=>x&&x["date-parts"]&&x["date-parts"][0]?x["date-parts"][0].map(v=>String(v).padStart(2,"0")).join("-"):"";
+const yearOf=w=>w&&w.issued&&w.issued["date-parts"]&&w.issued["date-parts"][0]?w.issued["date-parts"][0][0]:null;
+const authors=w=>{const a=(w.author||[]).map(x=>x.family||x.name).filter(Boolean);return a.length?a[0]+(a.length>1?" et al.":""):""};
 
-async function enrich(item){
-  try{
-    const w = await getJSON(`https://api.crossref.org/works/${encodeURIComponent(item.original)}`);
-    const m = w.message;
-    item.title = (m.title && m.title[0]) || item.original;
-    const p = (m.issued && m.issued['date-parts'] && m.issued['date-parts'][0]) || [];
-    item.published = p[0] || null;
-    item.publisher = m.publisher || item.publisher;
-  }catch(e){ item.title = item.title || item.original; }
+/* ---------- Wikipedia ---------- */
+const WP="https://en.wikipedia.org/w/api.php";
+async function wikiPagesCiting(doi){
+  const j=await getJSON(`${WP}?action=query&list=search&srsearch=${encodeURIComponent('insource:"'+doi+'"')}&srnamespace=0&srlimit=20&format=json&origin=*`);
+  return (j.query&&j.query.search||[]).map(s=>s.title);
+}
+async function classify(title,doi){
+  const j=await getJSON(`${WP}?action=query&prop=revisions&rvprop=content&rvslots=main&titles=${encodeURIComponent(title)}&format=json&formatversion=2&origin=*`);
+  const txt=(j.query.pages[0].revisions||[{}])[0].slots?.main?.content||"";
+  const low=txt.toLowerCase(),d=doi.toLowerCase();let i=low.indexOf(d);if(i<0)return "zombie";
+  let flagged=false;
+  while(i>=0){const rs=low.lastIndexOf("<ref",i),re=low.indexOf("</ref>",i);
+    const a=Math.max(0,(rs>=0&&i-rs<2500?rs:i-500)-500),b=Math.min(low.length,(re>=0&&re-i<2500?re+6:i+500)+150);
+    const ctx=low.slice(a,b);if(/retract|\{\{\s*retracted|expression of concern/.test(ctx))flagged=true;else return "zombie";
+    i=low.indexOf(d,i+d.length)}
+  return flagged?"flagged":"zombie";
+}
+async function wikiCheck(doi,limit=8){
+  const pages=await wikiPagesCiting(doi);
+  const res=await pool(pages.slice(0,limit),3,async t=>({t,s:await classify(t,doi).catch(()=>"unknown")}));
+  return {total:pages.length,res};
 }
 
-async function wikiHits(doi){
-  const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent('insource:"'+doi+'"')}&srlimit=10&format=json&origin=*`;
-  const j = await getJSON(url);
-  return (j.query && j.query.search || []).map(s => ({title:s.title}));
-}
-
-function card(it){
-  const z = it.hits && it.hits.length > 0;
-  const el = document.createElement('div');
-  el.className = 'card ' + (z ? 'zombie' : 'clean');
-  el.dataset.z = z ? 1 : 0;
-  const age = it.published ? (new Date().getFullYear() - it.published) : null;
-  el.innerHTML = `
-    <div class="row">
-      ${z ? '<span class="pill p-z">🧟 Zombie</span>' : '<span class="pill p-c">Not cited on Wikipedia</span>'}
-      <span class="pill p-r">Retracted ${it.retracted||''}</span>
-      ${age !== null ? `<span class="pill p-w">${age} yr${age===1?'':'s'} in circulation</span>` : ''}
-    </div>
-    <div class="title"></div>
-    <div class="meta"><span class="pub"></span> · paper <a target="_blank" rel="noopener" href="https://doi.org/${it.original}">${it.original}</a> · notice <a target="_blank" rel="noopener" href="https://doi.org/${it.notice}">${it.notice}</a></div>
-    ${z ? `<div><b>Still cited on ${it.hits.length} Wikipedia page${it.hits.length===1?'':'s'}:</b><ul class="hits">${it.hits.map(h=>`<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/${encodeURIComponent(h.title.replace(/ /g,'_'))}">${h.title.replace(/</g,'&lt;')}</a></li>`).join('')}</ul></div>
-    <div class="outreach">Outreach: <span class="step on">Detected</span>→<span class="step">Notified</span>→<span class="step">Responded</span>→<span class="step">Fixed / Declined</span></div>` : ''}`;
-  el.querySelector('.title').textContent = it.title || it.original;
-  el.querySelector('.pub').textContent = it.publisher || '';
+/* ---------- card ---------- */
+function card(o){
+  // o: {doi,title,who,journal,year,cites,retracted,notice,status:'confirmed'|'unconfirmed',wiki:{total,res},why}
+  const z=o.wiki?o.wiki.res.filter(r=>r.s==="zombie"):[],f=o.wiki?o.wiki.res.filter(r=>r.s==="flagged"):[];
+  const ry=o.retracted?+o.retracted.slice(0,4):null,now=new Date().getFullYear();
+  const span=o.year&&ry?Math.max(1,now-o.year):null,alive=o.year&&ry?((ry-o.year)/span*100):null;
+  const el=document.createElement("article");el.className="ob"+(z.length?" z":"");
+  el.innerHTML=`<div class="tag">${z.length?`<span class="t-z">Zombie · ${z.length} live</span>`:""}${f.length?`<span class="t-f">${f.length} flagged</span>`:""}
+     ${o.status==="confirmed"?`<span class="t-d">Retracted ${esc(o.retracted||"")}</span>`:`<span class="t-m">Retraction not confirmed by Crossref</span>`}
+     ${o.cites!=null?`<span class="t-m">${o.cites.toLocaleString()} citations</span>`:""}</div>
+   <h3></h3><p class="who"></p>
+   ${alive!=null?`<div class="life"><span>${o.year}</span><span class="bar" style="--a:${alive.toFixed(0)}%"></span><span>${now}</span></div>`:""}
+   ${o.why?`<p class="why"></p>`:""}
+   ${o.wiki?(o.wiki.res.length?`<ul class="cites">${o.wiki.res.map(r=>`<li><a href="https://en.wikipedia.org/wiki/${encodeURIComponent(r.t.replace(/ /g,"_"))}" target="_blank" rel="noopener">${esc(r.t)}</a><small class="${r.s==="zombie"?"t-z":r.s==="flagged"?"t-f":"t-m"}">${r.s}</small></li>`).join("")}${o.wiki.total>o.wiki.res.length?`<li><span>+${o.wiki.total-o.wiki.res.length} more pages</span></li>`:""}</ul>`:`<p class="why" style="color:var(--mute)">Not cited anywhere on English Wikipedia.</p>`):""}
+   <div class="foot"><span><a href="https://doi.org/${esc(o.doi)}" target="_blank" rel="noopener">paper</a>${o.notice?` · <a href="https://doi.org/${esc(o.notice)}" target="_blank" rel="noopener">retraction notice</a>`:""}</span>${z.length?`<button data-copy>Copy notice</button>`:""}</div>`;
+  el.querySelector("h3").textContent=(o.title||o.doi).replace(/^(RETRACTED( ARTICLE)?|WITHDRAWN)\s*:\s*/i,"");
+  el.querySelector(".who").textContent=[o.who,o.journal,o.year].filter(Boolean).join(" · ");
+  if(o.why)el.querySelector(".why").textContent=o.why;
+  const cb=el.querySelector("[data-copy]");if(cb)cb.onclick=async()=>{const msg=$("tpl").textContent.replace("{PAGE}",z[0].t).replace("{TITLE}",o.title).replace("{DOI}",o.doi).replace("{NOTICE}","https://doi.org/"+(o.notice||""));try{await navigator.clipboard.writeText(msg);toast("Notice copied")}catch(_){prompt("",msg)}};
+  tally.ret.add(o.doi.toLowerCase());tally.z+=z.length;tally.f+=f.length;(o.wiki?.res||[]).forEach(r=>tally.p.add(r.t));bump();
   return el;
 }
+const order=(grid)=>{[...grid.children].sort((a,b)=>(b.classList.contains("z")-a.classList.contains("z"))).forEach(c=>grid.appendChild(c))};
 
-function applyFilter(){
-  const only = $('filter').value === 'zombie';
-  document.querySelectorAll('#list .card').forEach(c => c.style.display = (only && c.dataset.z === '0') ? 'none' : '');
+/* ---------- 1. famous: hand-picked, verified live ---------- */
+const FAMOUS=[
+ {doi:"10.1016/S0140-6736(97)11096-0",why:"The MMR–autism paper. Retracted after the General Medical Council found it dishonest."},
+ {doi:"10.1016/S0140-6736(20)31180-6",why:"Hydroxychloroquine study built on Surgisphere data nobody could verify."},
+ {doi:"10.1056/NEJMoa2007621",why:"Second Surgisphere paper, on heart drugs and COVID-19."},
+ {doi:"10.1016/j.ijantimicag.2020.105949",why:"The early hydroxychloroquine–azithromycin study that drove a global run on the drug."},
+ {doi:"10.1038/nature04533",why:"The Aβ*56 Alzheimer's paper, retracted after image manipulation concerns."},
+ {doi:"10.1038/s41586-023-05742-0",why:"Claimed room-temperature superconductivity in lutetium hydride."},
+ {doi:"10.1038/nature12968",why:"STAP stem cells: acid bath turns cells pluripotent. It didn't."},
+ {doi:"10.1126/science.1094515",why:"Hwang Woo-suk's cloned human embryonic stem cells. Fabricated."},
+ {doi:"10.1016/j.fct.2012.08.005",why:"Séralini's GM maize and rat tumors study."}
+];
+async function runFamous(){
+  const st=$("sFamous"),g=$("gFamous");st.innerHTML="<i></i>Confirming retractions with Crossref…";
+  const dois=FAMOUS.map(f=>f.doi);
+  let works={},rets={};
+  try{works=await worksByDOI(dois);Object.entries(works).forEach(([k,v])=>{const r=retractionOf(v);if(r)rets[k]=r})}catch(e){st.textContent="Crossref is not responding right now ("+e.message+"). Try again shortly."}
+  let done=0;
+  await pool(FAMOUS,3,async f=>{
+    const k=f.doi.toLowerCase(),w=works[k]||{},r=rets[k];
+    st.innerHTML=`<i></i>Reading Wikipedia… ${done}/${FAMOUS.length}`;
+    let wiki=null;try{wiki=await wikiCheck(f.doi)}catch(_){}
+    g.appendChild(card({doi:f.doi,title:(w.title||[])[0],who:authors(w),journal:(w["container-title"]||[])[0],year:yearOf(w),cites:w["is-referenced-by-count"],retracted:r&&r.date,notice:r&&r.notice,status:r?"confirmed":"unconfirmed",wiki,why:f.why}));
+    done++;order(g);
+  });
+  st.textContent=`Checked ${FAMOUS.length} famous retractions · ${new Date().toLocaleTimeString()}`;
 }
-$('filter').onchange = applyFilter;
 
-function stats(items){
-  const zs = items.filter(i => i.hits && i.hits.length);
-  $('sRet').textContent = items.length;
-  $('sZ').textContent = zs.length;
-  $('sCit').textContent = zs.reduce((a,i)=>a+i.hits.length,0);
-  const ages = zs.map(i => i.published ? new Date().getFullYear() - i.published : 0);
-  $('sAge').textContent = ages.length ? Math.max(...ages) : '–';
-}
-
-async function run(){
-  const btn = $('run'); btn.disabled = true;
-  $('list').innerHTML = '';
-  const rows = +$('rows').value;
-  let items = [];
+/* ---------- 2. random sweep ---------- */
+$("bSweep").onclick=async()=>{
+  const b=$("bSweep"),st=$("sSweep"),g=$("gSweep");b.disabled=true;g.innerHTML="";
   try{
-    $('status').textContent = 'Fetching retraction notices from Crossref…';
-    items = await fetchRetractions(rows);
-    usingDemo = false;
-  }catch(e){
-    usingDemo = true;
-    items = DEMO.map(d => ({...d}));
-    $('status').innerHTML = '<span class="demo">Demo data</span>: Crossref could not be reached from here (' + e.message.split(' ')[0] + '). Showing labelled sample records.';
-  }
-  const done = [];
-  for(let i=0;i<items.length;i++){
-    const it = items[i];
-    if(!usingDemo){
-      $('status').textContent = `Checking ${i+1}/${items.length}: ${it.original}`;
-      await enrich(it);
-      try{ it.hits = await wikiHits(it.original); }catch(e){ it.hits = []; it.wikiErr = true; }
-      await sleep(120);
-    }
-    done.push(it);
-    const el = card(it);
-    if(it.hits && it.hits.length) $('list').prepend(el); else $('list').append(el);
-    stats(done); applyFilter();
-  }
-  if(!usingDemo){
-    const errs = done.filter(d=>d.wikiErr).length;
-    $('status').textContent = `Done. ${done.length} retracted papers checked against English Wikipedia${errs?`, ${errs} lookups failed`:''}. ${new Date().toLocaleString()}`;
-  }
-  if(!done.some(d=>d.hits && d.hits.length) && $('filter').value==='zombie'){
-    $('list').insertAdjacentHTML('afterbegin','<div class="card"><div class="meta">No zombies in this batch. Fresh retractions often haven\'t been cited yet. Try 80, or switch to "Show all".</div></div>');
-  }
-  btn.disabled = false;
-}
-$('run').onclick = run;
+    st.innerHTML="<i></i>Sampling 100 retraction notices from Crossref…";
+    const j=await getJSON(`${CR}/works?filter=update-type:retraction&sample=100&select=DOI,update-to,created`);
+    const map={};j.message.items.forEach(n=>(n["update-to"]||[]).forEach(u=>{if(/retract/i.test(u.type)&&u.DOI)map[u.DOI.toLowerCase()]={notice:n.DOI,date:dateOf(u.updated)||dateOf(n.created),doi:u.DOI}}));
+    const dois=Object.values(map).map(x=>x.doi);
+    st.innerHTML=`<i></i>Looking up ${dois.length} retracted papers…`;
+    const works=await worksByDOI(dois);
+    const ranked=dois.map(d=>({d,w:works[d.toLowerCase()]})).filter(x=>x.w).sort((a,b)=>(b.w["is-referenced-by-count"]||0)-(a.w["is-referenced-by-count"]||0)).slice(0,30);
+    let done=0,hits=0;
+    await pool(ranked,3,async({d,w})=>{
+      let wiki=null;try{wiki=await wikiCheck(d,6)}catch(_){}
+      done++;st.innerHTML=`<i></i>Checking Wikipedia ${done}/${ranked.length} · ${hits} cited so far`;
+      if(wiki&&wiki.total){hits++;const r=map[d.toLowerCase()];g.appendChild(card({doi:d,title:(w.title||[])[0],who:authors(w),journal:(w["container-title"]||[])[0],year:yearOf(w),cites:w["is-referenced-by-count"],retracted:r.date,notice:r.notice,status:"confirmed",wiki}));order(g)}
+      else tally.ret.add(d.toLowerCase()),bump();
+    });
+    st.textContent=`Sampled ${dois.length} retracted papers, checked the 30 most-cited, and ${hits} are cited on Wikipedia. Run again for a new sample.`;
+    if(!hits)g.innerHTML=`<p class="empty">No Wikipedia citations in this sample. Retracted papers are mostly obscure, so run another sweep.</p>`;
+  }catch(e){st.textContent="Sweep failed: "+e.message+". Crossref may be rate-limiting; wait a minute."}
+  b.disabled=false;
+};
+
+/* ---------- 3. fresh ---------- */
+$("bFresh").onclick=async()=>{
+  const b=$("bFresh"),st=$("sFresh"),g=$("gFresh");b.disabled=true;g.innerHTML="";
+  try{
+    st.innerHTML="<i></i>Fetching the newest notices…";
+    const j=await getJSON(`${CR}/works?filter=update-type:retraction&sort=created&order=desc&rows=40&select=DOI,update-to,created`);
+    const list=[];const seen=new Set();j.message.items.forEach(n=>(n["update-to"]||[]).forEach(u=>{const k=(u.DOI||"").toLowerCase();if(/retract/i.test(u.type)&&k&&!seen.has(k)){seen.add(k);list.push({doi:u.DOI,notice:n.DOI,date:dateOf(u.updated)||dateOf(n.created)})}}));
+    const works=await worksByDOI(list.map(x=>x.doi));
+    let done=0;
+    await pool(list,3,async x=>{const w=works[x.doi.toLowerCase()]||{};let wiki=null;try{wiki=await wikiCheck(x.doi,5)}catch(_){}
+      done++;st.innerHTML=`<i></i>Checking ${done}/${list.length}`;
+      g.appendChild(card({doi:x.doi,title:(w.title||[])[0],who:authors(w),journal:(w["container-title"]||[])[0],year:yearOf(w),cites:w["is-referenced-by-count"],retracted:x.date,notice:x.notice,status:"confirmed",wiki}));order(g)});
+    st.textContent=`${list.length} newest retractions · ${new Date().toLocaleString()}`;
+  }catch(e){st.textContent="Couldn't reach Crossref: "+e.message}
+  b.disabled=false;
+};
+
+/* ---------- 4. scan an article ---------- */
+document.querySelectorAll(".chips button").forEach(c=>c.onclick=()=>{$("qScan").value=c.textContent;$("bScan").click()});
+$("qScan").onkeydown=e=>{if(e.key==="Enter")$("bScan").click()};
+$("bScan").onclick=async()=>{
+  const st=$("sScan"),g=$("gScan"),b=$("bScan");let q=$("qScan").value.trim();if(!q)return;
+  const m=q.match(/wikipedia\.org\/wiki\/([^?#]+)/);if(m)q=decodeURIComponent(m[1]).replace(/_/g," ");
+  b.disabled=true;g.innerHTML="";
+  try{
+    st.innerHTML="<i></i>Reading the article…";
+    const j=await getJSON(`${WP}?action=query&prop=revisions&rvprop=content&rvslots=main&titles=${encodeURIComponent(q)}&redirects=1&format=json&formatversion=2&origin=*`);
+    const pg=j.query.pages[0];if(pg.missing)throw new Error("no article called “"+q+"”");
+    const txt=pg.revisions[0].slots.main.content;
+    const dois=[...new Set((txt.match(/10\.\d{4,9}\/[^\s|}<\]"]+/g)||[]).map(d=>d.replace(/[.,;)]+$/,"")))];
+    st.innerHTML=`<i></i>${dois.length} DOIs found in “${esc(pg.title)}”. Asking Crossref which are retracted…`;
+    const rets=await retractionsOf(dois);const dead=Object.keys(rets);
+    dois.forEach(d=>tally.ret.add(d.toLowerCase()));bump();
+    if(!dead.length){st.textContent=`“${pg.title}” cites ${dois.length} DOIs. None are retracted according to Crossref.`;g.innerHTML=`<p class="empty">Clean. No retracted papers among its ${dois.length} DOI citations.</p>`;b.disabled=false;return}
+    const works=await worksByDOI(dead);
+    for(const d of dead){const w=works[d]||{},s=await classify(pg.title,d).catch(()=>"unknown");
+      g.appendChild(card({doi:d,title:(w.title||[])[0],who:authors(w),journal:(w["container-title"]||[])[0],year:yearOf(w),cites:w["is-referenced-by-count"],retracted:rets[d].date,notice:rets[d].notice,status:"confirmed",wiki:{total:1,res:[{t:pg.title,s}]}}))}
+    order(g);st.textContent=`“${pg.title}” cites ${dois.length} DOIs, and ${dead.length} of them are retracted.`;
+  }catch(e){st.textContent="Scan failed: "+e.message}
+  b.disabled=false;
+};
+
+runFamous();
+})();
 </script>
 </body>
 </html>
