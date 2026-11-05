@@ -193,6 +193,8 @@ def plain(s):
     s = re.sub(r"<!--.*?-->", "", s, flags=re.S)
     for _ in range(4):
         s = re.sub(r"\{\{[^{}]*\}\}", "", s)
+    s = re.sub(r"^.*\}\}", "", s, flags=re.S)
+    s = re.sub(r"\{\{.*$", "", s, flags=re.S)
     s = WIKI_LINK.sub(r"\1", s)
     s = re.sub(r"\[https?://\S+ ([^\]]+)\]", r"\1", s)
     s = re.sub(r"'''?", "", s)
@@ -222,7 +224,7 @@ def context_for(txt, low, i):
     for m in re.finditer(r"^(={2,4})\s*(.+?)\s*\1\s*$", txt[:i], flags=re.M):
         sec = plain(m.group(2))
     win = low[max(0, rs - 600): (re_ + 400 if 0 <= re_ - i < 4000 else i + 900)]
-    flagged = bool(re.search(r"retract|\{\{\s*retracted|expression of concern|was withdrawn", win))
+    flagged = bool(re.search(r"retract|\{\{\s*retracted|expression of concern|withdr", win))
     return sentence, sec, flagged
 
 

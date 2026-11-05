@@ -136,6 +136,8 @@ select{font:500 12px var(--mono);letter-spacing:.04em;text-transform:uppercase;b
 .chip{flex:none;font:500 12px var(--mono);border:1px solid var(--rule);background:none;padding:8px 11px;border-radius:99px;cursor:pointer;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .chip small{opacity:.6;margin-left:4px}
+.opts{display:flex;flex-direction:column;gap:4px;align-items:flex-end}.opts label{display:flex;gap:6px;align-items:center;cursor:pointer}
+@media (max-width:640px){.opts{align-items:flex-start}}
 .count{font:500 12px var(--mono);color:var(--mute);margin:14px 0 4px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .reg{list-style:none;margin:0;padding:0}
 .reg li{display:grid;grid-template-columns:52px minmax(0,1fr) 150px 110px;gap:18px;align-items:start;padding:16px 0;border-bottom:1px solid var(--rule);cursor:pointer}
@@ -263,11 +265,11 @@ footer .np{font:400 26px/1 var(--black);color:var(--ink)}
     <div class="tag" id="toetag" hidden></div>
     <h1><span class="l1">Zombie</span><span class="l2"><i>Facts</i></span></h1>
     <div class="dek">
-      <p>The paper was retracted. <em>The fact kept walking.</em> These are the sentences on Wikipedia, read by millions, that still rest on science its own publisher has withdrawn.</p>
+      <p>The paper was retracted. <em>The fact kept walking.</em> These are the sentences on Wikipedia, <span id="dekReach">read by hundreds of thousands of people a month</span>, that still rest on research its own journal has retracted.</p>
       <div class="vitals">
-        <div class="z"><b data-n="zombie_citations">—</b><span>Zombie citations live on Wikipedia</span></div>
-        <div><b data-n="zombie_pages">—</b><span>Articles affected</span></div>
-        <div><b data-n="monthly_reach">—</b><span>Page views a month on those articles</span></div>
+        <div class="z"><b data-c="zc">—</b><span>Zombie citations live on Wikipedia</span></div>
+        <div><b data-c="zp">—</b><span>Articles affected</span></div>
+        <div><b data-c="mr">—</b><span>Monthly readers of those articles</span></div>
         <div><b data-n="retractions">—</b><span>Retracted papers checked</span></div>
       </div>
     </div>
@@ -287,7 +289,7 @@ footer .np{font:400 26px/1 var(--black);color:var(--ink)}
       <select id="sort" aria-label="Sort"><option value="reach">Most read</option><option value="zombies">Most zombie citations</option><option value="undead">Longest undead</option><option value="recent">Newest retraction</option><option value="cites">Most cited by science</option></select>
       <div class="chiprow" id="causes"></div>
     </div>
-    <div class="count"><span id="cnt"></span><label class="mono"><input type="checkbox" id="showFlagged"> include ones Wikipedia already flags</label></div>
+    <div class="count"><span id="cnt"></span><span class="mono opts"><label><input type="checkbox" id="showFlagged"> include ones Wikipedia already flags</label><label><input type="checkbox" id="showSup"> include reviews withdrawn as out of date</label></span></div>
     <ul class="reg" id="reg"></ul>
     <button class="more" id="more" hidden>Show 30 more</button>
   </section>
@@ -329,7 +331,7 @@ footer .np{font:400 26px/1 var(--black);color:var(--ink)}
         <li>The Retraction Watch database, now published openly by Crossref, lists every known retraction. We keep only full retractions, not corrections.</li>
         <li>We walk every link to doi.org on English Wikipedia (<span id="mLinks">millions</span> of them) and match each one to that list.</li>
         <li>For each match we read the article, find the sentence the citation supports, and check the citation and its surroundings for any mention of the retraction.</li></ol></div>
-      <div><h4>Zombie or flagged</h4><p><b style="background:var(--acid);color:#141412;padding:0 4px">Zombie</b> means the retracted paper is cited and nothing near it says so. <b style="color:var(--flag)">Flagged</b> means the article already warns readers, usually with Wikipedia's Retracted template.</p><p>A zombie is not an accusation. Some articles cite a retracted paper to discuss it, and some retractions were for reasons that don't touch the cited claim. A person should read the context before editing. Every entry links to the article and the official notice.</p></div>
+      <div><h4>Zombie or flagged</h4><p><b style="background:var(--acid);color:#141412;padding:0 4px">Zombie</b> means the retracted paper is cited and nothing near it says so. <b style="color:var(--flag)">Flagged</b> means the article already warns readers, usually with Wikipedia's Retracted template.</p><p>A zombie is not an accusation. Some articles cite a retracted paper to discuss it, and some retractions were for reasons that don't touch the cited claim. A person should read the context before editing. Every entry links to the article and the official notice.</p><p>We leave out, by default, reviews withdrawn only because a newer version replaced them (common with Cochrane). Those are outdated, not discredited. One switch in the register brings them back.</p></div>
       <div><h4>Note to editors</h4><pre id="tpl">A note from Zombie Facts, a free public tracker of retracted research.
 
 The article "{PAGE}" cites
@@ -371,7 +373,8 @@ const CAUSES=[
  ["Fabricated data",/fabricat|falsif/i],["Manipulated images",/image/i],["Paper mill or fake review",/paper mill|fake peer|peer review|compromised|randomly generated|computer-aided/i],
  ["Plagiarism",/plagiar|euphemism/i],["Duplicate publication",/duplicat/i],["Misconduct finding",/misconduct/i],["Error or not reproducible",/error|unreliable|reproduc|contamina|results not/i],
  ["Ethics or consent",/ethic|consent|irb|iacuc/i],["Authorship or legal",/authorship|author unaware|legal|copyright|third party|objections/i]];
-const causesOf=p=>{const s=new Set();(p.reasons||[]).forEach(r=>{for(const [n,re] of CAUSES)if(re.test(r)){s.add(n);break}});if(!s.size)s.add("Other or unstated");return [...s]};
+const SUP=/out of date|retract and replace/i;
+const causesOf=p=>{const s=new Set();(p.reasons||[]).forEach(r=>{for(const [n,re] of CAUSES)if(re.test(r)){s.add(n);break}});const o=CAUSES.map(c=>c[0]).filter(n=>s.has(n));if(!o.length)o.push((p.reasons||[]).some(r=>SUP.test(r))?"Superseded by a newer version":"Reason not stated");return o};
 const primary=p=>causesOf(p)[0];
 
 /* ---------- EKG hero ---------- */
@@ -416,17 +419,22 @@ const undeadYears=p=>{const r=yr(p.retracted);return r?Math.max(0,NY-r):0};
 const ago=p=>{const u=undeadYears(p);return u<1?Math.max(1,Math.round(u*12))+" months":(u<2?"1 year":Math.floor(u)+" years")};
 const z1=p=>(p.wiki||[]).find(w=>w.status==="zombie"&&said(w))||(p.wiki||[]).find(w=>w.status==="zombie")||p.wiki[0];
 const LISTSEC=/^(references|further reading|bibliography|sources|notes|external links|citations|works cited|literature)/i;
-const said=(w,max=260)=>{if(!w||LISTSEC.test(w.section||""))return "";let s=(w.said||"").trim();if(s.length<25||/^[\W\d]+$/.test(s)||/^(doi|isbn|pmid)\b/i.test(s))return "";if(s.length>max)s="…"+s.slice(-max).replace(/^\S*\s/,"");return s};
+const said=(w,max=260)=>{if(!w||LISTSEC.test(w.section||""))return "";let s=(w.said||"").replace(/^.*\}\}\s*/,"").replace(/\{\{.*$/,"").replace(/^[\s|\]\[}"]+/,"").trim();if(/\|\s*[\w-]+\s*=|^\W*title\s*=/.test(s))return "";if(s.length<25||/^[\W\d]+$/.test(s)||/^(doi|isbn|pmid)\b/i.test(s))return "";if(s.length>max)s="…"+s.slice(-max).replace(/^\S*\s/,"");return s};
 
 /* ---------- data ---------- */
 let D=null,ZP=[];
 async function load(){
   try{const r=await fetch("data.json",{cache:"no-cache"});if(!r.ok)throw 0;D=await r.json()}catch(_){D=null}
   if(!D||!D.papers||!D.papers.length){fallback();return}
-  ZP=D.papers.map((p,i)=>({...p,title:cleanT(p.title),i,_c:causesOf(p),_s:(p.title+" "+p.journal+" "+(p.authors||[]).join(" ")+" "+p.wiki.map(w=>w.page).join(" ")+" "+(p.subject||[]).join(" ")).toLowerCase()}));
+  ZP=D.papers.map((p,i)=>({...p,title:cleanT(p.title),i,_c:causesOf(p),_sup:!causesOf(p).some(c=>CAUSES.some(x=>x[0]===c))&&(p.reasons||[]).some(r=>SUP.test(r)),_s:(p.title+" "+p.journal+" "+(p.authors||[]).join(" ")+" "+p.wiki.map(w=>w.page).join(" ")+" "+(p.subject||[]).join(" ")).toLowerCase()}));
   const S=D.stats;
+  ZP.forEach(p=>p._z=p._sup?0:p.zombies);
+  const LZ=ZP.filter(p=>p._z),pg={};LZ.forEach(p=>p.wiki.forEach(w=>{if(w.status==="zombie")pg[w.page]=w.views}));
+  const C={zc:LZ.reduce((a,p)=>a+p._z,0),zp:Object.keys(pg).length,mr:Object.values(pg).reduce((a,b)=>a+b,0)};
+  document.querySelectorAll("[data-c]").forEach(el=>countUp(el,C[el.dataset.c]));
   document.querySelectorAll("[data-n]").forEach(el=>countUp(el,S[el.dataset.n]));
-  $("kick").textContent=`Updated ${new Date(D.built).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})} · ${full(S.zombie_papers)} retracted papers still cited`;
+  $("dekReach").textContent=`read about ${fmt(Math.round(C.mr/1000)*1000)} times a month`;
+  $("kick").textContent=`Updated ${new Date(D.built).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})} · ${full(ZP.filter(p=>p._z).length)} retracted papers still cited with no warning`;
   $("built").textContent="data rebuilt "+D.built.replace("T"," ").replace("Z"," UTC");
   $("mLinks").textContent=fmt(S.links_scanned);
   ticker();featured();toetag();chips();render();autopsy();
@@ -436,16 +444,16 @@ function countUp(el,v){if(v==null)return;const dur=1600,t0=performance.now(),f=v
   const io=new IntersectionObserver(es=>{if(!es[0].isIntersecting)return;io.disconnect();(function s(now){const k=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-k,4);el.textContent=f(Math.round(v*e));if(k<1)requestAnimationFrame(s)})(performance.now())});io.observe(el)}
 
 function ticker(){
-  const items=ZP.filter(p=>p.zombies).slice(0,40).map(p=>{const w=z1(p),s=said(w,150);return s?`<span class="it"><b>${esc(w.page)}</b>“${esc(s)}”<s>source retracted ${esc((p.retracted||"").slice(0,4))}</s></span>`:""}).filter(Boolean);
+  const items=ZP.filter(p=>p._z).slice(0,40).map(p=>{const w=z1(p),s=said(w,150);return s?`<span class="it"><b>${esc(w.page)}</b>“${esc(s)}”<s>source retracted ${esc((p.retracted||"").slice(0,4))}</s></span>`:""}).filter(Boolean);
   if(!items.length)return;$("tick").innerHTML=items.join("")+items.join("");
 }
 
-function toetag(){const p=ZP.find(p=>p.zombies&&said(z1(p),200));if(!p)return;const w=z1(p),t=$("toetag");
+function toetag(){const p=ZP.find(p=>p._z&&said(z1(p),200));if(!p)return;const w=z1(p),t=$("toetag");
   t.innerHTML=`<div class="tn"><span>Case No. 1</span><span>Undead ${ago(p)}</span></div><q>${esc(said(w,190))}</q><p>Still on Wikipedia in <b>${esc(w.page)}</b>. Source: ${esc(p.title.slice(0,80))}${p.title.length>80?"…":""}, retracted ${esc(fmtDate(p.retracted))}.</p>`;
   t.hidden=false;t.onclick=()=>show(p)}
 function quoteHTML(w,max){const s=said(w,max);return s?`<p class="quote"><mark>${esc(s)}</mark><sup>[retracted]</sup></p>`:""}
 function featured(){
-  const list=ZP.filter(p=>p.zombies&&said(z1(p))).slice(0,innerWidth<641?8:11);
+  const list=ZP.filter(p=>p._z&&said(z1(p))).slice(0,innerWidth<641?8:11);
   $("feat").innerHTML=list.map((p,k)=>{const w=z1(p);return `<article class="f${k===0?" big":""}" data-i="${p.i}" tabindex="0">
     <div class="rank"><span>No. ${k+1} · ${fmt(p.reach)} reads/mo</span><span class="cod">${esc(primary(p))}</span></div>
     ${quoteHTML(w,k===0?380:220)}
@@ -459,14 +467,14 @@ const fmtDate=s=>s?new Date(s+"T12:00").toLocaleDateString("en-US",{month:"short
 /* register */
 let cause=null,shown=30;
 function chips(){
-  const c={};ZP.filter(p=>p.zombies).forEach(p=>p._c.forEach(x=>c[x]=(c[x]||0)+1));
+  const c={};ZP.filter(p=>p._z).forEach(p=>p._c.forEach(x=>c[x]=(c[x]||0)+1));
   const all=Object.entries(c).sort((a,b)=>b[1]-a[1]);
   $("causes").innerHTML=`<button class="chip" aria-pressed="true" data-c="">All causes</button>`+all.map(([k,v])=>`<button class="chip" aria-pressed="false" data-c="${esc(k)}">${esc(k)}<small>${v}</small></button>`).join("");
   $("causes").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;cause=b.dataset.c||null;$("causes").querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===b));shown=30;render()};
 }
 function filtered(){
-  const q=$("q").value.trim().toLowerCase(),fl=$("showFlagged").checked,s=$("sort").value;
-  let L=ZP.filter(p=>(fl||p.zombies)&&(!cause||p._c.includes(cause))&&(!q||q.split(/\s+/).every(t=>p._s.includes(t))));
+  const q=$("q").value.trim().toLowerCase(),fl=$("showFlagged").checked,sp=$("showSup").checked,s=$("sort").value;
+  let L=ZP.filter(p=>(p._sup?sp&&(fl||p.zombies):(fl||p.zombies))&&(!cause||p._c.includes(cause))&&(!q||q.split(/\s+/).every(t=>p._s.includes(t))));
   const key={reach:p=>-p.reach-p.zombies/1e3,zombies:p=>-p.zombies,undead:p=>-undeadYears(p),recent:p=>-(yr(p.retracted)||0),cites:p=>-(p.cites||0)}[s];
   return L.sort((a,b)=>key(a)-key(b));
 }
@@ -484,12 +492,12 @@ function render(){
 }
 $("more").onclick=()=>{shown+=30;render()};
 let qT;$("q").oninput=()=>{clearTimeout(qT);qT=setTimeout(()=>{shown=30;render()},140)};
-$("sort").onchange=$("showFlagged").onchange=()=>{shown=30;render()};
+$("sort").onchange=$("showSup").onchange=$("showFlagged").onchange=()=>{shown=30;render()};
 function bindOpen(root,sel){root.querySelectorAll(sel).forEach(el=>{el.onclick=()=>openI(+el.dataset.i);el.onkeydown=e=>{if(e.key==="Enter")openI(+el.dataset.i)}})}
 
 /* autopsy */
 function autopsy(){
-  const z=ZP.filter(p=>p.zombies),c={};z.forEach(p=>p._c.forEach(x=>c[x]=(c[x]||0)+1));
+  const z=ZP.filter(p=>p._z),c={};z.forEach(p=>p._c.forEach(x=>c[x]=(c[x]||0)+1));
   const R=Object.entries(c).sort((a,b)=>b[1]-a[1]),mx=R[0]?R[0][1]:1;
   $("reasons").innerHTML=R.map(([k,v],i)=>`<li><span>${esc(k)}</span><span>${v}</span><i style="--w:${(v/mx*100).toFixed(1)}%;--d:${i*.06}s"></i></li>`).join("");
   const S={};z.forEach(p=>(p.subject||[]).forEach(s=>{s=s.replace(/^\(\w+\)\s*/,"").split(/[-–]/)[0].trim();if(s)S[s]=(S[s]||0)+1}));
