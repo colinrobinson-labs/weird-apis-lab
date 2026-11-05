@@ -19,8 +19,19 @@ body{padding:0 16px}
 a{color:inherit;text-decoration-thickness:1px;text-underline-offset:2px}
 .mast{display:flex;justify-content:space-between;align-items:center;font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--mute);border-bottom:3px double var(--ink);padding-bottom:8px}
 .mast button{font:inherit;background:none;border:1px solid var(--rule);color:var(--ink);padding:4px 8px;border-radius:4px;cursor:pointer}
-h1{font:400 clamp(64px,15vw,190px)/.86 var(--head);letter-spacing:-.01em;margin:22px 0 4px;text-transform:uppercase}
-h1 em{font-style:normal;background:var(--hl);color:#121210;padding:0 .06em}
+h1{font:400 clamp(72px,17vw,190px)/.95 var(--head);letter-spacing:-.005em;margin:22px 0 4px;text-transform:uppercase;display:flex;flex-direction:column;align-items:flex-start;gap:.06em}
+h1 span{display:block;line-height:.95}
+h1 em{display:block;font-style:normal;background:var(--hl);color:#121210;padding:.04em .08em 0;line-height:.98}
+@media (max-width:600px){
+ .mast{font-size:10px}.mast #today{display:none}
+ .dek p{font-size:18px}.dek p:first-letter{font-size:48px}
+ .tally b{font-size:32px}
+ .tabs button{font-size:17px;padding:8px 12px 6px}
+ .intro p{font-size:15px}
+ .ob{padding:12px 13px}.ob h3{font-size:18px}
+ .method{gap:16px}
+ .scan .go{width:100%}
+}
 .dek{display:grid;grid-template-columns:2fr 1fr;gap:28px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:14px 0;margin-top:14px}
 @media (max-width:760px){.dek{grid-template-columns:1fr}}
 .dek p{margin:0;font-size:20px;line-height:1.4}
@@ -79,7 +90,7 @@ footer{margin-top:30px;font:11px var(--mono);color:var(--mute);text-transform:up
 <body>
 <div class="wrap">
   <div class="mast"><span>The register of facts that died and kept walking</span><span id="today"></span><button id="theme" aria-label="Toggle theme">◐</button></div>
-  <h1>Zombie<br><em>Facts</em></h1>
+  <h1><span>Zombie</span><em>Facts</em></h1>
   <div class="dek">
     <p>Science corrects itself, but citations don't. When a paper is retracted, the people who cited it are never told. Zombie Facts checks the official retraction record against Wikipedia, live, and shows every place a dead paper is still being used as evidence.</p>
     <div class="tally">
@@ -209,7 +220,7 @@ async function wikiCheck(doi,limit=8){
 /* ---------- card ---------- */
 function card(o){
   // o: {doi,title,who,journal,year,cites,retracted,notice,status:'confirmed'|'unconfirmed',wiki:{total,res},why}
-  const z=o.wiki?o.wiki.res.filter(r=>r.s==="zombie"):[],f=o.wiki?o.wiki.res.filter(r=>r.s==="flagged"):[];
+  const z=o.wiki&&o.status==="confirmed"?o.wiki.res.filter(r=>r.s==="zombie"):[],f=o.wiki?o.wiki.res.filter(r=>r.s==="flagged"):[];
   const ry=o.retracted?+o.retracted.slice(0,4):null,now=new Date().getFullYear();
   const span=o.year&&ry?Math.max(1,now-o.year):null,alive=o.year&&ry?((ry-o.year)/span*100):null;
   const el=document.createElement("article");el.className="ob"+(z.length?" z":"");
