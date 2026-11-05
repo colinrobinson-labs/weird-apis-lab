@@ -4,298 +4,482 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Earth MIDI</title>
-<meta name="description" content="The planet as a controller. Live earthquakes, solar wind and ocean swell as open MIDI and sound.">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<meta name="description" content="The planet as an instrument. Live earthquakes, solar wind, solar flares and ocean swell, played as sound and sent as MIDI to your DAW. Raw data plus algorithmic mapping. No AI.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* Layout: one instrument panel. Live map on top, four data channels below, each showing raw value → mapping → output. */
-:root{
-  --bg:#07080f; --panel:#10131f; --line:#232842; --fg:#ecebf5; --muted:#8f92b0;
-  --quake:#ff7a3d; --sun:#ffcc4d; --ocean:#4fd1c5; --kp:#b18cff;
-  --raw:#5fe0a0; --algo:#ffcc4d; --ai:#5fd4ff;
-  --display:"Syne","Arial Black",system-ui,sans-serif;
-  --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
-  color-scheme:dark;
-}
+:root{--bg:#05070a;--panel:#0b1016;--line:#17212b;--fg:#e6edf3;--mute:#7d8b99;--q:#ff5a3c;--s:#ffc53d;--o:#3cc8ff;--x:#c77dff;--k:#7cff9e;--glow:0;
+ --disp:"Syne",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;--body:"IBM Plex Sans",system-ui,sans-serif}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 var(--body)}
-body{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.wrap{max-width:1120px;margin:0 auto;padding-block:24px 60px}
-header{display:flex;flex-wrap:wrap;gap:16px;align-items:end;justify-content:space-between}
-h1{font:800 clamp(34px,7vw,64px)/.95 var(--display);margin:0;letter-spacing:-.03em}
-h1 span{color:var(--quake)}
-.tagline{color:var(--muted);margin:6px 0 0;max-width:52ch}
-.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-button,select{font:500 13px var(--mono);color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 13px;cursor:pointer}
-button.go{background:var(--quake);border-color:var(--quake);color:#0b0d16}
-button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
-button:focus-visible,select:focus-visible{outline:2px solid var(--ai);outline-offset:2px}
-.status{font:12px var(--mono);color:var(--muted);margin:14px 0 8px;display:flex;gap:14px;flex-wrap:wrap}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 var(--body)}
+body{padding:0 max(16px,env(safe-area-inset-left,0px))}
+.wrap{max-width:1320px;margin:0 auto;padding:18px 0 60px}
+a{color:var(--o)}
+header{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap}
+h1{font:800 clamp(44px,9vw,120px)/.85 var(--disp);margin:0;letter-spacing:-.04em;
+ background:linear-gradient(90deg,var(--q),var(--s) 30%,var(--k) 55%,var(--o) 75%,var(--x));-webkit-background-clip:text;background-clip:text;color:transparent;
+ background-size:200% 100%;animation:hue 14s linear infinite;
+ filter:drop-shadow(0 0 calc(4px + var(--glow)*40px) rgba(255,140,90,calc(.25 + var(--glow)*.9))) drop-shadow(0 0 calc(var(--glow)*90px) rgba(60,200,255,calc(var(--glow)*.6)))}
+@keyframes hue{to{background-position:-200% 0}}
+.tag{font:12px var(--mono);color:var(--mute);max-width:520px}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.b{font:600 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid currentColor;border-radius:999px;padding:2px 8px}
+.b.raw{color:var(--k)}.b.alg{color:var(--s)}.b.ai{color:var(--mute);text-decoration:line-through}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:18px 0 12px;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px}
+button,select{font:500 13px var(--mono);color:var(--fg);background:#101820;border:1px solid var(--line);border-radius:9px;padding:9px 12px;cursor:pointer}
+button:hover{border-color:#2c3b48}
+#go{font:700 14px var(--mono);background:var(--fg);color:var(--bg);border-color:var(--fg);padding:10px 20px;min-width:120px}
+#go.on{background:var(--q);border-color:var(--q);color:#fff;box-shadow:0 0 24px rgba(255,90,60,.5)}
+.mutes button[aria-pressed="false"]{opacity:.35;text-decoration:line-through}
+.mutes button{border-color:var(--c);color:var(--c)}
+.vol{display:flex;align-items:center;gap:6px;font:12px var(--mono);color:var(--mute)}
+input[type=range]{accent-color:var(--fg);width:110px}
+.status{font:12px var(--mono);color:var(--mute);margin-left:auto;display:flex;gap:14px;flex-wrap:wrap}
 .status b{color:var(--fg);font-weight:500}
-.map{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#04050a;aspect-ratio:2/1;max-width:100%}
-.map canvas{width:100%;height:100%;display:block}
-.map .ticker{position:absolute;left:10px;bottom:8px;right:10px;font:12px var(--mono);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.channels{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin-top:14px}
-.ch{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--c);border-radius:10px;padding:14px;min-width:0}
-.ch h3{margin:0 0 2px;font:600 15px var(--body);display:flex;justify-content:space-between;gap:8px}
-.ch h3 small{font:500 11px var(--mono);color:var(--muted)}
-.big{font:600 20px var(--mono);color:var(--c);margin:6px 0 2px;font-variant-numeric:tabular-nums}
-.ch .src{font:11px var(--mono);color:var(--muted)}
-.ch pre{margin:10px 0 0;font:12px/1.5 var(--mono);color:var(--fg);background:#0a0c16;border:1px solid var(--line);border-radius:6px;padding:8px;white-space:pre-wrap}
-.spark{width:100%;height:36px;display:block;margin-top:8px}
-.labels{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.lbl{font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid currentColor;border-radius:4px;padding:1px 6px}
-.l-raw{color:var(--raw)} .l-algo{color:var(--algo)} .l-ai{color:var(--ai)}
-section.about{margin-top:34px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-section.about>div{min-width:0}
-h2{font:800 22px var(--display);margin:0 0 8px}
-.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
-table{border-collapse:collapse;width:100%;font-size:13px}
-th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font:500 11px var(--mono);color:var(--muted);text-transform:uppercase}
-tr:last-child td{border:0}
-code{font:12px var(--mono);color:var(--sun)}
-a{color:var(--ai)}
-footer{margin-top:30px;font:12px var(--mono);color:var(--muted)}
-.warn{color:var(--sun)}
-@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--k);margin-right:5px;box-shadow:0 0 8px var(--k);animation:bl 1.4s infinite}
+@keyframes bl{50%{opacity:.3}}
+.stage{position:relative;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:radial-gradient(120% 120% at 50% 0%,#0b1420 0%,#05070a 70%)}
+#map{display:block;width:100%;height:auto;aspect-ratio:2/1}
+.hud{position:absolute;inset:auto 12px 10px 12px;display:flex;justify-content:space-between;gap:10px;pointer-events:none;font:11px var(--mono);color:var(--mute);flex-wrap:wrap}
+.hud b{color:var(--fg);font-weight:500}
+#clock{font:600 13px var(--mono);color:var(--fg)}
+.prog{position:absolute;left:0;top:0;height:2px;background:linear-gradient(90deg,var(--q),var(--s));width:0;box-shadow:0 0 12px var(--q)}
+.tip{position:absolute;pointer-events:none;background:#0b1016ee;border:1px solid var(--line);border-radius:8px;padding:6px 9px;font:11px var(--mono);display:none;max-width:260px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));margin-top:12px}
+.ch{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;position:relative;overflow:hidden}
+.ch::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:var(--c);box-shadow:0 0 calc(6px + var(--hit,0)*30px) var(--c);opacity:calc(.5 + var(--hit,0)*.5)}
+.ch h3{margin:0;font:700 15px var(--disp);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ch h3 small{font:500 10.5px var(--mono);color:var(--mute)}
+.big{font:600 30px var(--mono);color:var(--c);text-shadow:0 0 calc(var(--hit,0)*24px) var(--c);margin:4px 0 0;font-variant-numeric:tabular-nums}
+.big small{font-size:12px;color:var(--mute);margin-left:4px}
+.sub{font:11.5px var(--mono);color:var(--mute);min-height:18px}
+.spark{display:block;width:100%;height:64px;margin:6px 0}
+.map{font:11px var(--mono);color:var(--mute);border-top:1px dashed var(--line);padding-top:6px;margin-top:4px}
+.map b{color:var(--fg);font-weight:500}
+.row2{display:grid;gap:12px;grid-template-columns:2fr 1fr;margin-top:12px}
+@media (max-width:860px){.row2{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.panel h3{margin:0 0 6px;font:700 15px var(--disp);display:flex;justify-content:space-between}
+.panel h3 small{font:500 10.5px var(--mono);color:var(--mute)}
+#roll,#scope{display:block;width:100%;height:170px}
+#log{font:11.5px var(--mono);height:170px;overflow:hidden;margin:0;padding:0;list-style:none}
+#log li{display:flex;gap:8px;padding:2px 0;border-bottom:1px solid #0f171f;animation:li .4s ease}
+@keyframes li{from{background:rgba(255,90,60,.25)}}
+#log li span:first-child{color:var(--mute);min-width:52px}
+#log li b{color:var(--q);min-width:38px;font-weight:600}
+.info{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:26px}
+.info h4{font:700 18px var(--disp);margin:0 0 6px}
+.info p,.info li{color:var(--mute);font-size:13.5px}
+table{width:100%;border-collapse:collapse;font:12px var(--mono)}
+td,th{border-bottom:1px solid var(--line);padding:5px 6px;text-align:left;vertical-align:top}
+th{color:var(--mute);font-weight:500}
+.warn{color:var(--s)}
+footer{margin-top:24px;font:11px var(--mono);color:var(--mute)}
+@media (prefers-reduced-motion:reduce){h1{animation:none}.dot{animation:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
   <div>
-    <h1>Earth<span>MIDI</span></h1>
-    <p class="tagline">The planet as a controller. Live earthquakes, solar wind, geomagnetic storms and ocean swell become sound and open MIDI that you play with.</p>
+    <h1>EARTH MIDI</h1>
+    <div class="badges"><span class="b raw">Raw sensor data</span><span class="b alg">Algorithmic mapping</span><span class="b ai">AI</span></div>
   </div>
-  <div class="controls">
-    <button class="go" id="start">▶ Start listening</button>
-    <select id="midiOut" aria-label="MIDI output"><option value="">MIDI out: off</option></select>
-    <button id="replay" aria-pressed="false" title="Play the last 24 hours of earthquakes in 2 minutes">24h replay</button>
-  </div>
+  <p class="tag">The planet is the instrument. Every note is a real earthquake, every filter sweep is the actual solar wind hitting Earth right now, the surf is real ocean swell, and the shimmer is live X-ray flux from the Sun. Hear it here, or route it as MIDI into your DAW.</p>
 </header>
 
-<div class="status" id="status"><span>Data: <b id="dataState">loading…</b></span><span>Audio: <b id="audioState">off</b></span><span>MIDI: <b id="midiState">not connected</b></span></div>
-
-<div class="map"><canvas id="map" aria-label="World map of live earthquakes"></canvas><div class="ticker" id="ticker"></div></div>
-
-<div class="channels">
-  <div class="ch" style="--c:var(--quake)">
-    <h3>Earthquakes <small>MIDI ch 1 · notes</small></h3>
-    <div class="big" id="qVal">–</div>
-    <div class="src">USGS, every quake worldwide, last 24 h</div>
-    <canvas class="spark" id="qSpark"></canvas>
-    <pre>magnitude → velocity (M1=20 … M7+=127)
-depth     → pitch (shallow=high, deep=low)
-length    → magnitude × 0.4 s</pre>
-    <div class="labels"><span class="lbl l-raw">Raw data</span><span class="lbl l-algo">Algorithmic mapping</span></div>
+<div class="bar">
+  <button id="go">▶ START</button>
+  <select id="mode" aria-label="Mode">
+    <option value="180">Replay last 24h in 3 min, then live</option>
+    <option value="600">Replay last 24h in 10 min, then live</option>
+    <option value="60">Replay last 24h in 60 s, then live</option>
+    <option value="0">Live only</option>
+  </select>
+  <div class="mutes" style="display:flex;gap:6px">
+    <button data-l="q" aria-pressed="true" style="--c:var(--q)">Quakes</button>
+    <button data-l="s" aria-pressed="true" style="--c:var(--s)">Sun</button>
+    <button data-l="o" aria-pressed="true" style="--c:var(--o)">Ocean</button>
+    <button data-l="x" aria-pressed="true" style="--c:var(--x)">Flares</button>
   </div>
-  <div class="ch" style="--c:var(--sun)">
-    <h3>Solar wind <small>MIDI ch 2 · CC 1–3</small></h3>
-    <div class="big" id="sVal">–</div>
-    <div class="src">NOAA SWPC, DSCOVR/ACE, 5-min</div>
-    <canvas class="spark" id="sSpark"></canvas>
-    <pre>speed 250–900 km/s → CC1 (also synth tempo)
-density 0–30 p/cm³ → CC2 (filter)
-Bz −20…+20 nT     → CC3 (detune)</pre>
-    <div class="labels"><span class="lbl l-raw">Raw data</span><span class="lbl l-algo">Algorithmic mapping</span></div>
-  </div>
-  <div class="ch" style="--c:var(--kp)">
-    <h3>Geomagnetic storm <small>MIDI ch 2 · CC 4</small></h3>
-    <div class="big" id="kVal">–</div>
-    <div class="src">NOAA SWPC planetary Kp index</div>
-    <canvas class="spark" id="kSpark"></canvas>
-    <pre>Kp 0–9 → CC4 (reverb / space)
-Kp ≥ 5 (storm) → key shifts to minor</pre>
-    <div class="labels"><span class="lbl l-raw">Raw data</span><span class="lbl l-algo">Algorithmic mapping</span></div>
-  </div>
-  <div class="ch" style="--c:var(--ocean)">
-    <h3>Ocean swell <small>MIDI ch 3 · notes + CC 5</small></h3>
-    <div class="big" id="oVal">–</div>
-    <div class="src">Open-Meteo Marine, 6 ocean points</div>
-    <canvas class="spark" id="oSpark"></canvas>
-    <pre>wave height 0–8 m → CC5 + pad volume
-wave period       → pad note length
-one point per ocean, cycled</pre>
-    <div class="labels"><span class="lbl l-raw">Raw data</span><span class="lbl l-algo">Algorithmic mapping</span></div>
-  </div>
+  <label class="vol">VOL <input type="range" id="vol" min="0" max="1" step=".01" value=".8"></label>
+  <select id="midiOut" aria-label="MIDI output"><option value="">MIDI out: off</option></select>
+  <div class="status"><span id="dataState">loading data…</span><span id="midiState"></span></div>
 </div>
 
-<section class="about">
-  <div>
-    <h2>Where AI is (and isn't)</h2>
-    <div class="tbl"><table>
-      <tr><th>Label</th><th>What it means here</th></tr>
-      <tr><td><span class="lbl l-raw">Raw data</span></td><td>Numbers straight from the scientific source, unchanged.</td></tr>
-      <tr><td><span class="lbl l-algo">Algorithmic</span></td><td>Fixed formulas (listed on each channel) turn data into notes and controllers. The same input always gives the same output. This is the kind of mapping musicians have done with synths since the 1970s.</td></tr>
-      <tr><td><span class="lbl l-ai">AI-assisted</span></td><td>Not used anywhere in this version. If it's ever added (for captions, for example), it will be labelled, and it will never generate the audio.</td></tr>
-    </table></div>
-  </div>
-  <div>
-    <h2>Use it in your DAW</h2>
-    <p>Open this page in Chrome or Edge, choose a MIDI output, then route it into Ableton, Logic or any synth. On a Mac, enable the <b>IAC Driver</b> bus in Audio MIDI Setup. On Windows, use <b>loopMIDI</b>. The built-in synth is just a preview. The point is what <i>you</i> make with the signal.</p>
-    <p class="muted">Channels: 1 = quakes (notes), 2 = sun (CC 1–4), 3 = ocean (notes + CC 5).</p>
-  </div>
-  <div>
-    <h2>Sources</h2>
-    <p><a href="https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php">USGS earthquake feeds</a> · <a href="https://www.swpc.noaa.gov/">NOAA Space Weather Prediction Center</a> · <a href="https://open-meteo.com/en/docs/marine-weather-api">Open-Meteo Marine</a> (CC BY 4.0). Data is refreshed every 60 seconds. If a source can't be reached, the channel says so and plays recorded demo data, labelled <span class="warn">demo</span>.</p>
-  </div>
-</section>
-<footer>Earth MIDI · prototype v0.1 · open mappings, no AI audio</footer>
+<div class="stage">
+  <div class="prog" id="prog"></div>
+  <canvas id="map" width="1600" height="800"></canvas>
+  <div class="hud"><span><b id="clock">--:--:-- UTC</b> · <span id="modeLbl">idle</span></span><span id="hudR">day/night line, aurora ovals and solar wind particles are drawn from live data</span></div>
+  <div class="tip" id="tip"></div>
+</div>
+
+<div class="grid">
+  <div class="ch" id="cq" style="--c:var(--q)"><h3>Earthquakes <small>ch 1 · notes</small></h3><div class="big" id="vq">–</div><div class="sub" id="sq"></div><canvas class="spark" id="kq"></canvas>
+    <div class="map"><b>magnitude → velocity</b> · <b>depth → pitch</b> (shallow is high) · <b>longitude → pan</b> · M4.5+ adds a sub-bass hit</div></div>
+  <div class="ch" id="cs" style="--c:var(--s)"><h3>Solar wind <small>ch 2 · CC 1–4</small></h3><div class="big" id="vs">–</div><div class="sub" id="ss"></div><canvas class="spark" id="ks"></canvas>
+    <div class="map"><b>speed → filter + tempo</b> · <b>density → pad thickness</b> · <b>Bz south → darker</b> · <b>Kp → scale</b></div></div>
+  <div class="ch" id="co" style="--c:var(--o)"><h3>Ocean swell <small>ch 3 · CC 5 + notes</small></h3><div class="big" id="vo">–</div><div class="sub" id="so"></div><canvas class="spark" id="ko"></canvas>
+    <div class="map"><b>wave height → surf level</b> · <b>wave period → surf rhythm</b> (the real period, in seconds)</div></div>
+  <div class="ch" id="cx" style="--c:var(--x)"><h3>Solar X-rays <small>ch 4 · CC 6 + notes</small></h3><div class="big" id="vx">–</div><div class="sub" id="sx"></div><canvas class="spark" id="kx"></canvas>
+    <div class="map"><b>X-ray flux → shimmer</b> · a C, M or X class flare triggers a bell swell</div></div>
+</div>
+
+<div class="row2">
+  <div class="panel"><h3>MIDI monitor <small>every note, as it's sent</small></h3><canvas id="roll"></canvas></div>
+  <div class="panel"><h3>Event log <small>real events only</small></h3><ul id="log"></ul></div>
+</div>
+<div class="panel" style="margin-top:12px"><h3>Output <small>waveform + spectrum of what you hear</small></h3><canvas id="scope"></canvas></div>
+
+<div class="info">
+  <div><h4>Where AI is (and isn't)</h4><table>
+    <tr><th>Layer</th><th>What it is</th></tr>
+    <tr><td>Data</td><td><span class="b raw">Raw</span> USGS, NOAA SWPC, GOES, Open-Meteo. Values are never smoothed, invented or predicted.</td></tr>
+    <tr><td>Mapping</td><td><span class="b alg">Algorithmic</span> fixed formulas, shown on each card. The same data always gives the same notes.</td></tr>
+    <tr><td>Sound</td><td><span class="b alg">Algorithmic</span> Web Audio synthesis: FM bells, saw pads, filtered noise, convolution reverb. No samples.</td></tr>
+    <tr><td>AI</td><td>Not used anywhere. No generated audio, no ML models.</td></tr></table></div>
+  <div><h4>Use it in your DAW</h4><ul>
+    <li><b>Mac:</b> Audio MIDI Setup → MIDI Studio → IAC Driver → tick “Device is online”. Pick “IAC Driver Bus 1” above, then arm a MIDI track in Ableton, Logic or Bitwig.</li>
+    <li><b>Windows:</b> install loopMIDI, create a port, pick it above.</li>
+    <li>Use Chrome or Edge, which support Web MIDI. Channels 1–4 are as labelled on each card.</li></ul></div>
+  <div><h4>Accuracy</h4><p>Replay mode compresses the last 24 hours, keeping every quake in its real order and real relative spacing. The clock shows the real UTC time being played. Live mode plays new quakes within about a minute of USGS publishing them. Solar wind is the DSCOVR/ACE feed at the L1 point, roughly 30–60 minutes before it reaches Earth. If any source fails, that card says <span class="warn">demo</span> and nothing is passed off as live.</p></div>
+</div>
+<footer>Earth MIDI · prototype v0.2 · data: <a href="https://earthquake.usgs.gov/earthquakes/feed/">USGS</a>, <a href="https://www.swpc.noaa.gov/">NOAA SWPC</a> (GOES, DSCOVR), <a href="https://open-meteo.com/">Open-Meteo Marine</a> (CC BY 4.0), land: Natural Earth</footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
-const S={quakes:[],seen:new Set(),sun:{speed:[],density:[],bz:[]},kp:[],ocean:[],demo:{},replay:false};
-let LAND=null;
-fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json').then(r=>r.json()).then(t=>{LAND=topojson.feature(t,t.objects.land)}).catch(()=>{});
-const OCEAN_PTS=[["N Pacific",40,-150],["S Pacific",-40,-120],["N Atlantic",50,-30],["S Atlantic",-40,-10],["Indian",-30,80],["Southern",-58,20]];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,map=(v,a,b,c,d)=>lerp(c,d,clamp((v-a)/(b-a),0,1));
+const DPR=Math.min(2,window.devicePixelRatio||1);
 
-/* ---------- data ---------- */
+/* ================= state ================= */
+const S={quakes:[],sun:{speed:[],density:[],bz:[],bt:[],t:[]},kp:[],ocean:[],xray:[],demo:{},land:null,
+  played:new Set(),rings:[],notes:[],log:[],on:false,mode:180,replayStart:0,replayFrom:0,liveSince:0,mute:{q:false,s:false,o:false,x:false},hit:{q:0,s:0,o:0,x:0}};
+const OCEAN_PTS=[["N Pacific",30,-150],["Gulf of Alaska",55,-145],["N Atlantic",50,-30],["S Atlantic",-35,-20],["Cape of Good Hope",-38,20],["S Indian",-40,80],["Bay of Bengal",14,88],["Tasman Sea",-38,160],["Southern Ocean",-55,-90],["Philippine Sea",20,135]];
+
+/* ================= data ================= */
 async function getJSON(u){const r=await fetch(u,{cache:"no-store"});if(!r.ok)throw new Error(r.status);return r.json()}
-function rows(j){ // SWPC: array-of-arrays with header row, or array of objects
-  if(Array.isArray(j)&&Array.isArray(j[0])){const h=j[0];return j.slice(1).map(r=>Object.fromEntries(h.map((k,i)=>[k,r[i]])))}
-  return Array.isArray(j)?j:[];
-}
+const rows=j=>Array.isArray(j)&&Array.isArray(j[0])?j.slice(1).map(r=>Object.fromEntries(j[0].map((k,i)=>[k,r[i]]))):(Array.isArray(j)?j:[]);
+const num=v=>v===null||v===undefined||v===""?NaN:+v;
 async function loadQuakes(){
   try{const j=await getJSON("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson");
-    S.quakes=j.features.map(f=>({id:f.id,mag:f.properties.mag??0,place:f.properties.place||"",time:f.properties.time,lon:f.geometry.coordinates[0],lat:f.geometry.coordinates[1],depth:f.geometry.coordinates[2]})).sort((a,b)=>a.time-b.time);
-    S.demo.q=false;
+    const fresh=j.features.map(f=>({id:f.id,mag:f.properties.mag??0,place:f.properties.place||"",time:f.properties.time,lon:f.geometry.coordinates[0],lat:f.geometry.coordinates[1],depth:Math.max(0,f.geometry.coordinates[2]||0),url:f.properties.url})).sort((a,b)=>a.time-b.time);
+    const known=new Set(S.quakes.map(q=>q.id));fresh.forEach(q=>{if(!known.has(q.id))S.quakes.push(q)});S.quakes.sort((a,b)=>a.time-b.time);
+    S.quakes=S.quakes.filter(q=>q.time>Date.now()-864e5*1.05);S.demo.q=false;
   }catch(e){if(!S.quakes.length){S.quakes=demoQuakes();S.demo.q=true}}
 }
 async function loadSun(){
-  try{
-    const p=rows(await getJSON("https://services.swpc.noaa.gov/products/solar-wind/plasma-5-minute.json"));
-    const m=rows(await getJSON("https://services.swpc.noaa.gov/products/solar-wind/mag-5-minute.json"));
-    S.sun.speed=p.map(r=>+r.speed).filter(Number.isFinite);S.sun.density=p.map(r=>+r.density).filter(Number.isFinite);
-    S.sun.bz=m.map(r=>+(r.bz_gsm??r.bz)).filter(Number.isFinite);S.demo.s=false;
-  }catch(e){if(!S.sun.speed.length){S.sun={speed:wave(60,420,60),density:wave(60,6,3),bz:wave(60,-2,6)};S.demo.s=true}}
-  try{const k=rows(await getJSON("https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json"));
-    S.kp=k.map(r=>+(r.Kp??r.kp_index??r.kp)).filter(Number.isFinite);S.demo.k=false;
-  }catch(e){if(!S.kp.length){S.kp=wave(24,2.5,1.5).map(v=>Math.max(0,Math.min(9,v)));S.demo.k=true}}
+  try{const [p,m]=await Promise.all([getJSON("https://services.swpc.noaa.gov/products/solar-wind/plasma-1-day.json"),getJSON("https://services.swpc.noaa.gov/products/solar-wind/mag-1-day.json")]);
+    const P=rows(p).filter(r=>Number.isFinite(num(r.speed))),M=rows(m).filter(r=>Number.isFinite(num(r.bz_gsm??r.bz)));
+    S.sun.t=P.map(r=>Date.parse(r.time_tag.replace(" ","T")+"Z"));S.sun.speed=P.map(r=>num(r.speed));S.sun.density=P.map(r=>num(r.density));
+    S.sun.mt=M.map(r=>Date.parse(r.time_tag.replace(" ","T")+"Z"));S.sun.bz=M.map(r=>num(r.bz_gsm??r.bz));S.sun.bt=M.map(r=>num(r.bt));S.demo.s=false;
+  }catch(e){if(!S.sun.speed.length){const n=288,t0=Date.now()-864e5;S.sun.t=S.sun.mt=[...Array(n)].map((_,i)=>t0+i*3e5);S.sun.speed=wave(n,430,60);S.sun.density=wave(n,5,3).map(v=>Math.max(.5,v));S.sun.bz=wave(n,-1,5);S.sun.bt=wave(n,6,2);S.demo.s=true}}
+  try{const k=rows(await getJSON("https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json"));S.kp=k.map(r=>({t:Date.parse(String(r.time_tag).replace(" ","T")+(String(r.time_tag).endsWith("Z")?"":"Z")),v:num(r.Kp??r.kp_index??r.kp)})).filter(r=>Number.isFinite(r.v));S.demo.k=false}
+  catch(e){if(!S.kp.length){S.kp=[...Array(8)].map((_,i)=>({t:Date.now()-(8-i)*108e5,v:2+Math.sin(i)}));S.demo.k=true}}
+}
+async function loadXray(){
+  try{const j=await getJSON("https://services.swpc.noaa.gov/json/goes/primary/xrays-1-day.json");
+    S.xray=j.filter(r=>r.energy==="0.1-0.8nm"&&r.flux>0).map(r=>({t:Date.parse(r.time_tag),v:r.flux}));S.demo.x=false}
+  catch(e){if(!S.xray.length){const t0=Date.now()-864e5;S.xray=[...Array(288)].map((_,i)=>({t:t0+i*3e5,v:Math.pow(10,-6.3+.4*Math.sin(i/30)+(i===200?1.2:0))}));S.demo.x=true}}
 }
 async function loadOcean(){
-  try{const lat=OCEAN_PTS.map(p=>p[1]).join(","),lon=OCEAN_PTS.map(p=>p[2]).join(",");
-    let j=await getJSON(`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height,wave_period`);
+  try{let j=await getJSON(`https://marine-api.open-meteo.com/v1/marine?latitude=${OCEAN_PTS.map(p=>p[1])}&longitude=${OCEAN_PTS.map(p=>p[2])}&current=wave_height,wave_period,wave_direction&hourly=wave_height&past_days=1&forecast_days=1`);
     if(!Array.isArray(j))j=[j];
-    S.ocean=j.map((x,i)=>({name:OCEAN_PTS[i][0],h:x.current?.wave_height??0,p:x.current?.wave_period??8}));S.demo.o=false;
-  }catch(e){if(!S.ocean.length){S.ocean=OCEAN_PTS.map(p=>({name:p[0],h:1+Math.random()*4,p:6+Math.random()*8}));S.demo.o=true}}
+    S.ocean=j.map((x,i)=>({name:OCEAN_PTS[i][0],lat:OCEAN_PTS[i][1],lon:OCEAN_PTS[i][2],h:x.current?.wave_height??0,p:x.current?.wave_period??8,dir:x.current?.wave_direction??0,hist:(x.hourly?.wave_height||[]).slice(0,25)}));S.demo.o=false;
+  }catch(e){if(!S.ocean.length){S.ocean=OCEAN_PTS.map(p=>({name:p[0],lat:p[1],lon:p[2],h:1+Math.random()*4,p:6+Math.random()*8,dir:0,hist:wave(25,2,1)}));S.demo.o=true}}
 }
-function wave(n,base,amp){return Array.from({length:n},(_,i)=>base+amp*Math.sin(i/5)+amp*.3*Math.sin(i*1.7))}
-function demoQuakes(){const now=Date.now(),a=[];for(let i=0;i<180;i++){const belt=Math.random();a.push({id:"demo"+i,mag:+(Math.random()**2*5.5+.5).toFixed(1),place:"demo data",time:now-86400000+i*480000,
-  lat:belt<.5?(Math.random()*120-60):(Math.random()*40+20),lon:belt<.5?(Math.random()*60+120):(Math.random()*80-130),depth:Math.random()*300})}return a}
+const wave=(n,b,a)=>Array.from({length:n},(_,i)=>b+a*Math.sin(i/9)+a*.35*Math.sin(i*.73));
+function demoQuakes(){const now=Date.now(),a=[];for(let i=0;i<200;i++){const r=Math.random(),belt=r<.4?[35+Math.random()*25,-125+Math.random()*-30]:r<.7?[-10+Math.random()*50,120+Math.random()*30]:[-40+Math.random()*50,-75+Math.random()*8];
+  a.push({id:"d"+i,mag:+(Math.random()**2.2*5.8+.6).toFixed(1),place:"demo data",time:now-864e5+i*432e3,lat:belt[0],lon:belt[1],depth:Math.random()**2*400})}return a}
+async function loadLand(){try{const w=await getJSON("https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json");S.land=topojson.feature(w,w.objects.land)}catch(_){}}
 async function refresh(){
-  await Promise.all([loadQuakes(),loadSun(),loadOcean()]);
-  const d=Object.entries(S.demo).filter(([,v])=>v).map(([k])=>({q:"quakes",s:"solar wind",k:"Kp",o:"ocean"}[k]));
-  $("dataState").innerHTML=d.length?`<span class="warn">demo for ${d.join(", ")}</span> (source unreachable)`:"live · "+new Date().toLocaleTimeString();
-  updatePanels();
+  await Promise.all([loadQuakes(),loadSun(),loadXray(),loadOcean()]);
+  const d=Object.entries(S.demo).filter(([,v])=>v).map(([k])=>({q:"quakes",s:"solar wind",k:"Kp",x:"X-rays",o:"ocean"}[k]));
+  $("dataState").innerHTML=d.length?`<span class="warn">demo: ${d.join(", ")}</span> (source unreachable)`:`<span class="dot"></span>live · updated ${new Date().toLocaleTimeString()}`;
+  updatePads();
 }
 
-/* ---------- MIDI ---------- */
+/* value of a time series at real time t */
+function at(ts,vs,t){if(!vs.length)return NaN;let lo=0,hi=ts.length-1;if(t<=ts[0])return vs[0];if(t>=ts[hi])return vs[hi];while(hi-lo>1){const m=(lo+hi)>>1;ts[m]<=t?lo=m:hi=m}return vs[lo]}
+const kpAt=t=>{let v=S.kp.length?S.kp[S.kp.length-1].v:2;for(const k of S.kp)if(k.t<=t)v=k.v;return v};
+const xrayAt=t=>at(S.xray.map(x=>x.t),S.xray.map(x=>x.v),t);
+const flareClass=f=>!Number.isFinite(f)?"–":f>=1e-4?"X"+(f/1e-4).toFixed(1):f>=1e-5?"M"+(f/1e-5).toFixed(1):f>=1e-6?"C"+(f/1e-6).toFixed(1):f>=1e-7?"B"+(f/1e-7).toFixed(1):"A"+(f/1e-8).toFixed(1);
+
+/* ================= time model ================= */
+// realNow(): the real-world time currently being played
+function realNow(){
+  if(!S.on)return Date.now();
+  if(S.mode>0&&!S.liveSince){const el=(performance.now()-S.replayStart)/1000,frac=el/S.mode;if(frac>=1){S.liveSince=Date.now();setMode();return Date.now()}return S.replayFrom+frac*(Date.now()-S.replayFrom)}
+  return Date.now();
+}
+function setMode(){$("modeLbl").textContent=!S.on?"idle":S.mode>0&&!S.liveSince?`replaying the last 24h at ${Math.round(86400/S.mode)}× speed`:"LIVE · new quakes play as USGS publishes them"}
+
+/* ================= audio engine ================= */
+let A=null;
+function initAudio(){
+  const ctx=new (window.AudioContext||window.webkitAudioContext)({latencyHint:"playback"});
+  const master=ctx.createGain();master.gain.value=+$("vol").value;
+  const comp=ctx.createDynamicsCompressor();comp.threshold.value=-18;comp.knee.value=12;comp.ratio.value=4;comp.attack.value=.01;comp.release.value=.25;
+  const lim=ctx.createDynamicsCompressor();lim.threshold.value=-2;lim.knee.value=0;lim.ratio.value=20;lim.attack.value=.002;lim.release.value=.1;
+  const an=ctx.createAnalyser();an.fftSize=2048;an.smoothingTimeConstant=.82;
+  master.connect(comp);comp.connect(lim);lim.connect(an);an.connect(ctx.destination);
+  // convolution reverb: generated stereo impulse, ~5 s, darkening tail
+  const rev=ctx.createConvolver(),len=ctx.sampleRate*5,ir=ctx.createBuffer(2,len,ctx.sampleRate);
+  for(let c=0;c<2;c++){const d=ir.getChannelData(c);let lp=0;for(let i=0;i<len;i++){const t=i/len,n=Math.random()*2-1;lp+= (n-lp)*(0.9-0.75*t);d[i]=lp*Math.pow(1-t,2.6)*(i<ctx.sampleRate*.012?i/(ctx.sampleRate*.012):1)}}
+  rev.buffer=ir;const revG=ctx.createGain();revG.gain.value=.55;rev.connect(revG);revG.connect(master);
+  // tempo-synced ping-pong delay
+  const dl=ctx.createDelay(2),dr=ctx.createDelay(2),fb=ctx.createGain(),dlg=ctx.createGain(),mrg=ctx.createChannelMerger(2),dlf=ctx.createBiquadFilter();
+  dl.delayTime.value=.375;dr.delayTime.value=.375;fb.gain.value=.38;dlg.gain.value=.3;dlf.type="lowpass";dlf.frequency.value=3200;
+  dlg.connect(dl);dl.connect(dlf);dlf.connect(dr);dr.connect(fb);fb.connect(dl);dl.connect(mrg,0,0);dr.connect(mrg,0,1);mrg.connect(master);mrg.connect(rev);
+  // noise buffer
+  const nb=ctx.createBuffer(1,ctx.sampleRate*4,ctx.sampleRate),nd=nb.getChannelData(0);let b0=0,b1=0,b2=0;for(let i=0;i<nd.length;i++){const w=Math.random()*2-1;b0=.99765*b0+w*.099;b1=.963*b1+w*.2965;b2=.57*b2+w*1.0526;nd[i]=(b0+b1+b2+w*.1848)*.18}
+  A={ctx,master,rev,dly:dlg,an,nb,buses:{}};
+  ["q","s","o","x"].forEach(k=>{const g=ctx.createGain();g.connect(master);const sR=ctx.createGain();sR.gain.value=k==="s"?.5:k==="q"?.7:.4;g.connect(sR);sR.connect(rev);A.buses[k]=g});
+  buildPad();buildSurf();buildShimmer();
+}
+const mtof=m=>440*Math.pow(2,(m-69)/12);
+/* --- scale from geomagnetic state (Kp) --- */
+const ROOT=50; // D3
+function scaleFor(kp){return kp>=5?[0,3,5,7,10]:kp>=4?[0,2,3,5,7,9,10]:[0,2,4,7,9]}
+function degree(sc,i,base=ROOT){const o=Math.floor(i/sc.length);return base+12*o+sc[((i%sc.length)+sc.length)%sc.length]}
+
+/* --- Sun: evolving saw pad --- */
+function buildPad(){
+  const {ctx}=A,flt=ctx.createBiquadFilter(),flt2=ctx.createBiquadFilter(),g=ctx.createGain(),pan=ctx.createStereoPanner();
+  flt.type="lowpass";flt.frequency.value=800;flt.Q.value=2;flt2.type="highpass";flt2.frequency.value=70;g.gain.value=0;
+  flt.connect(flt2);flt2.connect(g);g.connect(A.buses.s);
+  const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=.07;lg.gain.value=250;lfo.connect(lg);lg.connect(flt.frequency);lfo.start();
+  const voices=[];for(let v=0;v<4;v++)for(const det of[-7,7]){const o=ctx.createOscillator();o.type="sawtooth";o.detune.value=det+(Math.random()*4-2);const vg=ctx.createGain();vg.gain.value=.05;const p=ctx.createStereoPanner();p.pan.value=det<0?-.45:.45;o.connect(vg);vg.connect(p);p.connect(flt);o.start();voices.push({o,vg,v})}
+  A.pad={flt,g,voices,lfo,chordIx:0,lastChord:0};
+}
+function updatePads(){
+  if(!A)return;const t=realNow(),c=A.ctx.currentTime;
+  const sp=at(S.sun.t,S.sun.speed,t),de=at(S.sun.t,S.sun.density,t),bz=at(S.sun.mt,S.sun.bz,t),bt=at(S.sun.mt,S.sun.bt,t),kp=kpAt(t);
+  if(Number.isFinite(sp)){
+    A.pad.flt.frequency.setTargetAtTime(map(sp,250,900,260,4200)*(bz<-5?.6:1),c,1.5);
+    A.pad.flt.Q.setTargetAtTime(map(de,0,25,1,9),c,2);
+    A.pad.lfo.frequency.setTargetAtTime(map(Number.isFinite(bt)?bt:5,0,30,.04,.5),c,2);
+    A.pad.g.gain.setTargetAtTime(S.mute.s?0:map(de,0,20,.32,.55),c,1);
+    const beat=60/map(sp,250,900,64,128);A.dlTime=beat*.75;
+    // delay follows tempo derived from wind speed
+  }
+  // chord: degrees cycle (I, vi, IV, V shape inside the current Kp scale) every ~8 s of audio time
+  const sc=scaleFor(kp),prog=[[0,2,4,7],[5,7,9,12],[3,5,7,10],[4,6,8,11]];
+  if(c-A.pad.lastChord>8){A.pad.lastChord=c;A.pad.chordIx=(A.pad.chordIx+1)%prog.length;const ch=prog[A.pad.chordIx];
+    A.pad.voices.forEach((x,i)=>x.o.frequency.setTargetAtTime(mtof(degree(sc,ch[x.v],ROOT-12)),c,.9));
+    const bzDark=Number.isFinite(bz)&&bz<-8; A.pad.voices.forEach(x=>x.vg.gain.setTargetAtTime(.05*(bzDark&&x.v===3?1.4:1),c,1));
+    midiCC(2,1,map(sp,250,900,0,127));midiCC(2,2,map(de,0,30,0,127));midiCC(2,3,map(bz,-20,20,0,127));midiCC(2,4,map(kp,0,9,0,127));
+    pushNote(degree(sc,ch[0],ROOT-12),"s",60,3);
+  }
+  // surf
+  const oh=S.ocean.length?S.ocean.reduce((a,b)=>a+b.h,0)/S.ocean.length:0,op=S.ocean.length?S.ocean.reduce((a,b)=>a+b.p,0)/S.ocean.length:8;
+  A.surf.g.gain.setTargetAtTime(S.mute.o?0:map(oh,0,6,.05,.42),c,1);A.surf.lfo.frequency.setTargetAtTime(1/Math.max(3,op),c,1);A.surf.bp.frequency.setTargetAtTime(map(op,4,16,1400,380),c,2);
+  // shimmer from X-ray flux (log scale: A to X)
+  const xf=xrayAt(t),lx=Number.isFinite(xf)?Math.log10(xf):-8;
+  A.shim.g.gain.setTargetAtTime(S.mute.x?0:map(lx,-8,-4,.0,.16),c,1.2);A.shim.f.frequency.setTargetAtTime(map(lx,-8,-4,2000,9000),c,2);
+  S.cur={sp,de,bz,bt,kp,oh,op,xf};
+}
+/* --- Ocean: filtered noise surf with LFO at real swell period --- */
+function buildSurf(){
+  const {ctx}=A,src=ctx.createBufferSource();src.buffer=A.nb;src.loop=true;
+  const bp=ctx.createBiquadFilter();bp.type="bandpass";bp.frequency.value=700;bp.Q.value=.6;
+  const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=2500;
+  const am=ctx.createGain();am.gain.value=.5;const lfo=ctx.createOscillator();lfo.frequency.value=.1;const lg=ctx.createGain();lg.gain.value=.5;lfo.connect(lg);lg.connect(am.gain);lfo.start();
+  const g=ctx.createGain();g.gain.value=0;const pan=ctx.createStereoPanner();const pl=ctx.createOscillator();pl.frequency.value=.031;const pg=ctx.createGain();pg.gain.value=.6;pl.connect(pg);pg.connect(pan.pan);pl.start();
+  src.connect(bp);bp.connect(lp);lp.connect(am);am.connect(g);g.connect(pan);pan.connect(A.buses.o);src.start();
+  A.surf={bp,g,lfo};
+}
+/* --- Flares: high sine cluster shimmer --- */
+function buildShimmer(){
+  const {ctx}=A,g=ctx.createGain();g.gain.value=0;const f=ctx.createBiquadFilter();f.type="bandpass";f.frequency.value=4000;f.Q.value=.7;
+  [74,81,86,93].forEach((m,i)=>{const o=ctx.createOscillator();o.frequency.value=mtof(m);const tg=ctx.createGain();tg.gain.value=0;const l=ctx.createOscillator();l.frequency.value=.13+i*.07;const lg=ctx.createGain();lg.gain.value=.05;l.connect(lg);lg.connect(tg.gain);o.connect(tg);tg.connect(f);o.start();l.start()});
+  f.connect(g);g.connect(A.buses.x);A.shim={g,f};
+}
+/* --- Quake: two-operator FM bell + sub hit for big ones --- */
+function quakeVoice(q){
+  const {ctx}=A,c=ctx.currentTime+.01,kp=kpAt(q.time),sc=scaleFor(kp);
+  const steps=sc.length*3,i=Math.round(map(q.depth,0,700,steps-1,0));const note=degree(sc,i,ROOT);
+  const vel=Math.round(map(q.mag,1,7,20,127)),amp=Math.pow(vel/127,1.6)*.55,dec=1.2+q.mag*.9,f=mtof(note);
+  const car=ctx.createOscillator(),mod=ctx.createOscillator(),mg=ctx.createGain(),eg=ctx.createGain(),lp=ctx.createBiquadFilter(),pan=ctx.createStereoPanner();
+  car.frequency.value=f;mod.frequency.value=f*(q.depth>70?1.4:2.0);
+  mg.gain.setValueAtTime(f*map(q.mag,1,7,1.5,6),c);mg.gain.exponentialRampToValueAtTime(f*.08,c+dec*.6);
+  eg.gain.setValueAtTime(0,c);eg.gain.linearRampToValueAtTime(amp,c+.006);eg.gain.exponentialRampToValueAtTime(.0005,c+dec);
+  lp.type="lowpass";lp.frequency.value=map(vel,20,127,1800,9000);pan.pan.value=clamp(q.lon/180,-1,1)*.85;
+  mod.connect(mg);mg.connect(car.frequency);car.connect(eg);eg.connect(lp);lp.connect(pan);pan.connect(A.buses.q);pan.connect(A.dly);
+  const p2=ctx.createOscillator(),p2g=ctx.createGain();p2.frequency.value=f*4.007;p2g.gain.setValueAtTime(amp*.12,c);p2g.gain.exponentialRampToValueAtTime(.0001,c+dec*.35);p2.connect(p2g);p2g.connect(pan);
+  [car,mod,p2].forEach(o=>{o.start(c);o.stop(c+dec+.1)});
+  if(q.mag>=4.5){ // sub-bass impact + rumble scaled to magnitude
+    const s=ctx.createOscillator(),sg=ctx.createGain();s.type="sine";s.frequency.setValueAtTime(mtof(ROOT-12)*2.2,c);s.frequency.exponentialRampToValueAtTime(mtof(ROOT-24),c+.35);
+    sg.gain.setValueAtTime(0,c);sg.gain.linearRampToValueAtTime(map(q.mag,4.5,8,.45,.9),c+.01);sg.gain.exponentialRampToValueAtTime(.0005,c+1.5+q.mag*.4);s.connect(sg);sg.connect(A.buses.q);s.start(c);s.stop(c+4+q.mag);
+    const n=ctx.createBufferSource();n.buffer=A.nb;const nf=ctx.createBiquadFilter();nf.type="lowpass";nf.frequency.value=140;const ng=ctx.createGain();
+    ng.gain.setValueAtTime(0,c);ng.gain.linearRampToValueAtTime(map(q.mag,4.5,8,.6,1.4),c+.08);ng.gain.exponentialRampToValueAtTime(.0005,c+q.mag*.9);n.connect(nf);nf.connect(ng);ng.connect(A.buses.q);n.start(c);n.stop(c+q.mag);
+  }
+  return {note,vel,dur:dec};
+}
+function flareBell(cls){if(!A)return;const {ctx}=A,c=ctx.currentTime;[0,7,12,19].forEach((d,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.value=mtof(ROOT+24+d);g.gain.setValueAtTime(0,c+i*.12);g.gain.linearRampToValueAtTime(.08,c+i*.12+.02);g.gain.exponentialRampToValueAtTime(.0003,c+i*.12+5);o.connect(g);g.connect(A.buses.x);o.start(c+i*.12);o.stop(c+6)});pushNote(ROOT+24,"x",100,3);midiNote(4,ROOT+24,100,1500);logEv(`Flare ${cls}`,"x")}
+
+/* ================= MIDI ================= */
 let midi=null,out=null;
 async function initMIDI(){
-  if(!navigator.requestMIDIAccess){$("midiState").textContent="not supported in this browser (use Chrome or Edge)";return}
-  try{midi=await navigator.requestMIDIAccess();fillPorts();midi.onstatechange=fillPorts;$("midiState").textContent="ready, pick an output"}
-  catch(e){$("midiState").textContent="permission denied"}
+  if(!navigator.requestMIDIAccess){$("midiState").textContent="Web MIDI needs Chrome or Edge";return}
+  try{midi=await navigator.requestMIDIAccess();fillPorts();midi.onstatechange=fillPorts}catch(e){$("midiState").textContent="MIDI permission denied"}
 }
-function fillPorts(){const sel=$("midiOut"),cur=sel.value;sel.innerHTML='<option value="">MIDI out: off</option>';
-  midi.outputs.forEach(o=>{const op=document.createElement("option");op.value=o.id;op.textContent="MIDI out: "+o.name;sel.appendChild(op)});sel.value=cur}
-$("midiOut").onchange=e=>{out=midi&&e.target.value?midi.outputs.get(e.target.value):null;$("midiState").textContent=out?"→ "+out.name:"off"};
-function midiNote(ch,note,vel,ms){if(!out)return;out.send([0x90|(ch-1),note,vel]);out.send([0x80|(ch-1),note,0],performance.now()+ms)}
-function midiCC(ch,cc,v){if(out)out.send([0xB0|(ch-1),cc,Math.max(0,Math.min(127,Math.round(v)))])}
+function fillPorts(){const s=$("midiOut"),v=s.value;s.innerHTML='<option value="">MIDI out: off</option>';midi.outputs.forEach(o=>{const op=document.createElement("option");op.value=o.id;op.textContent="MIDI → "+o.name;s.appendChild(op)});s.value=v;if(!midi.outputs.size)$("midiState").textContent="no MIDI ports (see “Use it in your DAW”)"}
+$("midiOut").onchange=e=>{out=midi&&e.target.value?midi.outputs.get(e.target.value):null;$("midiState").textContent=out?"sending MIDI":""};
+function midiNote(ch,n,v,ms){if(!out)return;out.send([0x90+ch-1,n&127,clamp(v,1,127)]);out.send([0x80+ch-1,n&127,0],performance.now()+ms)}
+function midiCC(ch,cc,v){if(!out||!Number.isFinite(v))return;out.send([0xB0+ch-1,cc,Math.round(clamp(v,0,127))])}
 
-/* ---------- mappings (the published formulas) ---------- */
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), lerp=(v,a,b,c,d)=>c+(clamp(v,a,b)-a)/(b-a)*(d-c);
-const MAJOR=[0,2,4,7,9], MINOR=[0,3,5,7,10];
-function scaleNote(t,root,storm){const sc=storm?MINOR:MAJOR,oct=Math.floor(t*4),deg=Math.floor((t*4-oct)*5);return root+oct*12+sc[clamp(deg,0,4)]}
-const quakeVel=m=>Math.round(lerp(m,1,7,20,127));
-const quakeNote=(d,storm)=>scaleNote(1-lerp(d,0,700,0,1)*.999,36,storm);
-const last=a=>a.length?a[a.length-1]:NaN;
-
-/* ---------- audio (preview synth; algorithmic) ---------- */
-let ac=null,master,pad=[],filt,verb;
-function initAudio(){
-  ac=new (window.AudioContext||window.webkitAudioContext)();master=ac.createGain();master.gain.value=.5;
-  filt=ac.createBiquadFilter();filt.type="lowpass";filt.frequency.value=1200;
-  verb=ac.createConvolver();verb.buffer=impulse(3.5);const wet=ac.createGain();wet.gain.value=.35;
-  filt.connect(master);filt.connect(verb);verb.connect(wet);wet.connect(master);master.connect(ac.destination);
-  [0,7,12].forEach(i=>{const o=ac.createOscillator(),g=ac.createGain();o.type="sawtooth";o.frequency.value=55*2**(i/12);g.gain.value=0;o.connect(g);g.connect(filt);o.start();pad.push({o,g,i})});
+/* ================= playback loop ================= */
+function playQuake(q){
+  S.played.add(q.id);
+  let r={note:degree(scaleFor(kpAt(q.time)),Math.round(map(q.depth,0,700,14,0)),ROOT),vel:Math.round(map(q.mag,1,7,20,127)),dur:1+q.mag*.9};
+  if(A&&!S.mute.q)r=quakeVoice(q);
+  midiNote(1,r.note,r.vel,Math.round(r.dur*400));
+  S.rings.push({lat:q.lat,lon:q.lon,mag:q.mag,t:performance.now(),depth:q.depth});
+  pushNote(r.note,"q",r.vel,r.dur);S.hit.q=Math.min(1,S.hit.q+map(q.mag,1,6,.25,1));
+  logEv(`M${q.mag.toFixed(1)} · ${q.place} · ${Math.round(q.depth)} km deep → ${noteName(r.note)} v${r.vel}`,"q",q);
+  $("vq").innerHTML=`M${q.mag.toFixed(1)}<small>${Math.round(q.depth)} km</small>`;$("sq").textContent=q.place;
 }
-function impulse(sec){const n=ac.sampleRate*sec,b=ac.createBuffer(2,n,ac.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n)**2.5}return b}
-function pluck(note,vel,dur){if(!ac)return;const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain(),f=440*2**((note-69)/12);
-  o.type="triangle";o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vel/127*.5,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+dur);
-  o.connect(g);g.connect(filt);o.start(t);o.stop(t+dur+.1)}
-
-/* ---------- engine ---------- */
-let running=false,replayIdx=0,oceanIdx=0,tick=0;
-function storm(){return last(S.kp)>=5}
-function step(){
-  if(!running)return;tick++;
-  const speed=last(S.sun.speed),dens=last(S.sun.density),bz=last(S.sun.bz),kp=last(S.kp);
-  // sun → CCs + pad
-  midiCC(2,1,lerp(speed,250,900,0,127));midiCC(2,2,lerp(dens,0,30,0,127));midiCC(2,3,lerp(bz,-20,20,0,127));midiCC(2,4,lerp(kp,0,9,0,127));
-  if(ac){filt.frequency.setTargetAtTime(lerp(dens,0,30,300,4000),ac.currentTime,2);
-    pad.forEach(p=>p.o.detune.setTargetAtTime(lerp(bz,-20,20,-25,25)*(p.i?1:-1),ac.currentTime,2));}
-  // ocean → pad level, slow notes
-  if(S.ocean.length&&tick%8===0){const pt=S.ocean[oceanIdx++%S.ocean.length];
-    midiCC(3,5,lerp(pt.h,0,8,0,127));const n=scaleNote(lerp(pt.h,0,8,.2,.6),36,storm());midiNote(3,n,70,pt.p*400);
-    if(ac)pad.forEach(p=>p.g.gain.setTargetAtTime(lerp(pt.h,0,8,.01,.06),ac.currentTime,3));
-    $("ticker").textContent=`ocean · ${pt.name}: ${pt.h.toFixed(1)} m swell, ${pt.p.toFixed(0)} s period`;}
-  // quakes: replay mode plays the day compressed; live mode plays newly seen quakes
-  const qs=S.quakes;
-  if(S.replay&&qs.length){const per=Math.max(1,Math.ceil(qs.length/240));for(let k=0;k<per&&replayIdx<qs.length;k++)playQuake(qs[replayIdx++]);if(replayIdx>=qs.length)replayIdx=0}
-  else qs.forEach(q=>{if(!S.seen.has(q.id)){S.seen.add(q.id);if(Date.now()-q.time<3600e3)playQuake(q)}});
+const NN=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],noteName=n=>NN[n%12]+(Math.floor(n/12)-1);
+let lastX=null,lastOceanNote=0;
+function tick(){
+  if(!S.on)return;
+  const t=realNow();
+  S.quakes.forEach(q=>{if(!S.played.has(q.id)&&q.time<=t)playQuake(q)});
+  // flares: crossing into a new class (C/M/X) triggers a bell
+  const xc=flareClass(xrayAt(t))[0];if(lastX&&"CMX".includes(xc)&&"ABC".indexOf(lastX)>-1&&"ABCMX".indexOf(xc)>"ABCMX".indexOf(lastX))flareBell(flareClass(xrayAt(t)));lastX=xc;
+  // ocean note on each real swell period
+  const oh=S.cur?S.cur.oh:0,op=S.cur?S.cur.op:8,now=performance.now();
+  if(now-lastOceanNote>op*1000){lastOceanNote=now;const n=degree(scaleFor(S.cur?S.cur.kp:2),Math.round(map(oh,0,6,2,8)),ROOT-12);midiNote(3,n,Math.round(map(oh,0,6,30,110)),op*600);midiCC(3,5,map(oh,0,8,0,127));pushNote(n,"o",map(oh,0,6,30,110),op*.6);S.hit.o=.7}
+  midiCC(4,6,map(Math.log10(xrayAt(t)||1e-8),-8,-4,0,127));
+  updatePads();
+  if(S.mode>0&&!S.liveSince)$("prog").style.width=((t-S.replayFrom)/(Date.now()-S.replayFrom)*100)+"%";else $("prog").style.width="100%";
 }
-const flashes=[];
-function playQuake(q){const st=storm(),n=quakeNote(q.depth,st),v=quakeVel(q.mag),ms=Math.max(.3,q.mag*.4)*1000;
-  midiNote(1,n,v,ms);pluck(n,v,ms/1000);flashes.push({q,t:performance.now()});
-  $("ticker").textContent=`quake · M${q.mag.toFixed(1)} · ${q.place} · ${Math.round(q.depth)} km deep → note ${n}, vel ${v}`}
-// tempo follows solar wind speed
-function loop(){step();const speed=last(S.sun.speed)||400;setTimeout(loop,lerp(speed,250,900,700,250))}
+setInterval(tick,50);
+setInterval(()=>S.on&&refresh(),60000);
 
-/* ---------- visuals ---------- */
-const map=$("map"),mx=map.getContext("2d");
-function proj(lon,lat,w,h){return[(lon+180)/360*w,(90-lat)/180*h]}
-function draw(now){
-  requestAnimationFrame(draw);const dpr=Math.min(devicePixelRatio,2),w=map.width=map.clientWidth*dpr,h=map.height=map.clientHeight*dpr;
-  mx.fillStyle="#04050a";mx.fillRect(0,0,w,h);mx.strokeStyle="rgba(120,130,190,.12)";mx.lineWidth=1;
-  for(let lo=-180;lo<=180;lo+=30){const[x]=proj(lo,0,w,h);mx.beginPath();mx.moveTo(x,0);mx.lineTo(x,h);mx.stroke()}
-  for(let la=-60;la<=60;la+=30){const[,y]=proj(0,la,w,h);mx.beginPath();mx.moveTo(0,y);mx.lineTo(w,y);mx.stroke()}
-  if(LAND){mx.fillStyle="rgba(140,150,210,.10)";mx.strokeStyle="rgba(140,150,210,.28)";mx.lineWidth=dpr;
-    LAND.features.forEach(f=>{const polys=f.geometry.type==="Polygon"?[f.geometry.coordinates]:f.geometry.coordinates;
-      polys.forEach(poly=>{mx.beginPath();poly.forEach(ring=>ring.forEach(([lo,la],i)=>{const[x,y]=proj(lo,la,w,h);i?mx.lineTo(x,y):mx.moveTo(x,y)}));mx.fill("evenodd");mx.stroke()})})}
-  S.quakes.forEach(q=>{const[x,y]=proj(q.lon,q.lat,w,h),age=(Date.now()-q.time)/86400000;mx.fillStyle=`rgba(255,122,61,${.15+.6*(1-age)})`;mx.beginPath();mx.arc(x,y,Math.max(1,q.mag)*1.6*dpr,0,7);mx.fill()});
-  S.ocean.forEach((o,i)=>{const p=OCEAN_PTS[i];if(!p)return;const[x,y]=proj(p[2],p[1],w,h),r=(4+o.h*3+Math.sin(now/600+i)*2)*dpr;mx.strokeStyle="rgba(79,209,197,.7)";mx.beginPath();mx.arc(x,y,r,0,7);mx.stroke()});
-  for(let i=flashes.length-1;i>=0;i--){const f=flashes[i],a=(now-f.t)/1500;if(a>1){flashes.splice(i,1);continue}
-    const[x,y]=proj(f.q.lon,f.q.lat,w,h);mx.strokeStyle=`rgba(255,180,120,${1-a})`;mx.lineWidth=2*dpr;mx.beginPath();mx.arc(x,y,(6+a*f.q.mag*14)*dpr,0,7);mx.stroke()}
+/* ================= visuals ================= */
+const cv=$("map"),cx=cv.getContext("2d");
+function sizeMap(){const w=cv.clientWidth;cv.width=w*DPR;cv.height=w/2*DPR}
+addEventListener("resize",sizeMap);
+const P=(lon,lat)=>[(lon+180)/360*cv.width,(90-lat)/180*cv.height];
+function sunPos(t){const d=new Date(t),doy=(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-Date.UTC(d.getUTCFullYear(),0,0))/864e5,g=2*Math.PI/365*(doy-1+(d.getUTCHours()-12)/24);
+  const decl=.006918-.399912*Math.cos(g)+.070257*Math.sin(g)-.006758*Math.cos(2*g)+.000907*Math.sin(2*g)-.002697*Math.cos(3*g)+.00148*Math.sin(3*g);
+  const eq=229.18*(.000075+.001868*Math.cos(g)-.032077*Math.sin(g)-.014615*Math.cos(2*g)-.040849*Math.sin(2*g));
+  const mins=d.getUTCHours()*60+d.getUTCMinutes()+d.getUTCSeconds()/60;return {lat:decl*180/Math.PI,lon:-(mins+eq-720)/4}}
+let parts=[];
+function drawMap(now){
+  const W=cv.width,H=cv.height,t=realNow();cx.clearRect(0,0,W,H);
+  // graticule
+  cx.strokeStyle="rgba(120,160,200,.06)";cx.lineWidth=1;for(let l=-150;l<=180;l+=30){const[x]=P(l,0);cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,H);cx.stroke()}for(let l=-60;l<=60;l+=30){const[,y]=P(0,l);cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke()}
+  // land
+  if(S.land){cx.beginPath();S.land.features.forEach(f=>{const polys=f.geometry.type==="Polygon"?[f.geometry.coordinates]:f.geometry.coordinates;polys.forEach(poly=>poly.forEach(ring=>{ring.forEach(([lo,la],i)=>{const[x,y]=P(lo,la);if(i&&Math.abs(lo-ring[i-1][0])>180)cx.moveTo(x,y);else i?cx.lineTo(x,y):cx.moveTo(x,y)})}))});
+    cx.fillStyle="#0e1822";cx.fill();cx.strokeStyle="rgba(124,180,220,.28)";cx.lineWidth=DPR*.8;cx.stroke()}
+  // night side (real solar position)
+  const sp=sunPos(t),dr=sp.lat*Math.PI/180;cx.fillStyle="rgba(0,0,8,.42)";cx.beginPath();
+  for(let x=0;x<=W;x+=4){const lon=x/W*360-180,ha=(lon-sp.lon)*Math.PI/180,lat=Math.atan(-Math.cos(ha)/Math.tan(dr))*180/Math.PI;const[,y]=P(lon,lat);x?cx.lineTo(x,y):cx.moveTo(x,y)}
+  cx.lineTo(W,sp.lat>0?H:0);cx.lineTo(0,sp.lat>0?H:0);cx.closePath();cx.fill();
+  const[sx,sy]=P(((sp.lon+540)%360)-180,sp.lat);const sg=cx.createRadialGradient(sx,sy,0,sx,sy,W*.12);sg.addColorStop(0,"rgba(255,200,80,.18)");sg.addColorStop(1,"rgba(255,200,80,0)");cx.fillStyle=sg;cx.fillRect(0,0,W,H);
+  // aurora ovals: latitude and brightness from Kp (oval edge ≈ 67° − 2°·Kp geomagnetic, approximated geographic)
+  const kp=S.cur?S.cur.kp:2,edge=67-2*kp,al=map(kp,0,9,.08,.55)*(0.8+.2*Math.sin(now/700));
+  [1,-1].forEach(h=>{const[,y]=P(0,h*edge);const g=cx.createLinearGradient(0,y-H*.06*h,0,y+H*.03*h);g.addColorStop(0,`rgba(124,255,158,0)`);g.addColorStop(.6,`rgba(124,255,158,${al})`);g.addColorStop(1,`rgba(199,125,255,0)`);cx.fillStyle=g;
+    cx.beginPath();for(let x=0;x<=W;x+=8){const yy=y+Math.sin(x/W*12+now/900)*H*.012;x?cx.lineTo(x,yy):cx.moveTo(x,yy)}cx.lineTo(W,h>0?0:H);cx.lineTo(0,h>0?0:H);cx.fill()});
+  // solar wind particles: count from density, speed from wind speed, colour from Bz
+  const spd=S.cur&&Number.isFinite(S.cur.sp)?S.cur.sp:400,den=S.cur&&Number.isFinite(S.cur.de)?S.cur.de:4,bz=S.cur&&Number.isFinite(S.cur.bz)?S.cur.bz:0;
+  const want=Math.round(map(den,0,25,30,260));while(parts.length<want)parts.push({x:Math.random()*W,y:Math.random()*H,l:Math.random()*.6+.4});parts.length=Math.min(parts.length,want);
+  cx.strokeStyle=bz<-5?"rgba(255,120,90,.5)":"rgba(255,210,120,.35)";cx.lineWidth=DPR;
+  parts.forEach(p=>{const v=spd/400*2.2*DPR*p.l;p.x+=v;if(p.x>W){p.x=0;p.y=Math.random()*H}cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(p.x-v*6,p.y);cx.stroke()});
+  // ocean points: rings at the real swell period
+  S.ocean.forEach(o=>{const[x,y]=P(o.lon,o.lat),ph=(now/1000%o.p)/o.p,R=map(o.h,0,8,6,26)*DPR;
+    for(let k=0;k<3;k++){const pp=(ph+k/3)%1;cx.strokeStyle=`rgba(60,200,255,${(1-pp)*.55})`;cx.lineWidth=1.4*DPR;cx.beginPath();cx.arc(x,y,R*pp*1.6,0,7);cx.stroke()}
+    cx.fillStyle="#3cc8ff";cx.beginPath();cx.arc(x,y,2.4*DPR,0,7);cx.fill()});
+  // quakes already heard: persistent glowing dots that fade over the real day
+  cx.globalCompositeOperation="lighter";
+  S.quakes.forEach(q=>{if(!S.played.has(q.id)&&S.on)return;const[x,y]=P(q.lon,q.lat),age=clamp((t-q.time)/864e5,0,1),r=Math.max(1.2,(q.mag+.5)*1.6)*DPR;
+    const g=cx.createRadialGradient(x,y,0,x,y,r*3);g.addColorStop(0,`rgba(255,${Math.round(map(q.depth,0,300,120,220))},80,${.9-age*.6})`);g.addColorStop(1,"rgba(255,90,60,0)");cx.fillStyle=g;cx.beginPath();cx.arc(x,y,r*3,0,7);cx.fill()});
+  // live rings: seismic wave expanding from the epicentre
+  S.rings=S.rings.filter(r=>now-r.t<4000+r.mag*800);
+  S.rings.forEach(r=>{const[x,y]=P(r.lon,r.lat),age=(now-r.t)/(4000+r.mag*800);for(let k=0;k<3;k++){const a=clamp(age-k*.12,0,1);if(a<=0)continue;cx.strokeStyle=`rgba(255,90,60,${(1-a)*.9})`;cx.lineWidth=(2.5-k*.6)*DPR;cx.beginPath();cx.arc(x,y,a*map(r.mag,1,7,30,260)*DPR,0,7);cx.stroke()}
+    if(age<.15){cx.fillStyle=`rgba(255,240,200,${1-age/.15})`;cx.beginPath();cx.arc(x,y,map(r.mag,1,7,4,18)*DPR,0,7);cx.fill()}});
+  cx.globalCompositeOperation="source-over";
+  $("clock").textContent=new Date(t).toISOString().slice(0,19).replace("T"," ")+" UTC";
 }
-function spark(id,arr,color){const c=$(id),x=c.getContext("2d"),dpr=Math.min(devicePixelRatio,2),w=c.width=c.clientWidth*dpr,h=c.height=c.clientHeight*dpr;
-  const a=arr.slice(-80);if(a.length<2)return;const mn=Math.min(...a),mxv=Math.max(...a),r=mxv-mn||1;
-  x.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue(color);x.lineWidth=1.5*dpr;x.beginPath();
-  a.forEach((v,i)=>{const px=i/(a.length-1)*w,py=h-(v-mn)/r*(h-4)-2;i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke()}
-function updatePanels(){
-  const q=S.quakes,big=q.reduce((m,x)=>x.mag>(m?.mag??-9)?x:m,null);
-  $("qVal").textContent=`${q.length} quakes · max M${big?big.mag.toFixed(1):"–"}`;
-  spark("qSpark",q.map(x=>x.mag),"--quake");
-  $("sVal").textContent=`${Math.round(last(S.sun.speed))||"–"} km/s · Bz ${Number.isFinite(last(S.sun.bz))?last(S.sun.bz).toFixed(1):"–"}`;
-  spark("sSpark",S.sun.speed,"--sun");
-  const kp=last(S.kp);$("kVal").textContent=Number.isFinite(kp)?`Kp ${kp.toFixed(1)}${kp>=5?" · STORM":""}`:"–";
-  spark("kSpark",S.kp,"--kp");
-  const top=S.ocean.reduce((m,x)=>x.h>(m?.h??-1)?x:m,null);$("oVal").textContent=top?`${top.h.toFixed(1)} m max · ${top.name}`:"–";
-  spark("oSpark",S.ocean.map(o=>o.h),"--ocean");
+/* sparklines with playhead */
+function spark(id,ts,vs,col,t,lo,hi){const c=$(id),w=c.clientWidth*DPR,h=c.clientHeight*DPR;if(c.width!==w){c.width=w;c.height=h}const g=c.getContext("2d");g.clearRect(0,0,w,h);if(!vs.length)return;
+  const t0=ts[0],t1=ts[ts.length-1],X=x=>(x-t0)/(t1-t0||1)*w,Y=v=>h-((v-lo)/(hi-lo||1))*(h-6)-3;
+  const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,col+"55");gr.addColorStop(1,col+"00");g.beginPath();ts.forEach((tt,i)=>{const v=vs[i];if(!Number.isFinite(v))return;i?g.lineTo(X(tt),Y(v)):g.moveTo(X(tt),Y(v))});
+  g.strokeStyle=col;g.lineWidth=1.5*DPR;g.stroke();g.lineTo(w,h);g.lineTo(0,h);g.fillStyle=gr;g.fill();
+  const px=clamp(X(t),0,w);g.strokeStyle="#fff";g.globalAlpha=.7;g.beginPath();g.moveTo(px,0);g.lineTo(px,h);g.stroke();g.globalAlpha=1;
+  const v=at(ts,vs,t);if(Number.isFinite(v)){g.fillStyle=col;g.shadowColor=col;g.shadowBlur=12*DPR;g.beginPath();g.arc(px,Y(v),3.5*DPR,0,7);g.fill();g.shadowBlur=0}}
+function drawSparks(){
+  const t=realNow();
+  // quakes: magnitude over the day
+  const qs=S.quakes;spark("kq",qs.map(q=>q.time),qs.map(q=>q.mag),"#ff5a3c",t,0,7);
+  spark("ks",S.sun.t,S.sun.speed,"#ffc53d",t,250,Math.max(700,...S.sun.speed.filter(Number.isFinite)));
+  const oc=S.ocean[0];if(S.ocean.length){const n=S.ocean[0].hist.length,ts=[...Array(n)].map((_,i)=>Date.now()-864e5+i*36e5),avg=[...Array(n)].map((_,i)=>S.ocean.reduce((a,o)=>a+(o.hist[i]??o.h),0)/S.ocean.length);spark("ko",ts,avg,"#3cc8ff",t,0,6)}
+  spark("kx",S.xray.map(x=>x.t),S.xray.map(x=>Math.log10(x.v)),"#c77dff",t,-8,-4);
+  const c=S.cur||{};
+  $("vs").innerHTML=Number.isFinite(c.sp)?`${Math.round(c.sp)}<small>km/s</small>`:"–";
+  $("ss").textContent=Number.isFinite(c.sp)?`density ${c.de?.toFixed(1)} p/cm³ · Bz ${c.bz?.toFixed(1)} nT · Kp ${c.kp?.toFixed(1)} → ${c.kp>=5?"storm: minor scale":c.kp>=4?"unsettled: dorian":"quiet: major pentatonic"}`:"";
+  $("vo").innerHTML=S.ocean.length?`${c.oh?.toFixed(1)}<small>m avg · ${c.op?.toFixed(1)} s</small>`:"–";
+  const big=S.ocean.slice().sort((a,b)=>b.h-a.h)[0];$("so").textContent=big?`biggest: ${big.name} ${big.h.toFixed(1)} m every ${big.p.toFixed(0)} s`:"";
+  $("vx").innerHTML=Number.isFinite(c.xf)?`${flareClass(c.xf)}<small>class</small>`:"–";
+  const pk=S.xray.reduce((a,b)=>b.v>a.v?b:a,{v:0});$("sx").textContent=pk.v?`24h peak ${flareClass(pk.v)} at ${new Date(pk.t).toISOString().slice(11,16)} UTC`:"";
+  if(!S.on){const last=S.quakes[S.quakes.length-1];if(last){$("vq").innerHTML=`${S.quakes.length}<small>quakes in 24h</small>`;$("sq").textContent=`largest M${Math.max(...S.quakes.map(q=>q.mag)).toFixed(1)}`}}
+}
+/* piano roll */
+function pushNote(n,k,v,dur){S.notes.push({n,k,v,t:performance.now(),d:dur*1000});if(S.notes.length>400)S.notes.shift()}
+const COLS={q:"#ff5a3c",s:"#ffc53d",o:"#3cc8ff",x:"#c77dff"};
+function drawRoll(now){const c=$("roll"),w=c.clientWidth*DPR,h=c.clientHeight*DPR;if(c.width!==w){c.width=w;c.height=h}const g=c.getContext("2d");g.clearRect(0,0,w,h);
+  const span=12000,lo=24,hi=100,Y=n=>h-(n-lo)/(hi-lo)*h;
+  g.fillStyle="rgba(255,255,255,.025)";for(let n=lo;n<hi;n++)if([1,3,6,8,10].includes(n%12))g.fillRect(0,Y(n+1),w,h/(hi-lo));
+  S.notes.forEach(nt=>{const x=w-(now-nt.t)/span*w,len=nt.d/span*w;if(x+len<0)return;const a=clamp(nt.v/127,.25,1);g.fillStyle=COLS[nt.k];g.globalAlpha=a;g.shadowColor=COLS[nt.k];g.shadowBlur=(now-nt.t<300?18:4)*DPR;g.fillRect(x,Y(nt.n)-3*DPR,Math.max(3*DPR,len),5*DPR)});
+  g.globalAlpha=1;g.shadowBlur=0;g.fillStyle="rgba(255,255,255,.5)";g.fillRect(w-2,0,2,h)}
+/* scope + spectrum */
+let td,fd;
+function drawScope(){const c=$("scope"),w=c.clientWidth*DPR,h=c.clientHeight*DPR;if(c.width!==w){c.width=w;c.height=h}const g=c.getContext("2d");g.fillStyle="rgba(5,7,10,.35)";g.fillRect(0,0,w,h);
+  if(!A){g.fillStyle="#7d8b99";g.font=`${12*DPR}px IBM Plex Mono`;g.fillText("press START to hear the planet",16*DPR,h/2);return 0}
+  td=td||new Float32Array(A.an.fftSize);fd=fd||new Uint8Array(A.an.frequencyBinCount);A.an.getFloatTimeDomainData(td);A.an.getByteFrequencyData(fd);
+  const bars=96;for(let i=0;i<bars;i++){const idx=Math.floor(Math.pow(i/bars,2)*fd.length*.5),v=fd[idx]/255,bh=v*h*.9,hue=lerp(10,280,i/bars);g.fillStyle=`hsla(${hue},90%,60%,${.25+v*.6})`;g.fillRect(i*w/bars,h-bh,w/bars-2*DPR,bh)}
+  let rms=0;g.beginPath();for(let i=0;i<td.length;i++){rms+=td[i]*td[i];const x=i/td.length*w,y=h/2+td[i]*h*.9;i?g.lineTo(x,y):g.moveTo(x,y)}
+  g.strokeStyle="#e6edf3";g.lineWidth=1.6*DPR;g.shadowColor="#3cc8ff";g.shadowBlur=10*DPR;g.stroke();g.shadowBlur=0;
+  return Math.sqrt(rms/td.length)}
+/* event log */
+function logEv(txt,k,q){const li=document.createElement("li");const tm=new Date(q?q.time:realNow()).toISOString().slice(11,19);li.innerHTML=`<span>${tm}</span>${q?`<b>M${q.mag.toFixed(1)}</b>`:`<b style="color:${COLS[k]}">${k==="x"?"FLARE":"•"}</b>`}<span></span>`;li.lastChild.textContent=q?txt.split(" · ").slice(1).join(" · "):txt;const ul=$("log");ul.prepend(li);while(ul.children.length>40)ul.lastChild.remove()}
+/* hover tooltip on map */
+cv.addEventListener("mousemove",e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*DPR,y=(e.clientY-r.top)*DPR;let best=null,bd=14*DPR;
+  S.quakes.forEach(q=>{if(S.on&&!S.played.has(q.id))return;const[qx,qy]=P(q.lon,q.lat),d=Math.hypot(qx-x,qy-y);if(d<bd){bd=d;best=q}});
+  S.ocean.forEach(o=>{const[ox,oy]=P(o.lon,o.lat),d=Math.hypot(ox-x,oy-y);if(d<bd){bd=d;best={o}}});
+  const tip=$("tip");if(!best){tip.style.display="none";return}
+  tip.innerHTML=best.o?`<b style="color:#3cc8ff">${best.o.name}</b><br>waves ${best.o.h.toFixed(1)} m · period ${best.o.p.toFixed(1)} s`:`<b style="color:#ff5a3c">M${best.mag.toFixed(1)}</b> ${best.place.replace(/</g,"&lt;")}<br>${Math.round(best.depth)} km deep · ${new Date(best.time).toISOString().slice(11,16)} UTC<br>→ note ${noteName(degree(scaleFor(kpAt(best.time)),Math.round(map(best.depth,0,700,14,0)),ROOT))}`;
+  tip.style.display="block";tip.style.left=Math.min(e.clientX-r.left+12,r.width-200)+"px";tip.style.top=(e.clientY-r.top+12)+"px"});
+cv.addEventListener("mouseleave",()=>$("tip").style.display="none");
+cv.addEventListener("click",()=>{const tip=$("tip");if(tip.style.display==="block"){/* replay hovered quake */}});
+
+/* frame */
+function frame(now){
+  drawMap(now);drawSparks();drawRoll(now);const rms=drawScope();
+  const glow=clamp((rms||0)*6+S.hit.q*.6,0,1);document.documentElement.style.setProperty("--glow",glow.toFixed(3));
+  ["q","s","o","x"].forEach(k=>{S.hit[k]*=.94;$("c"+k).style.setProperty("--hit",S.hit[k].toFixed(3))});
+  requestAnimationFrame(frame);
 }
 
-/* ---------- wire up ---------- */
-$("start").onclick=async e=>{
-  if(running){running=false;e.target.textContent="▶ Start listening";if(ac)ac.suspend();$("audioState").textContent="paused";return}
-  if(!ac)initAudio();await ac.resume();if(!midi)initMIDI();
-  // don't blast the whole day on start: mark everything older than 10 minutes as already heard
-  S.quakes.forEach(q=>{if(Date.now()-q.time>600e3)S.seen.add(q.id)});
-  running=true;e.target.textContent="■ Stop";$("audioState").textContent="on (preview synth)";loop();
+/* ================= controls ================= */
+$("go").onclick=async()=>{
+  if(!S.on){
+    if(!A)initAudio();await A.ctx.resume();A.master.gain.setTargetAtTime(+$("vol").value,A.ctx.currentTime,.3);
+    S.mode=+$("mode").value;S.played.clear();S.liveSince=0;S.replayStart=performance.now();S.replayFrom=Date.now()-864e5;
+    if(S.mode===0){S.quakes.forEach(q=>S.played.add(q.id));S.liveSince=Date.now()}
+    S.on=true;$("go").textContent="■ STOP";$("go").classList.add("on");setMode();refresh();initMIDI();
+  }else{S.on=false;A.master.gain.setTargetAtTime(0,A.ctx.currentTime,.4);$("go").textContent="▶ START";$("go").classList.remove("on");setMode();$("prog").style.width="0"}
 };
-$("replay").onclick=e=>{S.replay=!S.replay;replayIdx=0;e.target.setAttribute("aria-pressed",S.replay)};
-refresh();setInterval(refresh,60000);requestAnimationFrame(draw);addEventListener("resize",updatePanels);
+$("vol").oninput=e=>A&&A.master.gain.setTargetAtTime(+e.target.value,A.ctx.currentTime,.05);
+document.querySelectorAll(".mutes button").forEach(b=>b.onclick=()=>{const k=b.dataset.l;S.mute[k]=!S.mute[k];b.setAttribute("aria-pressed",!S.mute[k]);if(A&&k==="q")A.buses.q.gain.setTargetAtTime(S.mute.q?0:1,A.ctx.currentTime,.1)});
+addEventListener("keydown",e=>{if(e.code==="Space"&&e.target===document.body){e.preventDefault();$("go").click()}});
+
+sizeMap();loadLand();refresh();requestAnimationFrame(frame);
 })();
 </script>
 </body>
