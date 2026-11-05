@@ -70,7 +70,7 @@ def fetch_lots(api_key):
 
 def unwrap(data):
     if isinstance(data, dict):
-        for k in ("Results", "results", "data", "items"):
+        for k in ("Results", "results", "lots", "data", "items"):
             if isinstance(data.get(k), list):
                 return data[k]
         return []
@@ -166,7 +166,7 @@ def sentence_case(t):
     t = re.sub(r"(^|[.!?:]\s+)([a-z])", lambda m: m.group(1) + m.group(2).upper(), t)
     t = re.sub(r"\b(gsa|usa|usmc|usaf|vin|pto|hvac|am|pm|pst|pdt|mst|ups|led|mep|ac|dc|ca|az|nv|or|ut)\b(?=[\s.,;:)]|$)",
                lambda m: m.group(1).upper() if m.group(1) not in ("or",) else "or", t)
-    return re.sub(r"\b(\d+(?:\.\d+)?)\s?(kw|kva)\b", lambda m: m.group(1) + " " + {"kw": "kW", "kva": "kVA"}[m.group(2)], t)
+    return re.sub(r"(?i)\b(\d+(?:\.\d+)?)\s?(kw|kva)\b", lambda m: m.group(1) + " " + {"kw": "kW", "kva": "kVA"}[m.group(2).lower()], t)
 
 
 def status_of(lot):
@@ -179,21 +179,41 @@ def status_of(lot):
 
 
 # ---------- location ----------
-_zip_cache = {}
+_zip_cache = None
+_geo_fail = 0
+ZIP_CACHE = HERE / "zipcache.json"
 
 
 def zip_latlon(z):
+    """ZIP -> (lat, lon) via zippopotam.us, cached in zipcache.json. Gives up after 3 straight failures."""
+    global _zip_cache, _geo_fail
+    if _zip_cache is None:
+        _zip_cache = load_json(ZIP_CACHE, {})
     z = zip5(z)
     if not z:
         return None
     if z in _zip_cache:
-        return _zip_cache[z]
+        return tuple(_zip_cache[z]) if _zip_cache[z] else None
+    if _geo_fail >= 3 or os.environ.get("GEAR_NO_GEO"):
+        return None
     try:
-        p = http_json(f"https://api.zippopotam.us/us/{z}", timeout=15, tries=2)["places"][0]
-        _zip_cache[z] = (float(p["latitude"]), float(p["longitude"]))
+        p = http_json(f"https://api.zippopotam.us/us/{z}", timeout=10, tries=1)["places"][0]
+        _zip_cache[z] = [round(float(p["latitude"]), 4), round(float(p["longitude"]), 4)]
+        _geo_fail = 0
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            _zip_cache[z] = None
+        else:
+            _geo_fail += 1
     except Exception:
-        _zip_cache[z] = None
-    return _zip_cache[z]
+        _geo_fail += 1
+    v = _zip_cache.get(z)
+    return tuple(v) if v else None
+
+
+def save_zip_cache():
+    if _zip_cache:
+        ZIP_CACHE.write_text(json.dumps(_zip_cache, sort_keys=True, separators=(",", ":")))
 
 
 def miles(a, b):
@@ -257,36 +277,92 @@ def estimate_value(lot, cat):
     return None, None, ""
 
 
-GOOD = [r"\bruns\b", r"\bstarts\b", r"\boperational\b", r"in working (?:order|condition)", r"\bworks\b", r"good condition",
-        r"excellent condition", r"low hours", r"\bserviceable\b", r"\bdrives\b", r"\bnew\b", r"like new", r"unused"]
-BAD = [r"does not (?:run|start|work|operate)", r"won'?t start", r"\bno key", r"\bmissing\b", r"\bdamaged?\b", r"\bleaks?\b",
-       r"\bleaking\b", r"\bcracked\b", r"needs (?:repair|work|battery|tires?)", r"condition unknown", r"\buntested\b",
-       r"not tested", r"flat tires?", r"\brust(?:y|ed)?\b", r"\bas is\b.*\bunknown\b", r"\bno title\b"]
+GOOD = [r"\bruns\b", r"\bstarts\b", r"\boperational\b", r"\boperable\b", r"in working (?:order|condition)", r"\bworks\b",
+        r"good condition", r"excellent condition", r"low hours", r"\bserviceable\b", r"runs and drives", r"\bdrives\b",
+        r"like new", r"no known (?:major )?issues", r"recently serviced", r"new battery"]
+BAD = [r"does not (?:run|start|work|operate)", r"won'?t start", r"\bno key", r"parts (?:are )?missing", r"\bdamaged?\b",
+       r"\bleaks?\b", r"\bleaking\b", r"\bcracked\b", r"needs (?:repair|work|battery|tires?)", r"\binoperable\b",
+       r"(?:operating )?condition (?:is unknown|has not been (?:determined|verified))", r"\buntested\b", r"not (?:been )?tested",
+       r"flat tires?", r"\brust(?:y|ed)?\b", r"\bno title\b", r"dead batter(?:y|ies)", r"engine (?:issue|problem|knock)",
+       r"transmission (?:issue|problem|slips)", r"check engine"]
+GRADES = [  # GSA's own condition wording -> (label, risk)
+    (r"new/unused|\bunused\b|\bnew\b", "New / unused", 0),
+    (r"usable|\bused\b|\bgood\b", "Used", 0),
+    (r"repairable", "Repairable (needs work)", 1),
+    (r"salvage|scrap", "Salvage", 2),
+]
+
+
+def gsa_grade(info):
+    t = info.lower()
+    m = (re.search(r"\b(?:is|are) (?:listed as |in )?(new/unused|unused|new|used|usable(?:/good)?|repairable|salvage|scrap)(?: condition)?\b", t)
+         or re.search(r"condition(?: is|:)\s*(new/unused|unused|new|used|usable|repairable|salvage|scrap)\b", t))
+    if not m:
+        return None, 0
+    for pat, label, risk in GRADES:
+        if re.search(pat, m.group(1)):
+            return label, risk
+    return None, 0
 
 
 def condition(lot):
     t = text_of(lot)
+    # GSA boilerplate ("working condition not guaranteed", "condition of the property is not warranted") is on nearly
+    # every lot, so it is stripped before reading signals.
+    t = re.sub(r"working condition not guaranteed|condition of the property is not warranted|evaluate its condition", " ", t)
     good = sorted({re.search(p, t).group(0) for p in GOOD if re.search(p, t)})
     bad = sorted({re.search(p, t).group(0) for p in BAD if re.search(p, t)})
-    hrs = re.search(r"(\d[\d,]{1,6})\s*(?:hrs|hours)\b", t)
-    mi = re.search(r"(\d[\d,]{2,7})\s*(?:miles|mi)\b", t)
-    yr = re.search(r"\b(19[89]\d|20[0-3]\d)\b", t)
-    if bad and not good:
+    official, risk = gsa_grade(lot.get("_info", "") + " " + s(lot.get("lotdescript")))
+    hrs = re.search(r"(?:hour meter(?: reads)?|hours?)[:\s]+(\d[\d,.]*)|(\d[\d,]{1,6})\s*(?:hrs|hours)\b", t)
+    mi = re.search(r"(?:mileage|odometer(?: reads)?)[:\s]+(\d[\d,]*)|(\d[\d,]{2,7})\s*(?:miles)\b", t)
+    yr = re.search(r"\b(19[5-9]\d|20[0-3]\d)\b", s(lot.get("itemname"))) or re.search(r"\b(19[5-9]\d|20[0-3]\d)\b", t)
+    if risk >= 2 or (bad and not good and risk >= 1):
         grade = "⚠️ Risky"
-    elif good and not bad:
-        grade = "✅ Reported working"
-    elif good and bad:
+    elif bad and good:
         grade = "🟡 Mixed signals"
+    elif bad or risk == 1:
+        grade = "🟡 Needs work"
+    elif good:
+        grade = "✅ Reported working"
     else:
-        grade = "❔ Not stated, check photos and inspect"
+        grade = "❔ Not stated, inspect it"
+    if official:
+        grade += f" · GSA grade: {official}"
     facts = []
     if yr:
         facts.append(f"year {yr.group(1)}")
     if hrs:
-        facts.append(f"{hrs.group(1)} hrs")
+        facts.append(f"{(hrs.group(1) or hrs.group(2)).rstrip('.,')} hrs")
     if mi:
-        facts.append(f"{mi.group(1)} mi")
-    return grade, good, bad, facts
+        facts.append(f"{(mi.group(1) or mi.group(2)).rstrip('.,')} mi")
+    return grade, good, bad, facts, risk
+
+
+DATE = r"(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})"
+
+
+def deadlines(lot):
+    """Pull 'PAYMENT DUE BY 11-09-2026 & REMOVAL BY 11-20-2026' style dates out of the instructions."""
+    t = (s(lot.get("instruction")) + " " + lot.get("_info", "")).lower()
+    pay = re.search(r"payment[^.;]{0,40}?(?:due|by|no later than)[^0-9]{0,15}" + DATE, t)
+    rem = re.search(r"removal[^.;]{0,40}?(?:by|due|no later than|completed by)[^0-9]{0,15}" + DATE, t)
+    return (pay.group(1) if pay else ""), (rem.group(1) if rem else "")
+
+
+def local_contact(lot):
+    m = re.search(r"(?:local )?poc[:\s]+([A-Za-z.' -]{3,40}),?\s*(\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4})?[,;\s]*([\w.+-]+@[\w-]+\.[\w.]+)?", lot.get("_info", ""), re.I)
+    if not m:
+        return ""
+    return " · ".join(x.strip() for x in m.groups() if x and x.strip())
+
+
+def name_from_email(email, fallback):
+    local = email.split("@")[0] if "@" in email else ""
+    parts = [p for p in re.split(r"[._]", local) if p.isalpha()]
+    if len(parts) >= 2:
+        return " ".join(p.capitalize() for p in parts[:3])
+    f = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", s(fallback))
+    return f.title() if f.isupper() else f
 
 
 def deal_score(cost, lo, hi):
@@ -332,6 +408,9 @@ def ends_in(lot, now):
     hrs = (end - now).total_seconds() / 3600
     if hrs < 0:
         return end, "ended", hrs, has_time
+    if not has_time:  # the feed only gives a date; the exact closing time is on the lot page
+        days = (end.date() - now.astimezone(PACIFIC).date()).days
+        return end, ("closes today" if days <= 0 else "closes tomorrow" if days == 1 else f"{days} days left"), hrs, has_time
     if hrs < 1:
         left = "under 1h left"
     elif hrs < 48:
@@ -362,7 +441,8 @@ def appraise(lot, cat, cfg, now):
     bid = money(lot.get("highbidamount"))
     inc = money(lot.get("aucincrement"))
     lo, hi, basis = estimate_value(lot, cat)
-    grade, good, bad, facts = condition(lot)
+    grade, good, bad, facts, risk = condition(lot)
+    pay_by, remove_by = deadlines(lot)
     city = nice(lot.get("propertycity"))
     st = state_of(lot)
     zp = zip5(lot.get("propertyzip"))
@@ -377,8 +457,11 @@ def appraise(lot, cat, cfg, now):
     next_bid = bid + inc if bid else (reserve_amt or inc or None)
     cost = (next_bid or bid) + (haul or 0)
     score, vs = deal_score(cost, lo, hi)
-    if bad and score:
-        score = max(0, score - 1)  # condition risk costs a flame
+    if (bad or risk) and score:
+        score = max(0, score - max(1, risk))  # condition risk costs flames
+    early = bid <= 0
+    if early and lo:
+        score, vs = min(score, 3), "no bids yet, price will climb"
     max_pct = cfg.get("max_bid_pct_of_low", 0.6)
     walk_away = max(0, round((lo * max_pct - (haul or 0)) / 25) * 25) if lo else None
 
@@ -405,11 +488,11 @@ def appraise(lot, cat, cfg, now):
         "reserve": reserve_amt, "has_reserve": bool(lot.get("reserve")), "bidders": num(lot.get("bidderscount")),
         "inactivity": num(lot.get("inactivitytime")),
         "inspect": sentence_case(" ".join(s(lot.get(k)) for k in ("instruction", "instruction1", "instruction2", "instruction3")).strip()),
-        "co": re.sub(r"(?<=[a-z])(?=[A-Z])", " ", s(lot.get("contractofficer"))), "co_email": s(lot.get("coemail")).lower(), "co_phone": phone(lot.get("cophone")),
+        "co": name_from_email(s(lot.get("coemail")), lot.get("contractofficer")), "co_email": s(lot.get("coemail")).lower(), "co_phone": phone(lot.get("cophone")),
         "agency": agency + (f" · {bureau}" if bureau and bureau.lower() not in agency.lower() else ""),
         "site": nice(lot.get("propertyaddr1")), "addr": addr,
         "sale": s(lot.get("saleno")), "lotno": s(lot.get("lotno")),
-        "status": status_of(lot),
+        "status": status_of(lot), "early": early, "pay_by": pay_by, "remove_by": remove_by, "poc": local_contact(lot),
     }
 
 
@@ -436,6 +519,8 @@ def end_s(a):
 
 
 def verdict(a):
+    if a["early"] and a["walk_away"]:
+        return f"🆕 *No bids yet.* A good target if it stays under {money_s(a['walk_away'])}."
     if a["score"] >= 4:
         return "🟢 *Strong deal.* Worth bidding."
     if a["score"] == 3:
@@ -488,10 +573,14 @@ def blocks_for(a, reminder=False):
         "1. Register free at gsaauctions.gov (one-time ID check, do it before you need it).",
         f"2. Inspect: {esc(a['inspect'][:300])}" if a["inspect"] else "2. Inspect if you can. Ask the contact below for an appointment, and ask for more photos or a run video.",
         f"3. Bid. Next bid is {money_s(a['next_bid'])}. Suggested walk-away: *{money_s(a['walk_away'])}*." if a["walk_away"] else f"3. Bid. Next bid is {money_s(a['next_bid'])}.",
-        "4. If you win: pay by the deadline in the lot's Terms of Sale (usually a few business days).",
-        f"5. Pick up from {esc(a['addr'] or where)} before the removal deadline. You bring the truck, trailer or freight and any loading help the site says it lacks.",
+        (f"4. If you win, *pay by {a['pay_by']}*" if a["pay_by"] else "4. If you win, pay by the deadline in the lot's Terms of Sale (usually a few business days)")
+        + ". GSA emails the award and takes payment online.",
+        (f"5. *Remove it by {a['remove_by']}*" if a["remove_by"] else "5. Pick it up before the removal deadline")
+        + f" from {esc(a['addr'] or where)}. You bring the truck, trailer or freight, plus loading help if the site has none.",
     ]
     contact = " · ".join(x for x in [esc(a["co"]), a["co_email"], a["co_phone"]] if x)
+    if a["poc"]:
+        contact = (f"{contact}\n*On site:* " if contact else "") + esc(a["poc"])
 
     out = [{"type": "header", "text": {"type": "plain_text", "text": head, "emoji": True}}]
     if a["img"]:
@@ -516,7 +605,7 @@ def blocks_for(a, reminder=False):
     out += [
         {"type": "section", "text": {"type": "mrkdwn", "text": " ".join(fmt)}},
         {"type": "section", "text": {"type": "mrkdwn", "text": "*How to buy it*\n" + "\n".join(steps)
-                                     + (f"\n*Contact:* {contact}" if contact else "")}},
+                                     + (f"\n*GSA contact:* {contact}" if contact else "")}},
         {"type": "actions", "elements": [
             {"type": "button", "text": {"type": "plain_text", "text": "Open lot"}, "url": a["url"], "style": "primary"},
             {"type": "button", "text": {"type": "plain_text", "text": "Sold prices on eBay"},
@@ -718,6 +807,7 @@ def main():
     print(f"{len(items)} matching lots, {len(fresh)} new, {len(reminders)} ending-soon reminders")
     print(digest)
 
+    save_zip_cache()
     if args.preview:
         note = ("Built from live GSA data on " + now.strftime("%b %d, %Y") + ".") if not args.fixture else \
                "Sample data, so you can see the layout. Real posts use live GSA listings and their photos."

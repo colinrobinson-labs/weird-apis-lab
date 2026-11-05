@@ -55,7 +55,7 @@ jobs:
         run: |
           git config user.name "gear-tracker"
           git config user.email "actions@users.noreply.github.com"
-          for f in seen.json digest.md live-preview.html live-sample.json; do if [ -f "$f" ]; then git add "$f"; fi; done
+          for f in seen.json zipcache.json digest.md live-preview.html live-sample.json; do if [ -f "$f" ]; then git add "$f"; fi; done
           git diff --cached --quiet && exit 0
           git commit -q -m "gear tracker: $MODE run [skip ci]"
           for i in 1 2 3 4; do
