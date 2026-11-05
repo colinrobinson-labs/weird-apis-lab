@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Earth MIDI</title>
-<meta name="description" content="The planet as an instrument. Live earthquakes, solar wind, solar flares and ocean swell, played as sound and sent as MIDI to your DAW. Raw data plus algorithmic mapping. No AI.">
+<meta name="description" content="The planet as an instrument. Live earthquakes, solar wind, flares, ocean swell, tides, jet stream and city temperatures, played as sound and sent as MIDI to your DAW. Raw data plus algorithmic mapping. No AI.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#05070a;--panel:#0b1016;--line:#17212b;--fg:#e6edf3;--mute:#7d8b99;--q:#ff5a3c;--s:#ffc53d;--o:#3cc8ff;--x:#c77dff;--k:#7cff9e;--glow:0;
+:root{--bg:#05070a;--panel:#0b1016;--line:#17212b;--fg:#e6edf3;--mute:#7d8b99;--q:#ff5a3c;--s:#ffc53d;--o:#3cc8ff;--x:#c77dff;--w:#9ad1ff;--t:#4dd6c1;--c:#ff8fd1;--m:#d9dce6;--k:#7cff9e;--glow:0;
  --disp:"Syne",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;--body:"IBM Plex Sans",system-ui,sans-serif}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 var(--body)}
@@ -74,6 +74,26 @@ table{width:100%;border-collapse:collapse;font:12px var(--mono)}
 td,th{border-bottom:1px solid var(--line);padding:5px 6px;text-align:left;vertical-align:top}
 th{color:var(--mute);font-weight:500}
 .warn{color:var(--s)}
+.zero{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;margin:0 0 12px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(90deg,rgba(124,255,158,.06),transparent 60%)}
+.z0{display:flex;align-items:baseline;gap:10px}
+.z0 b{font:800 64px/1 var(--disp);color:var(--k);text-shadow:0 0 24px rgba(124,255,158,.45)}
+.z0 span{font:600 12px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--fg);max-width:150px}
+.chain{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:12px var(--mono)}
+.chain i{font-style:normal;border:1px solid var(--line);border-radius:8px;padding:5px 9px;background:#0b1016}
+.chain i.ai{border-style:dashed;color:var(--mute)}
+.chain em{font-style:normal;color:var(--mute)}
+.zero p{grid-column:1/-1;margin:0;color:var(--mute);font-size:13px}
+.zero p b{color:var(--fg)}
+@media (max-width:700px){.zero{grid-template-columns:1fr}.z0 b{font-size:52px}}
+#log li{cursor:pointer}#log li:hover{background:#0f171f}
+#trace{margin-top:12px}
+#trace ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;counter-reset:s}
+#trace li{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:12px var(--mono);position:relative;counter-increment:s}
+#trace li::before{content:counter(s);position:absolute;top:-8px;left:8px;background:var(--panel);padding:0 4px;color:var(--mute);font-size:10px}
+#trace li b{display:block;font:600 10px var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+#trace li span{color:var(--fg);white-space:pre-wrap}
+#trace .ai0{color:var(--k)}
+.legendrow{display:flex;gap:10px;flex-wrap:wrap}
 footer{margin-top:24px;font:11px var(--mono);color:var(--mute)}
 @media (prefers-reduced-motion:reduce){h1{animation:none}.dot{animation:none}}
 </style>
@@ -83,9 +103,9 @@ footer{margin-top:24px;font:11px var(--mono);color:var(--mute)}
 <header>
   <div>
     <h1>EARTH MIDI</h1>
-    <div class="badges"><span class="b raw">Raw sensor data</span><span class="b alg">Algorithmic mapping</span><span class="b ai">AI</span></div>
+    <div class="badges"><span class="b raw">Raw sensor data</span><span class="b alg">Algorithmic mapping</span><span class="b ai">AI audio</span><span class="b raw" style="color:var(--k)">0% AI in the sound</span></div>
   </div>
-  <p class="tag">The planet is the instrument. Every note is a real earthquake, every filter sweep is the actual solar wind hitting Earth right now, the surf is real ocean swell, and the shimmer is live X-ray flux from the Sun. Hear it here, or route it as MIDI into your DAW.</p>
+  <p class="tag">The planet is the instrument. Every note is a real earthquake, every filter sweep is the actual solar wind hitting Earth right now, the surf is real ocean swell, the drone bends with real tides, the wind is the jet stream, and the chord is made of live city temperatures. Hear it here, or route it as MIDI into your DAW.</p>
 </header>
 
 <div class="bar">
@@ -96,16 +116,26 @@ footer{margin-top:24px;font:11px var(--mono);color:var(--mute)}
     <option value="60">Replay last 24h in 60 s, then live</option>
     <option value="0">Live only</option>
   </select>
-  <div class="mutes" style="display:flex;gap:6px">
+  <select id="style" aria-label="Style"><option value="ambient">Style: Ambient</option><option value="pulse">Style: Pulse (beat from solar wind)</option></select>
+  <div class="mutes" style="display:flex;gap:6px;flex-wrap:wrap">
     <button data-l="q" aria-pressed="true" style="--c:var(--q)">Quakes</button>
     <button data-l="s" aria-pressed="true" style="--c:var(--s)">Sun</button>
     <button data-l="o" aria-pressed="true" style="--c:var(--o)">Ocean</button>
     <button data-l="x" aria-pressed="true" style="--c:var(--x)">Flares</button>
+    <button data-l="w" aria-pressed="true" style="--c:var(--w)">Jet stream</button>
+    <button data-l="t" aria-pressed="true" style="--c:var(--t)">Tides</button>
+    <button data-l="c" aria-pressed="true" style="--c:var(--c)">Planet chord</button>
   </div>
   <label class="vol">VOL <input type="range" id="vol" min="0" max="1" step=".01" value=".8"></label>
   <select id="midiOut" aria-label="MIDI output"><option value="">MIDI out: off</option></select>
   <div class="status"><span id="dataState">loading data…</span><span id="midiState"></span></div>
 </div>
+
+<section class="zero">
+  <div class="z0"><b>0%</b><span>AI in the data, the notes and the sound</span></div>
+  <div class="chain"><i>Sensor reading</i><em>→</em><i>raw number</i><em>→</em><i>fixed formula you can read</i><em>→</em><i>synth voice + MIDI note</i><em>·</em><i class="ai">no model, no generation, no guessing</i></div>
+  <p><b>The only AI involved:</b> Claude, an AI, helped write this page's code, the way a developer would. It doesn't run here, choose notes or make audio. Every sound is computed live in your browser from a real measurement. <b>Click any line in the event log</b> to trace it from sensor to sound.</p>
+</section>
 
 <div class="stage">
   <div class="prog" id="prog"></div>
@@ -123,28 +153,38 @@ footer{margin-top:24px;font:11px var(--mono);color:var(--mute)}
     <div class="map"><b>wave height → surf level</b> · <b>wave period → surf rhythm</b> (the real period, in seconds)</div></div>
   <div class="ch" id="cx" style="--c:var(--x)"><h3>Solar X-rays <small>ch 4 · CC 6 + notes</small></h3><div class="big" id="vx">–</div><div class="sub" id="sx"></div><canvas class="spark" id="kx"></canvas>
     <div class="map"><b>X-ray flux → shimmer</b> · a C, M or X class flare triggers a bell swell</div></div>
+  <div class="ch" id="cw" style="--c:var(--w)"><h3>Jet stream <small>ch 5 · CC 7</small></h3><div class="big" id="vw">–</div><div class="sub" id="sw"></div><canvas class="spark" id="kw"></canvas>
+    <div class="map"><b>250 hPa wind speed (~10 km up) → wind roar + filter</b> · 6 points across both hemispheres</div></div>
+  <div class="ch" id="ct" style="--c:var(--t)"><h3>Ocean tides <small>ch 6 · CC 8 + pitch bend</small></h3><div class="big" id="vt">–</div><div class="sub" id="st"></div><canvas class="spark" id="kt"></canvas>
+    <div class="map"><b>measured water level → drone pitch</b> (±50 cents) · NOAA tide gauges</div></div>
+  <div class="ch" id="cc" style="--c:var(--c)"><h3>Planet chord <small>ch 7 · notes</small></h3><div class="big" id="vc">–</div><div class="sub" id="sc"></div><canvas class="spark" id="kc"></canvas>
+    <div class="map"><b>each city's live temperature → one voice in the chord</b> · cold is low, hot is high, re-voiced every 20 s</div></div>
+  <div class="ch" id="cm" style="--c:var(--m)"><h3>Moon <small>ch 8 · CC 9</small></h3><div class="big" id="vm">–</div><div class="sub" id="sm"></div><canvas class="spark" id="km"></canvas>
+    <div class="map"><b>illumination → reverb size</b> · computed from orbital mechanics, not fetched</div></div>
 </div>
 
 <div class="row2">
   <div class="panel"><h3>MIDI monitor <small>every note, as it's sent</small></h3><canvas id="roll"></canvas></div>
   <div class="panel"><h3>Event log <small>real events only</small></h3><ul id="log"></ul></div>
 </div>
+<div class="panel" id="trace"><h3>Trace a sound <small>sensor → formula → sound, with no AI step</small></h3><ol><li><b>Click a line in the event log</b><span>and its full chain appears here.</span></li></ol></div>
 <div class="panel" style="margin-top:12px"><h3>Output <small>waveform + spectrum of what you hear</small></h3><canvas id="scope"></canvas></div>
 
 <div class="info">
-  <div><h4>Where AI is (and isn't)</h4><table>
-    <tr><th>Layer</th><th>What it is</th></tr>
-    <tr><td>Data</td><td><span class="b raw">Raw</span> USGS, NOAA SWPC, GOES, Open-Meteo. Values are never smoothed, invented or predicted.</td></tr>
-    <tr><td>Mapping</td><td><span class="b alg">Algorithmic</span> fixed formulas, shown on each card. The same data always gives the same notes.</td></tr>
-    <tr><td>Sound</td><td><span class="b alg">Algorithmic</span> Web Audio synthesis: FM bells, saw pads, filtered noise, convolution reverb. No samples.</td></tr>
-    <tr><td>AI</td><td>Not used anywhere. No generated audio, no ML models.</td></tr></table></div>
+  <div><h4>Exactly where AI is</h4><table>
+    <tr><th>Step</th><th>AI?</th><th>What actually happens</th></tr>
+    <tr><td>Measuring</td><td class="ai0">No</td><td>Seismometers, satellites at L1 and GOES, ocean models, tide gauges, weather balloons and models. Fetched as published.</td></tr>
+    <tr><td>Choosing notes</td><td class="ai0">No</td><td>Fixed formulas, written on each card. The same reading always gives the same note.</td></tr>
+    <tr><td>Making the sound</td><td class="ai0">No</td><td>Web Audio oscillators, filters, noise and reverb, built live in your browser. No samples, no generated audio.</td></tr>
+    <tr><td>Rhythm (Pulse)</td><td class="ai0">No</td><td>Tempo comes from solar wind speed and hi-hat density from the quake rate, both by formula.</td></tr>
+    <tr><td>Writing this page</td><td>Yes</td><td>Claude (an AI) helped write the code, as a coding tool. That's the whole extent of it.</td></tr></table></div>
   <div><h4>Use it in your DAW</h4><ul>
     <li><b>Mac:</b> Audio MIDI Setup → MIDI Studio → IAC Driver → tick “Device is online”. Pick “IAC Driver Bus 1” above, then arm a MIDI track in Ableton, Logic or Bitwig.</li>
     <li><b>Windows:</b> install loopMIDI, create a port, pick it above.</li>
     <li>Use Chrome or Edge, which support Web MIDI. Channels 1–4 are as labelled on each card.</li></ul></div>
   <div><h4>Accuracy</h4><p>Replay mode compresses the last 24 hours, keeping every quake in its real order and real relative spacing. The clock shows the real UTC time being played. Live mode plays new quakes within about a minute of USGS publishing them. Solar wind is the DSCOVR/ACE feed at the L1 point, roughly 30–60 minutes before it reaches Earth. If any source fails, that card says <span class="warn">demo</span> and nothing is passed off as live.</p></div>
 </div>
-<footer>Earth MIDI · prototype v0.2 · data: <a href="https://earthquake.usgs.gov/earthquakes/feed/">USGS</a>, <a href="https://www.swpc.noaa.gov/">NOAA SWPC</a> (GOES, DSCOVR), <a href="https://open-meteo.com/">Open-Meteo Marine</a> (CC BY 4.0), land: Natural Earth</footer>
+<footer>Earth MIDI · prototype v0.3 · data: <a href="https://earthquake.usgs.gov/earthquakes/feed/">USGS</a>, <a href="https://www.swpc.noaa.gov/">NOAA SWPC</a> (GOES, DSCOVR), <a href="https://tidesandcurrents.noaa.gov/">NOAA CO-OPS tides</a>, <a href="https://open-meteo.com/">Open-Meteo</a> weather, upper-air and marine (CC BY 4.0), land: Natural Earth</footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
@@ -155,8 +195,8 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,map=(v,a,
 const DPR=Math.min(2,window.devicePixelRatio||1);
 
 /* ================= state ================= */
-const S={quakes:[],sun:{speed:[],density:[],bz:[],bt:[],t:[]},kp:[],ocean:[],xray:[],demo:{},land:null,
-  played:new Set(),rings:[],notes:[],log:[],on:false,mode:180,replayStart:0,replayFrom:0,liveSince:0,mute:{q:false,s:false,o:false,x:false},hit:{q:0,s:0,o:0,x:0}};
+const S={quakes:[],jet:[],tides:[],temps:[],sun:{speed:[],density:[],bz:[],bt:[],t:[]},kp:[],ocean:[],xray:[],demo:{},land:null,
+  played:new Set(),rings:[],notes:[],log:[],on:false,mode:180,replayStart:0,replayFrom:0,liveSince:0,mute:{q:false,s:false,o:false,x:false,w:false,t:false,c:false},hit:{q:0,s:0,o:0,x:0,w:0,t:0,c:0,m:0},style:'ambient'};
 const OCEAN_PTS=[["N Pacific",30,-150],["Gulf of Alaska",55,-145],["N Atlantic",50,-30],["S Atlantic",-35,-20],["Cape of Good Hope",-38,20],["S Indian",-40,80],["Bay of Bengal",14,88],["Tasman Sea",-38,160],["Southern Ocean",-55,-90],["Philippine Sea",20,135]];
 
 /* ================= data ================= */
@@ -194,9 +234,34 @@ const wave=(n,b,a)=>Array.from({length:n},(_,i)=>b+a*Math.sin(i/9)+a*.35*Math.si
 function demoQuakes(){const now=Date.now(),a=[];for(let i=0;i<200;i++){const r=Math.random(),belt=r<.4?[35+Math.random()*25,-125+Math.random()*-30]:r<.7?[-10+Math.random()*50,120+Math.random()*30]:[-40+Math.random()*50,-75+Math.random()*8];
   a.push({id:"d"+i,mag:+(Math.random()**2.2*5.8+.6).toFixed(1),place:"demo data",time:now-864e5+i*432e3,lat:belt[0],lon:belt[1],depth:Math.random()**2*400})}return a}
 async function loadLand(){try{const w=await getJSON("https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json");S.land=topojson.feature(w,w.objects.land)}catch(_){}}
+const JET_PTS=[["N Atlantic",45,-40],["N Pacific",38,165],["N America",42,-95],["Eurasia",45,70],["S Indian",-45,90],["S Pacific",-45,-120]];
+const CITIES=[["Reykjavík",64.14,-21.9],["Anchorage",61.2,-149.9],["Tokyo",35.68,139.69],["Los Angeles",34.05,-118.24],["Cairo",30.04,31.24],["Mumbai",19.08,72.88],["Singapore",1.35,103.82],["Nairobi",-1.29,36.82],["São Paulo",-23.55,-46.63],["Sydney",-33.87,151.21]];
+const TIDE_ST=[["La Jolla","9410230",32.87,-117.26],["The Battery, NY","8518750",40.7,-74.01],["Honolulu","1612340",21.31,-157.87]];
+const omTimes=a=>a.map(x=>Date.parse(x+"Z"));
+async function loadJet(){
+  try{let j=await getJSON(`https://api.open-meteo.com/v1/forecast?latitude=${JET_PTS.map(p=>p[1])}&longitude=${JET_PTS.map(p=>p[2])}&hourly=wind_speed_250hPa,wind_direction_250hPa&past_days=1&forecast_days=1&timezone=GMT`);
+    if(!Array.isArray(j))j=[j];S.jet=j.map((x,i)=>({name:JET_PTS[i][0],lat:JET_PTS[i][1],lon:JET_PTS[i][2],t:omTimes(x.hourly.time),v:x.hourly.wind_speed_250hPa,d:x.hourly.wind_direction_250hPa}));S.demo.w=false}
+  catch(e){if(!S.jet.length){const t0=Date.now()-864e5;S.jet=JET_PTS.map((p,i)=>({name:p[0],lat:p[1],lon:p[2],t:[...Array(48)].map((_,k)=>t0+k*36e5),v:wave(48,160+i*15,50),d:wave(48,260,20)}));S.demo.w=true}}
+}
+async function loadTemps(){
+  try{let j=await getJSON(`https://api.open-meteo.com/v1/forecast?latitude=${CITIES.map(p=>p[1])}&longitude=${CITIES.map(p=>p[2])}&hourly=temperature_2m&past_days=1&forecast_days=1&timezone=GMT`);
+    if(!Array.isArray(j))j=[j];S.temps=j.map((x,i)=>({name:CITIES[i][0],lat:CITIES[i][1],lon:CITIES[i][2],t:omTimes(x.hourly.time),v:x.hourly.temperature_2m}));S.demo.c=false}
+  catch(e){if(!S.temps.length){const t0=Date.now()-864e5;S.temps=CITIES.map((p,i)=>({name:p[0],lat:p[1],lon:p[2],t:[...Array(48)].map((_,k)=>t0+k*36e5),v:wave(48,30-Math.abs(p[1])*.5,4)}));S.demo.c=true}}
+}
+async function loadTides(){
+  const res=await Promise.all(TIDE_ST.map(async st=>{try{const j=await getJSON(`https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?range=26&station=${st[1]}&product=water_level&datum=MLLW&units=metric&time_zone=gmt&format=json&application=earth_midi`);
+      const d=(j.data||[]).filter(r=>r.v!=="");if(!d.length)throw 0;return {name:st[0],lat:st[2],lon:st[3],t:d.map(r=>Date.parse(r.t.replace(" ","T")+":00Z")),v:d.map(r=>+r.v),demo:false}}
+    catch(e){const t0=Date.now()-864e5;return {name:st[0],lat:st[2],lon:st[3],t:[...Array(260)].map((_,k)=>t0+k*36e4),v:[...Array(260)].map((_,k)=>1+.8*Math.sin(k/260*2*Math.PI*1.93)),demo:true}}}));
+  S.tides=res;S.demo.t=res.every(r=>r.demo);
+}
+/* moon: illumination from synodic month (mean, ±~0.5 day) */
+function moon(t){const syn=29.530588853,ref=Date.UTC(2000,0,6,18,14),age=(((t-ref)/864e5)%syn+syn)%syn,ph=age/syn;return {age,ph,illum:(1-Math.cos(2*Math.PI*ph))/2,name:ph<.03||ph>.97?"new moon":ph<.22?"waxing crescent":ph<.28?"first quarter":ph<.47?"waxing gibbous":ph<.53?"full moon":ph<.72?"waning gibbous":ph<.78?"last quarter":"waning crescent"}}
+const tsAt=(o,t)=>at(o.t,o.v,t);
+function jetAvg(t){const v=S.jet.map(p=>tsAt(p,t)).filter(Number.isFinite);return v.length?v.reduce((a,b)=>a+b,0)/v.length:NaN}
+function tideNorm(o,t){const v=tsAt(o,t),mn=Math.min(...o.v),mx=Math.max(...o.v);return mx>mn?(v-mn)/(mx-mn)*2-1:0}
 async function refresh(){
-  await Promise.all([loadQuakes(),loadSun(),loadXray(),loadOcean()]);
-  const d=Object.entries(S.demo).filter(([,v])=>v).map(([k])=>({q:"quakes",s:"solar wind",k:"Kp",x:"X-rays",o:"ocean"}[k]));
+  await Promise.all([loadQuakes(),loadSun(),loadXray(),loadOcean(),loadJet(),loadTemps(),loadTides()]);
+  const d=Object.entries(S.demo).filter(([,v])=>v).map(([k])=>({q:"quakes",s:"solar wind",k:"Kp",x:"X-rays",o:"ocean",w:"jet stream",c:"city temps",t:"tides"}[k]));
   $("dataState").innerHTML=d.length?`<span class="warn">demo: ${d.join(", ")}</span> (source unreachable)`:`<span class="dot"></span>live · updated ${new Date().toLocaleTimeString()}`;
   updatePads();
 }
@@ -237,7 +302,8 @@ function initAudio(){
   const nb=ctx.createBuffer(1,ctx.sampleRate*4,ctx.sampleRate),nd=nb.getChannelData(0);let b0=0,b1=0,b2=0;for(let i=0;i<nd.length;i++){const w=Math.random()*2-1;b0=.99765*b0+w*.099;b1=.963*b1+w*.2965;b2=.57*b2+w*1.0526;nd[i]=(b0+b1+b2+w*.1848)*.18}
   A={ctx,master,rev,dly:dlg,an,nb,buses:{}};
   ["q","s","o","x"].forEach(k=>{const g=ctx.createGain();g.connect(master);const sR=ctx.createGain();sR.gain.value=k==="s"?.5:k==="q"?.7:.4;g.connect(sR);sR.connect(rev);A.buses[k]=g});
-  buildPad();buildSurf();buildShimmer();
+  ["w","t","c","r"].forEach(k=>{const g=ctx.createGain();g.connect(master);const sR=ctx.createGain();sR.gain.value=k==="r"?.12:.45;g.connect(sR);sR.connect(rev);A.buses[k]=g});A.revG=revG;
+  buildPad();buildSurf();buildShimmer();buildWind();buildTide();buildChoir();
 }
 const mtof=m=>440*Math.pow(2,(m-69)/12);
 /* --- scale from geomagnetic state (Kp) --- */
@@ -279,7 +345,19 @@ function updatePads(){
   // shimmer from X-ray flux (log scale: A to X)
   const xf=xrayAt(t),lx=Number.isFinite(xf)?Math.log10(xf):-8;
   A.shim.g.gain.setTargetAtTime(S.mute.x?0:map(lx,-8,-4,.0,.16),c,1.2);A.shim.f.frequency.setTargetAtTime(map(lx,-8,-4,2000,9000),c,2);
-  S.cur={sp,de,bz,bt,kp,oh,op,xf};
+  // jet stream wind
+  const jv=jetAvg(t);if(Number.isFinite(jv)){A.wind.bp.frequency.setTargetAtTime(map(jv,60,320,280,1500),c,2);A.wind.bp2.frequency.setTargetAtTime(map(jv,60,320,600,2600),c,2);A.wind.g.gain.setTargetAtTime(S.mute.w?0:map(jv,60,320,.08,.5),c,1.5);A.wind.lfo.frequency.setTargetAtTime(map(jv,60,320,.05,.3),c,2)}
+  // tides: bend the drone by the La Jolla level (±50 cents), level by the spread of all gauges
+  const tn=S.tides.length?tideNorm(S.tides[0],t):0;A.tide.o.detune.setTargetAtTime(tn*50,c,1);A.tide.o2.detune.setTargetAtTime(tn*50,c,1);A.tide.g.gain.setTargetAtTime(S.mute.t?0:(S.style==="pulse"?.12:.28),c,1);
+  // moon: reverb size
+  const mo=moon(t);A.revG.gain.setTargetAtTime(map(mo.illum,0,1,.38,.85),c,3);
+  // planet chord: re-voice every 20 s
+  A.choir.out.gain.setTargetAtTime(S.mute.c?0:.9,c,1.5);
+  if(c-A.choir.last>20&&S.temps.length){A.choir.last=c;const sc=scaleFor(kp),steps=sc.length*3;
+    A.choir.voices.forEach((v,i)=>{const T=tsAt(S.temps[i],t);if(!Number.isFinite(T))return;const n=degree(sc,Math.round(map(T,-30,45,0,steps-1)),ROOT);if(v.note)midiOff(7,v.note);v.o.frequency.setTargetAtTime(mtof(n),c,1.2);v.note=n;midiOn(7,n,60);pushNote(n,"c",50,6)});
+    logEv("Planet chord: "+S.temps.map((x,i)=>`${x.name} ${Math.round(tsAt(x,t))}°`).join(", "),"c",null,chordTrace(t));S.hit.c=.8}
+  midiCC(5,7,map(jv,60,320,0,127));midiCC(6,8,map(tn,-1,1,0,127));midiPB(6,tn);midiCC(8,9,mo.illum*127);
+  S.cur={sp,de,bz,bt,kp,oh,op,xf,jv,tn,mo};
 }
 /* --- Ocean: filtered noise surf with LFO at real swell period --- */
 function buildSurf(){
@@ -296,6 +374,40 @@ function buildShimmer(){
   const {ctx}=A,g=ctx.createGain();g.gain.value=0;const f=ctx.createBiquadFilter();f.type="bandpass";f.frequency.value=4000;f.Q.value=.7;
   [74,81,86,93].forEach((m,i)=>{const o=ctx.createOscillator();o.frequency.value=mtof(m);const tg=ctx.createGain();tg.gain.value=0;const l=ctx.createOscillator();l.frequency.value=.13+i*.07;const lg=ctx.createGain();lg.gain.value=.05;l.connect(lg);lg.connect(tg.gain);o.connect(tg);tg.connect(f);o.start();l.start()});
   f.connect(g);g.connect(A.buses.x);A.shim={g,f};
+}
+/* --- Jet stream: resonant wind --- */
+function buildWind(){const {ctx}=A,src=ctx.createBufferSource();src.buffer=A.nb;src.loop=true;src.playbackRate.value=.7;
+  const bp=ctx.createBiquadFilter();bp.type="bandpass";bp.Q.value=5;bp.frequency.value=600;const bp2=ctx.createBiquadFilter();bp2.type="bandpass";bp2.Q.value=9;bp2.frequency.value=1100;
+  const lfo=ctx.createOscillator();lfo.frequency.value=.09;const lg=ctx.createGain();lg.gain.value=220;lfo.connect(lg);lg.connect(bp.frequency);lg.connect(bp2.frequency);lfo.start();
+  const g=ctx.createGain();g.gain.value=0;const pan=ctx.createStereoPanner();const pl=ctx.createOscillator();pl.frequency.value=.05;const pg=ctx.createGain();pg.gain.value=.8;pl.connect(pg);pg.connect(pan.pan);pl.start();
+  src.connect(bp);src.connect(bp2);bp.connect(g);bp2.connect(g);g.connect(pan);pan.connect(A.buses.w);src.start();A.wind={bp,bp2,g,lfo}}
+/* --- Tides: sub drone whose pitch follows measured water level --- */
+function buildTide(){const {ctx}=A,o=ctx.createOscillator(),o2=ctx.createOscillator(),lp=ctx.createBiquadFilter(),g=ctx.createGain();o.type="triangle";o2.type="sine";
+  o.frequency.value=mtof(ROOT-12);o2.frequency.value=mtof(ROOT-24);lp.type="lowpass";lp.frequency.value=260;g.gain.value=0;const g2=ctx.createGain();g2.gain.value=.8;
+  o.connect(lp);o2.connect(g2);g2.connect(lp);lp.connect(g);g.connect(A.buses.t);o.start();o2.start();A.tide={o,o2,g}}
+/* --- Planet chord: one soft voice per city, pitch from live temperature --- */
+function buildChoir(){const {ctx}=A,out=ctx.createGain();out.gain.value=0;const f1=ctx.createBiquadFilter(),f2=ctx.createBiquadFilter();f1.type="bandpass";f1.frequency.value=720;f1.Q.value=3;f2.type="bandpass";f2.frequency.value=1150;f2.Q.value=4;
+  const mix=ctx.createGain();mix.gain.value=1;mix.connect(f1);mix.connect(f2);const dry=ctx.createGain();dry.gain.value=.35;mix.connect(dry);f1.connect(out);f2.connect(out);dry.connect(out);out.connect(A.buses.c);
+  const vib=ctx.createOscillator();vib.frequency.value=4.6;const vg=ctx.createGain();vg.gain.value=4;vib.connect(vg);vib.start();
+  const voices=CITIES.map((_,i)=>{const o=ctx.createOscillator();o.type="sawtooth";o.frequency.value=220;vg.connect(o.detune);const g=ctx.createGain();g.gain.value=.022;const p=ctx.createStereoPanner();p.pan.value=clamp(CITIES[i][2]/180,-1,1)*.8;o.connect(g);g.connect(p);p.connect(mix);o.start();return {o,g,note:0}});
+  A.choir={out,voices,last:-99}}
+/* --- Pulse style: kick, hats, bass. Tempo from solar wind, hat density from quake rate --- */
+function drum(kind,time,vel=1){const {ctx}=A;if(kind==="k"){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(150,time);o.frequency.exponentialRampToValueAtTime(42,time+.12);g.gain.setValueAtTime(.95*vel,time);g.gain.exponentialRampToValueAtTime(.001,time+.45);o.connect(g);g.connect(A.buses.r);o.start(time);o.stop(time+.5)}
+  else{const n=ctx.createBufferSource();n.buffer=A.nb;const hp=ctx.createBiquadFilter();hp.type="highpass";hp.frequency.value=7500;const g=ctx.createGain();g.gain.setValueAtTime(.35*vel,time);g.gain.exponentialRampToValueAtTime(.001,time+(kind==="o"?.18:.05));n.connect(hp);hp.connect(g);g.connect(A.buses.r);n.start(time,Math.random()*3);n.stop(time+.2)}}
+function bassNote(n,time,len){const {ctx}=A,o=ctx.createOscillator(),f=ctx.createBiquadFilter(),g=ctx.createGain();o.type="sawtooth";o.frequency.value=mtof(n);f.type="lowpass";f.Q.value=8;f.frequency.setValueAtTime(900,time);f.frequency.exponentialRampToValueAtTime(140,time+len);g.gain.setValueAtTime(.32,time);g.gain.exponentialRampToValueAtTime(.001,time+len);o.connect(f);f.connect(g);g.connect(A.buses.r);o.start(time);o.stop(time+len+.05)}
+let seq={next:0,step:0};
+function schedulePulse(){
+  if(!A||S.style!=="pulse"||!S.on)return;const c=A.ctx.currentTime,t=realNow();
+  const sp=S.cur&&Number.isFinite(S.cur.sp)?S.cur.sp:400,bpm=map(sp,250,900,112,134),st=60/bpm/4;
+  const hourAgo=t-36e5,rate=S.quakes.filter(q=>q.time>hourAgo&&q.time<=t).length,hatP=map(rate,0,20,.2,.95);
+  const tn=S.tides.length?tideNorm(S.tides[0],t):0,sc=scaleFor(S.cur?S.cur.kp:2);
+  if(seq.next<c)seq.next=c+.05;
+  while(seq.next<c+.15){const s16=seq.step%16,tm=seq.next;
+    if(s16%4===0){drum("k",tm);if(s16===0)midiNote(10,36,110,80)}
+    if(s16%2===1&&Math.random()<hatP){drum(s16%4===2?"o":"h",tm,.6+Math.random()*.4);midiNote(10,42,70,40)}
+    if(s16%4===2){const bn=degree(sc,Math.round(map(tn,-1,1,0,4)),ROOT-24);bassNote(bn,tm,st*1.6);midiNote(9,bn,96,st*1500);pushNote(bn,"t",90,st*1.6)}
+    seq.next+=st;seq.step++}
+  S.bpm=bpm;S.qrate=rate;
 }
 /* --- Quake: two-operator FM bell + sub hit for big ones --- */
 function quakeVoice(q){
@@ -318,7 +430,7 @@ function quakeVoice(q){
   }
   return {note,vel,dur:dec};
 }
-function flareBell(cls){if(!A)return;const {ctx}=A,c=ctx.currentTime;[0,7,12,19].forEach((d,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.value=mtof(ROOT+24+d);g.gain.setValueAtTime(0,c+i*.12);g.gain.linearRampToValueAtTime(.08,c+i*.12+.02);g.gain.exponentialRampToValueAtTime(.0003,c+i*.12+5);o.connect(g);g.connect(A.buses.x);o.start(c+i*.12);o.stop(c+6)});pushNote(ROOT+24,"x",100,3);midiNote(4,ROOT+24,100,1500);logEv(`Flare ${cls}`,"x")}
+function flareBell(cls,f){if(!A)return;const {ctx}=A,c=ctx.currentTime;[0,7,12,19].forEach((d,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.value=mtof(ROOT+24+d);g.gain.setValueAtTime(0,c+i*.12);g.gain.linearRampToValueAtTime(.08,c+i*.12+.02);g.gain.exponentialRampToValueAtTime(.0003,c+i*.12+5);o.connect(g);g.connect(A.buses.x);o.start(c+i*.12);o.stop(c+6)});pushNote(ROOT+24,"x",100,3);midiNote(4,ROOT+24,100,1500);logEv(`Flare ${cls}`,"x",null,[["Sensor","GOES-East/West X-ray sensor, 0.1–0.8 nm"],["Raw reading",`flux ${(f||0).toExponential(2)} W/m²`],["Formula",`flux crosses into class ${cls[0]} → bell swell\nlog10(flux) −8…−4 → shimmer level`],["Sound + MIDI",`4 triangle bells, root +24\nMIDI ch 4 note ${ROOT+24}`],["AI involved","none"]])}
 
 /* ================= MIDI ================= */
 let midi=null,out=null;
@@ -329,6 +441,9 @@ async function initMIDI(){
 function fillPorts(){const s=$("midiOut"),v=s.value;s.innerHTML='<option value="">MIDI out: off</option>';midi.outputs.forEach(o=>{const op=document.createElement("option");op.value=o.id;op.textContent="MIDI → "+o.name;s.appendChild(op)});s.value=v;if(!midi.outputs.size)$("midiState").textContent="no MIDI ports (see “Use it in your DAW”)"}
 $("midiOut").onchange=e=>{out=midi&&e.target.value?midi.outputs.get(e.target.value):null;$("midiState").textContent=out?"sending MIDI":""};
 function midiNote(ch,n,v,ms){if(!out)return;out.send([0x90+ch-1,n&127,clamp(v,1,127)]);out.send([0x80+ch-1,n&127,0],performance.now()+ms)}
+function midiOn(ch,n,v){if(out)out.send([0x90+ch-1,n&127,v])}
+function midiOff(ch,n){if(out)out.send([0x80+ch-1,n&127,0])}
+function midiPB(ch,x){if(!out||!Number.isFinite(x))return;const v=Math.round(8192+clamp(x,-1,1)*8191*.25);out.send([0xE0+ch-1,v&127,v>>7])}
 function midiCC(ch,cc,v){if(!out||!Number.isFinite(v))return;out.send([0xB0+ch-1,cc,Math.round(clamp(v,0,127))])}
 
 /* ================= playback loop ================= */
@@ -339,7 +454,15 @@ function playQuake(q){
   midiNote(1,r.note,r.vel,Math.round(r.dur*400));
   S.rings.push({lat:q.lat,lon:q.lon,mag:q.mag,t:performance.now(),depth:q.depth});
   pushNote(r.note,"q",r.vel,r.dur);S.hit.q=Math.min(1,S.hit.q+map(q.mag,1,6,.25,1));
-  logEv(`M${q.mag.toFixed(1)} · ${q.place} · ${Math.round(q.depth)} km deep → ${noteName(r.note)} v${r.vel}`,"q",q);
+  const kp=kpAt(q.time),sc=scaleFor(kp);
+  logEv(`M${q.mag.toFixed(1)} · ${q.place} · ${Math.round(q.depth)} km deep → ${noteName(r.note)} v${r.vel}`,"q",q,[
+    ["Sensor","USGS / ANSS seismic network\n"+new Date(q.time).toISOString().replace("T"," ").slice(0,19)+" UTC"],
+    ["Raw reading",`magnitude ${q.mag}\ndepth ${q.depth.toFixed(1)} km\nlat ${q.lat.toFixed(2)}, lon ${q.lon.toFixed(2)}`],
+    ["Formula: velocity",`20 + (mag − 1) ÷ 6 × 107\n= ${r.vel}`],
+    ["Formula: pitch",`Kp ${kp.toFixed(1)} → ${kp>=5?"minor pentatonic":kp>=4?"dorian":"major pentatonic"}\ndepth → step ${Math.round(map(q.depth,0,700,sc.length*3-1,0))} of ${sc.length*3}\n= ${noteName(r.note)} (MIDI ${r.note})`],
+    ["Formula: pan",`longitude ÷ 180 × 0.85 = ${(clamp(q.lon/180,-1,1)*.85).toFixed(2)}`],
+    ["Sound + MIDI",`FM bell, ${r.dur.toFixed(1)} s decay${q.mag>=4.5?"\n+ sub-bass hit (M4.5+)":""}\nMIDI ch 1 note ${r.note} vel ${r.vel}`],
+    ["AI involved","none"]]);
   $("vq").innerHTML=`M${q.mag.toFixed(1)}<small>${Math.round(q.depth)} km</small>`;$("sq").textContent=q.place;
 }
 const NN=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],noteName=n=>NN[n%12]+(Math.floor(n/12)-1);
@@ -349,12 +472,12 @@ function tick(){
   const t=realNow();
   S.quakes.forEach(q=>{if(!S.played.has(q.id)&&q.time<=t)playQuake(q)});
   // flares: crossing into a new class (C/M/X) triggers a bell
-  const xc=flareClass(xrayAt(t))[0];if(lastX&&"CMX".includes(xc)&&"ABC".indexOf(lastX)>-1&&"ABCMX".indexOf(xc)>"ABCMX".indexOf(lastX))flareBell(flareClass(xrayAt(t)));lastX=xc;
+  const xc=flareClass(xrayAt(t))[0];if(lastX&&"CMX".includes(xc)&&"ABC".indexOf(lastX)>-1&&"ABCMX".indexOf(xc)>"ABCMX".indexOf(lastX))flareBell(flareClass(xrayAt(t)),xrayAt(t));lastX=xc;
   // ocean note on each real swell period
   const oh=S.cur?S.cur.oh:0,op=S.cur?S.cur.op:8,now=performance.now();
   if(now-lastOceanNote>op*1000){lastOceanNote=now;const n=degree(scaleFor(S.cur?S.cur.kp:2),Math.round(map(oh,0,6,2,8)),ROOT-12);midiNote(3,n,Math.round(map(oh,0,6,30,110)),op*600);midiCC(3,5,map(oh,0,8,0,127));pushNote(n,"o",map(oh,0,6,30,110),op*.6);S.hit.o=.7}
   midiCC(4,6,map(Math.log10(xrayAt(t)||1e-8),-8,-4,0,127));
-  updatePads();
+  updatePads();schedulePulse();
   if(S.mode>0&&!S.liveSince)$("prog").style.width=((t-S.replayFrom)/(Date.now()-S.replayFrom)*100)+"%";else $("prog").style.width="100%";
 }
 setInterval(tick,50);
@@ -391,6 +514,15 @@ function drawMap(now){
   const want=Math.round(map(den,0,25,30,260));while(parts.length<want)parts.push({x:Math.random()*W,y:Math.random()*H,l:Math.random()*.6+.4});parts.length=Math.min(parts.length,want);
   cx.strokeStyle=bz<-5?"rgba(255,120,90,.5)":"rgba(255,210,120,.35)";cx.lineWidth=DPR;
   parts.forEach(p=>{const v=spd/400*2.2*DPR*p.l;p.x+=v;if(p.x>W){p.x=0;p.y=Math.random()*H}cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(p.x-v*6,p.y);cx.stroke()});
+  // jet stream: animated streaks along the measured wind direction, length by speed
+  S.jet.forEach(p=>{const v=tsAt(p,t),d=at(p.t,p.d,t);if(!Number.isFinite(v))return;const[x,y]=P(p.lon,p.lat),ang=(270-d)*Math.PI/180,L=map(v,40,320,20,120)*DPR;
+    for(let k=0;k<6;k++){const ph=((now/1000*v/120+k/6)%1),ox=x+Math.cos(ang)*L*(ph-.5)*2+Math.sin(ang)*(k-2.5)*5*DPR,oy=y-Math.sin(ang)*L*(ph-.5)*2+Math.cos(ang)*(k-2.5)*5*DPR;
+      cx.strokeStyle=`rgba(154,209,255,${(1-Math.abs(ph-.5)*2)*.7})`;cx.lineWidth=1.3*DPR;cx.beginPath();cx.moveTo(ox,oy);cx.lineTo(ox-Math.cos(ang)*14*DPR,oy+Math.sin(ang)*14*DPR);cx.stroke()}});
+  // tide gauges: water column rising and falling with the measured level
+  S.tides.forEach(o=>{const[x,y]=P(o.lon,o.lat),n=tideNorm(o,t),h=22*DPR;cx.strokeStyle="rgba(77,214,193,.6)";cx.lineWidth=1*DPR;cx.strokeRect(x+6*DPR,y-h/2,5*DPR,h);cx.fillStyle="#4dd6c1";const lv=(n+1)/2*h;cx.fillRect(x+6*DPR,y+h/2-lv,5*DPR,lv)});
+  // cities in the planet chord: colour = live temperature
+  cx.font=`${10*DPR}px IBM Plex Mono`;S.temps.forEach(o=>{const T=tsAt(o,t);if(!Number.isFinite(T))return;const[x,y]=P(o.lon,o.lat),hue=map(T,-20,40,220,0),pul=1+.25*Math.sin(now/500+o.lon);
+    cx.fillStyle=`hsla(${hue},90%,65%,.9)`;cx.beginPath();cx.arc(x,y,3*DPR*pul,0,7);cx.fill();cx.fillStyle="rgba(230,237,243,.75)";cx.fillText(`${Math.round(T)}°`,x+6*DPR,y-5*DPR)});
   // ocean points: rings at the real swell period
   S.ocean.forEach(o=>{const[x,y]=P(o.lon,o.lat),ph=(now/1000%o.p)/o.p,R=map(o.h,0,8,6,26)*DPR;
     for(let k=0;k<3;k++){const pp=(ph+k/3)%1;cx.strokeStyle=`rgba(60,200,255,${(1-pp)*.55})`;cx.lineWidth=1.4*DPR;cx.beginPath();cx.arc(x,y,R*pp*1.6,0,7);cx.stroke()}
@@ -405,6 +537,7 @@ function drawMap(now){
     if(age<.15){cx.fillStyle=`rgba(255,240,200,${1-age/.15})`;cx.beginPath();cx.arc(x,y,map(r.mag,1,7,4,18)*DPR,0,7);cx.fill()}});
   cx.globalCompositeOperation="source-over";
   $("clock").textContent=new Date(t).toISOString().slice(0,19).replace("T"," ")+" UTC";
+  {const mo=moon(t),r=11*DPR,mx=W-24*DPR,my=24*DPR;cx.fillStyle="#1a222c";cx.beginPath();cx.arc(mx,my,r,0,7);cx.fill();cx.save();cx.beginPath();cx.arc(mx,my,r,0,7);cx.clip();cx.fillStyle="#e9ecf4";cx.shadowColor="#fff";cx.shadowBlur=12*DPR*mo.illum;const k=Math.cos(2*Math.PI*mo.ph);cx.beginPath();if(mo.ph<.5){cx.arc(mx,my,r,-Math.PI/2,Math.PI/2);cx.ellipse(mx,my,Math.abs(k)*r,r,0,Math.PI/2,-Math.PI/2,k>0)}else{cx.arc(mx,my,r,Math.PI/2,-Math.PI/2);cx.ellipse(mx,my,Math.abs(k)*r,r,0,-Math.PI/2,Math.PI/2,k>0)}cx.fill();cx.restore()}
 }
 /* sparklines with playhead */
 function spark(id,ts,vs,col,t,lo,hi){const c=$(id),w=c.clientWidth*DPR,h=c.clientHeight*DPR;if(c.width!==w){c.width=w;c.height=h}const g=c.getContext("2d");g.clearRect(0,0,w,h);if(!vs.length)return;
@@ -420,18 +553,27 @@ function drawSparks(){
   spark("ks",S.sun.t,S.sun.speed,"#ffc53d",t,250,Math.max(700,...S.sun.speed.filter(Number.isFinite)));
   const oc=S.ocean[0];if(S.ocean.length){const n=S.ocean[0].hist.length,ts=[...Array(n)].map((_,i)=>Date.now()-864e5+i*36e5),avg=[...Array(n)].map((_,i)=>S.ocean.reduce((a,o)=>a+(o.hist[i]??o.h),0)/S.ocean.length);spark("ko",ts,avg,"#3cc8ff",t,0,6)}
   spark("kx",S.xray.map(x=>x.t),S.xray.map(x=>Math.log10(x.v)),"#c77dff",t,-8,-4);
+  if(S.jet.length){const ts=S.jet[0].t;spark("kw",ts,ts.map(x=>jetAvg(x)),"#9ad1ff",t,40,300)}
+  if(S.tides.length)spark("kt",S.tides[0].t,S.tides[0].v,"#4dd6c1",t,Math.min(...S.tides[0].v),Math.max(...S.tides[0].v));
+  if(S.temps.length){const ts=S.temps[0].t;spark("kc",ts,ts.map(x=>S.temps.reduce((a,o)=>a+(tsAt(o,x)||0),0)/S.temps.length),"#ff8fd1",t,0,30)}
+  {const ts=[...Array(60)].map((_,i)=>t-15*864e5+i*864e5/2);spark("km",ts,ts.map(x=>moon(x).illum),"#d9dce6",t,0,1)}
   const c=S.cur||{};
   $("vs").innerHTML=Number.isFinite(c.sp)?`${Math.round(c.sp)}<small>km/s</small>`:"–";
   $("ss").textContent=Number.isFinite(c.sp)?`density ${c.de?.toFixed(1)} p/cm³ · Bz ${c.bz?.toFixed(1)} nT · Kp ${c.kp?.toFixed(1)} → ${c.kp>=5?"storm: minor scale":c.kp>=4?"unsettled: dorian":"quiet: major pentatonic"}`:"";
   $("vo").innerHTML=S.ocean.length?`${c.oh?.toFixed(1)}<small>m avg · ${c.op?.toFixed(1)} s</small>`:"–";
   const big=S.ocean.slice().sort((a,b)=>b.h-a.h)[0];$("so").textContent=big?`biggest: ${big.name} ${big.h.toFixed(1)} m every ${big.p.toFixed(0)} s`:"";
+  if(Number.isFinite(c.jv)){$("vw").innerHTML=`${Math.round(c.jv)}<small>km/h avg</small>`;const fast=S.jet.map(p=>[p.name,tsAt(p,t)]).sort((a,b)=>b[1]-a[1])[0];$("sw").textContent=`fastest: ${fast[0]} ${Math.round(fast[1])} km/h`}
+  if(S.tides.length){const o=S.tides[0],v=tsAt(o,t),prev=tsAt(o,t-6e5);$("vt").innerHTML=`${v.toFixed(2)}<small>m · ${v>=prev?"rising":"falling"}</small>`;$("st").textContent=S.tides.map(x=>`${x.name} ${tsAt(x,t).toFixed(2)} m`).join(" · ")+(S.demo.t?" (demo)":"")}
+  if(S.temps.length){const ts=S.temps.map(o=>[o.name,tsAt(o,t)]).filter(x=>Number.isFinite(x[1])).sort((a,b)=>a[1]-b[1]);$("vc").innerHTML=`${Math.round(ts[0][1])}…${Math.round(ts[ts.length-1][1])}<small>°C</small>`;$("sc").textContent=`coldest ${ts[0][0]}, hottest ${ts[ts.length-1][0]}`}
+  if(c.mo){$("vm").innerHTML=`${Math.round(c.mo.illum*100)}%<small>${c.mo.name}</small>`;$("sm").textContent=`day ${c.mo.age.toFixed(1)} of 29.5 · reverb ${Math.round(map(c.mo.illum,0,1,38,85))}%`}
+  if(S.style==="pulse"&&S.bpm)$("modeLbl").textContent=($("modeLbl").textContent.split(" · ♩")[0])+` · ♩ ${Math.round(S.bpm)} bpm from solar wind · hats from ${S.qrate} quakes/h`;
   $("vx").innerHTML=Number.isFinite(c.xf)?`${flareClass(c.xf)}<small>class</small>`:"–";
   const pk=S.xray.reduce((a,b)=>b.v>a.v?b:a,{v:0});$("sx").textContent=pk.v?`24h peak ${flareClass(pk.v)} at ${new Date(pk.t).toISOString().slice(11,16)} UTC`:"";
   if(!S.on){const last=S.quakes[S.quakes.length-1];if(last){$("vq").innerHTML=`${S.quakes.length}<small>quakes in 24h</small>`;$("sq").textContent=`largest M${Math.max(...S.quakes.map(q=>q.mag)).toFixed(1)}`}}
 }
 /* piano roll */
 function pushNote(n,k,v,dur){S.notes.push({n,k,v,t:performance.now(),d:dur*1000});if(S.notes.length>400)S.notes.shift()}
-const COLS={q:"#ff5a3c",s:"#ffc53d",o:"#3cc8ff",x:"#c77dff"};
+const COLS={q:"#ff5a3c",s:"#ffc53d",o:"#3cc8ff",x:"#c77dff",w:"#9ad1ff",t:"#4dd6c1",c:"#ff8fd1",m:"#d9dce6"};
 function drawRoll(now){const c=$("roll"),w=c.clientWidth*DPR,h=c.clientHeight*DPR;if(c.width!==w){c.width=w;c.height=h}const g=c.getContext("2d");g.clearRect(0,0,w,h);
   const span=12000,lo=24,hi=100,Y=n=>h-(n-lo)/(hi-lo)*h;
   g.fillStyle="rgba(255,255,255,.025)";for(let n=lo;n<hi;n++)if([1,3,6,8,10].includes(n%12))g.fillRect(0,Y(n+1),w,h/(hi-lo));
@@ -447,7 +589,9 @@ function drawScope(){const c=$("scope"),w=c.clientWidth*DPR,h=c.clientHeight*DPR
   g.strokeStyle="#e6edf3";g.lineWidth=1.6*DPR;g.shadowColor="#3cc8ff";g.shadowBlur=10*DPR;g.stroke();g.shadowBlur=0;
   return Math.sqrt(rms/td.length)}
 /* event log */
-function logEv(txt,k,q){const li=document.createElement("li");const tm=new Date(q?q.time:realNow()).toISOString().slice(11,19);li.innerHTML=`<span>${tm}</span>${q?`<b>M${q.mag.toFixed(1)}</b>`:`<b style="color:${COLS[k]}">${k==="x"?"FLARE":"•"}</b>`}<span></span>`;li.lastChild.textContent=q?txt.split(" · ").slice(1).join(" · "):txt;const ul=$("log");ul.prepend(li);while(ul.children.length>40)ul.lastChild.remove()}
+function chordTrace(t){return [["Sensor","Open-Meteo weather model, 2 m air temperature, 10 cities"],["Raw reading",S.temps.map(x=>`${x.name}: ${tsAt(x,t).toFixed(1)}°C`).join("\n")],["Formula","temperature −30…45 °C → scale step 0…14\n(cold low, hot high)"],["Sound + MIDI","10 soft voices panned by longitude\nMIDI ch 7, one note per city"],["AI involved","none"]]}
+function showTrace(tr){$("trace").querySelector("ol").innerHTML=tr.map(([a,b])=>`<li><b${a==="AI involved"?' class="ai0"':""}>${a}</b><span${a==="AI involved"?' class="ai0"':""}></span></li>`).join("");[...$("trace").querySelectorAll("li span")].forEach((e,i)=>e.textContent=tr[i][1])}
+function logEv(txt,k,q,tr){const li=document.createElement("li");if(tr){li.onclick=()=>showTrace(tr);if(!S.traced){S.traced=1;showTrace(tr)}}const tm=new Date(q?q.time:realNow()).toISOString().slice(11,19);li.innerHTML=`<span>${tm}</span>${q?`<b>M${q.mag.toFixed(1)}</b>`:`<b style="color:${COLS[k]}">${k==="x"?"FLARE":"•"}</b>`}<span></span>`;li.lastChild.textContent=q?txt.split(" · ").slice(1).join(" · "):txt;const ul=$("log");ul.prepend(li);while(ul.children.length>40)ul.lastChild.remove()}
 /* hover tooltip on map */
 cv.addEventListener("mousemove",e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*DPR,y=(e.clientY-r.top)*DPR;let best=null,bd=14*DPR;
   S.quakes.forEach(q=>{if(S.on&&!S.played.has(q.id))return;const[qx,qy]=P(q.lon,q.lat),d=Math.hypot(qx-x,qy-y);if(d<bd){bd=d;best=q}});
@@ -462,7 +606,7 @@ cv.addEventListener("click",()=>{const tip=$("tip");if(tip.style.display==="bloc
 function frame(now){
   drawMap(now);drawSparks();drawRoll(now);const rms=drawScope();
   const glow=clamp((rms||0)*6+S.hit.q*.6,0,1);document.documentElement.style.setProperty("--glow",glow.toFixed(3));
-  ["q","s","o","x"].forEach(k=>{S.hit[k]*=.94;$("c"+k).style.setProperty("--hit",S.hit[k].toFixed(3))});
+  ["q","s","o","x","w","t","c","m"].forEach(k=>{S.hit[k]*=.94;$("c"+k).style.setProperty("--hit",S.hit[k].toFixed(3))});
   requestAnimationFrame(frame);
 }
 
@@ -475,8 +619,9 @@ $("go").onclick=async()=>{
     S.on=true;$("go").textContent="■ STOP";$("go").classList.add("on");setMode();refresh();initMIDI();
   }else{S.on=false;A.master.gain.setTargetAtTime(0,A.ctx.currentTime,.4);$("go").textContent="▶ START";$("go").classList.remove("on");setMode();$("prog").style.width="0"}
 };
+$("style").onchange=e=>{S.style=e.target.value;seq={next:0,step:0}};
 $("vol").oninput=e=>A&&A.master.gain.setTargetAtTime(+e.target.value,A.ctx.currentTime,.05);
-document.querySelectorAll(".mutes button").forEach(b=>b.onclick=()=>{const k=b.dataset.l;S.mute[k]=!S.mute[k];b.setAttribute("aria-pressed",!S.mute[k]);if(A&&k==="q")A.buses.q.gain.setTargetAtTime(S.mute.q?0:1,A.ctx.currentTime,.1)});
+document.querySelectorAll(".mutes button").forEach(b=>b.onclick=()=>{const k=b.dataset.l;S.mute[k]=!S.mute[k];b.setAttribute("aria-pressed",!S.mute[k]);if(A&&(k==="q"))A.buses.q.gain.setTargetAtTime(S.mute.q?0:1,A.ctx.currentTime,.1)});
 addEventListener("keydown",e=>{if(e.code==="Space"&&e.target===document.body){e.preventDefault();$("go").click()}});
 
 sizeMap();loadLand();refresh();requestAnimationFrame(frame);
