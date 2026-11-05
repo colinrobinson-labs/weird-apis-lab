@@ -224,7 +224,7 @@ def context_for(txt, low, i):
     for m in re.finditer(r"^(={2,4})\s*(.+?)\s*\1\s*$", txt[:i], flags=re.M):
         sec = plain(m.group(2))
     win = low[max(0, rs - 600): (re_ + 400 if 0 <= re_ - i < 4000 else i + 900)]
-    flagged = bool(re.search(r"retract|\{\{\s*retracted|expression of concern|withdr", win))
+    flagged = bool(re.search(r"retract|\{\{\s*retracted|expression of concern|withdr|\bremoved:|was (?:\w+ )?removed\b", win))
     return sentence, sec, flagged
 
 
@@ -306,6 +306,15 @@ def load_prev():
     except Exception:
         return {}
 
+
+def sanity_check(prev, papers, rw):
+    """Refuse to publish a build that lost most of the record (a source outage, not real change)."""
+    ps = (prev or {}).get("stats") or {}
+    if len(rw) < 0.8 * (ps.get("retractions") or 0):
+        raise SystemExit(f"Retraction Watch shrank from {ps['retractions']} to {len(rw)} records; not publishing")
+    before = ps.get("cited") or 0
+    if before and len(papers) < 0.6 * before:
+        raise SystemExit(f"cited papers dropped from {before} to {len(papers)}; not publishing")
 
 def update_ledger(prev, papers, hits, pages, today):
     """Carry every zombie citation forward as a case, week to week.
@@ -417,7 +426,9 @@ def main():
 
     papers.sort(key=lambda p: (-p["reach"], -p["zombies"]))
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    ledger = update_ledger(load_prev(), papers, hits, pages, today)
+    prev = load_prev()
+    sanity_check(prev, papers, rw)
+    ledger = update_ledger(prev, papers, hits, pages, today)
     reasons = Counter(r for p in papers if p["zombies"] for r in p["reasons"])
     countries = Counter(c for p in papers if p["zombies"] for c in p["country"])
     years = Counter((p["retracted"] or "")[:4] for p in papers if p["zombies"])
