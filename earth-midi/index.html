@@ -15,18 +15,20 @@
  --disp:"Syne",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;--body:"IBM Plex Sans",system-ui,sans-serif;--dock:0px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 var(--body)}
-body{padding:0 max(16px,env(safe-area-inset-left,0px)) var(--dock);overflow-x:hidden}
-body::before{content:"";position:fixed;inset:-20%;pointer-events:none;z-index:-1;background:radial-gradient(40% 30% at 15% 0%,rgba(255,90,60,calc(.05 + var(--glow)*.12)),transparent 70%),radial-gradient(40% 35% at 90% 10%,rgba(60,200,255,calc(.05 + var(--glow)*.1)),transparent 70%);transition:background .2s}
+html,body{overflow-x:hidden;overflow-x:clip}
+body{padding:0 max(16px,env(safe-area-inset-left,0px)) var(--dock)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(40% 30% at 15% 0%,rgba(255,90,60,calc(.05 + var(--glow)*.12)),transparent 70%),radial-gradient(40% 35% at 90% 10%,rgba(60,200,255,calc(.05 + var(--glow)*.1)),transparent 70%);transition:background .2s}
 .wrap{max-width:1360px;margin:0 auto;padding:18px 0 60px}
 a{color:var(--o)}
-header{display:grid;grid-template-columns:1fr auto;gap:10px 24px;align-items:end}
-h1{font:800 clamp(46px,10vw,132px)/.82 var(--disp);margin:0;letter-spacing:-.045em;white-space:nowrap;user-select:none}
+header{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,520px);gap:14px 32px;align-items:start;margin-bottom:14px}
+header h1{grid-column:1/-1}
+h1{font:800 min(128px,calc((min(100vw,1392px) - 40px)/9.9))/.82 var(--disp);margin:0;letter-spacing:-.045em;white-space:nowrap;user-select:none}
 h1 .L{display:inline-block;background:linear-gradient(100deg,var(--q),var(--s) 22%,var(--k) 44%,var(--o) 66%,var(--x) 88%,var(--q));background-size:1100% 100%;background-position:calc(var(--i)*10%) 0;-webkit-background-clip:text;background-clip:text;color:transparent;
  animation:hue 16s linear infinite;transform:translateY(calc(var(--h,0)*-10px)) scale(calc(1 + var(--h,0)*.06));transition:transform .08s;
  filter:drop-shadow(0 0 calc(4px + var(--glow)*26px) rgba(255,140,90,calc(.2 + var(--glow)*.6))) drop-shadow(0 0 calc(var(--h,0)*34px) var(--c))}
 h1 .sp{display:inline-block;width:.24em}
 @keyframes hue{to{background-position:calc(var(--i)*10% - 1100%) 0}}
-.tag{font:13px/1.55 var(--body);color:var(--mute);max-width:470px;margin:0}
+.tag{font:13px/1.55 var(--body);color:var(--mute);max-width:520px;margin:0;justify-self:end}
 .tag b{color:var(--fg);font-weight:500}
 .badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
 .b{font:600 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid currentColor;border-radius:999px;padding:3px 9px}
@@ -192,7 +194,8 @@ footer{margin-top:24px;font:11px/1.6 var(--mono);color:var(--mute)}
 @media (max-width:700px){
  :root{--dock:calc(78px + env(safe-area-inset-bottom,0px))}
  header{grid-template-columns:1fr}
- h1{font-size:clamp(44px,15.5vw,80px)}
+ h1{font-size:calc((100vw - 32px)/9.9)}
+ .tag{justify-self:start}
  .tag{font-size:13px}
  .zero{padding:14px 12px}.zhead{gap:12px}.zq{font-size:18px}
  .zstats b{font-size:24px}.pipe{grid-template-columns:1fr 1fr}.pipe li{padding:8px 9px 24px;font-size:11.5px}
@@ -232,8 +235,8 @@ body.recording::after{content:"● REC";position:fixed;top:10px;right:10px;z-ind
 <body>
 <div class="wrap">
 <header>
+  <h1 id="title" aria-label="Earth MIDI">EARTH MIDI</h1>
   <div>
-    <h1 id="title" aria-label="Earth MIDI">EARTH MIDI</h1>
     <div class="badges"><span class="b raw">Raw sensor data</span><span class="b alg">Fixed formulas</span><span class="b ai">AI audio</span><span class="b raw">0% AI in the sound</span></div>
   </div>
   <p class="tag">The planet is the instrument. <b>Every note is a real event</b>: an earthquake, a solar flare, the sun rising over Lagos, the space station crossing a coastline. Every filter sweep is the actual solar wind, the surf is real ocean swell, the drone bends with real tides. Hear it, play it, or take the raw data into your DAW.</p>
