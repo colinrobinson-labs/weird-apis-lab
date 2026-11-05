@@ -4,224 +4,433 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Salu Atlas</title>
-<meta name="description" content="Free travel health check for any city: heat, UV, air, altitude, earthquakes, travel advisories and outbreaks, with what to do about each.">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<meta name="description" content="Free travel health check for any city: heat, UV, air, pollen, storms, ocean, altitude, earthquakes, travel advisories and outbreaks, with what to do about each.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+JP:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: search bar → destination header with overall level → risk cards sorted by level → method + sources. */
 :root{
-  --bg:#f6f4ef; --panel:#ffffff; --line:#e2ddd2; --fg:#1d2321; --muted:#5f6a66; --accent:#1f6f5c;
-  --l1:#2f8f5b; --l2:#b78a00; --l3:#d0612a; --l4:#c2283f; --nd:#8a918e;
-  --display:"Fraunces",Georgia,serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --bg:#f3f0e8;--panel:#fffdf8;--line:#e0dacb;--fg:#1b211f;--muted:#5d6763;--accent:#1f6f5c;--ink2:#2b3431;
+  --l0:#2f8f5b;--l1:#b98600;--l2:#d0612a;--l3:#c2283f;--nd:#8a918e;
+  --display:"Fraunces",Georgia,serif;--body:"IBM Plex Sans","IBM Plex Sans JP",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#101513;--panel:#171e1b;--line:#2a3430;--fg:#e8efeb;--muted:#9aa8a2;--accent:#5fd1a8;--l1:#5fd18f;--l2:#f0c341;--l3:#ff8a52;--l4:#ff5c74;--nd:#7d8a85;color-scheme:dark}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1311;--panel:#151c19;--line:#26312c;--fg:#e9f0ec;--muted:#98a6a0;--accent:#63d4ab;--ink2:#cfd9d4;--l0:#5fd18f;--l1:#f0c341;--l2:#ff8a52;--l3:#ff5c74;--nd:#7d8a85;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1311;--panel:#151c19;--line:#26312c;--fg:#e9f0ec;--muted:#98a6a0;--accent:#63d4ab;--ink2:#cfd9d4;--l0:#5fd18f;--l1:#f0c341;--l2:#ff8a52;--l3:#ff5c74;--nd:#7d8a85;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 var(--body)}
 body{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.wrap{max-width:1040px;margin:0 auto;padding-block:22px 60px}
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 64px}
+a{color:var(--accent)}
 .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.brand{font:800 26px var(--display);letter-spacing:-.01em}
+.brand{font:900 26px var(--display);letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.brand svg{width:26px;height:26px}
 .brand span{color:var(--accent)}
-.langs{display:flex;gap:4px;flex-wrap:wrap}
+.tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 button,input,select{font:500 14px var(--body);color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 12px}
 button{cursor:pointer}
-.langs button{font:500 12px var(--mono);padding:5px 9px}
-button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;border-radius:0;font:500 12px var(--mono);padding:6px 9px;background:transparent}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.hero{margin:26px 0 12px}
-.hero h1{font:800 clamp(28px,5vw,46px)/1.05 var(--display);margin:0 0 8px;text-wrap:balance}
-.hero p{color:var(--muted);margin:0;max-width:62ch}
-.search{position:relative;display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
-.search input{flex:1 1 260px;font-size:16px;padding:12px 14px}
-.sugg{position:absolute;top:100%;left:0;right:0;z-index:4;background:var(--panel);border:1px solid var(--line);border-radius:8px;margin-top:4px;overflow:hidden}
-.sugg button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);border-radius:0}
+.hero{margin:34px 0 16px;display:grid;gap:10px}
+.hero h1{font:900 clamp(32px,6vw,62px)/1 var(--display);letter-spacing:-.025em;margin:0;text-wrap:balance;max-width:16ch}
+:lang(ja) .hero h1{max-width:none;font-size:clamp(28px,5vw,52px);line-height:1.2;letter-spacing:0;word-break:auto-phrase}
+.hero p{color:var(--muted);margin:0;max-width:60ch;font-size:16px}
+.form{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:12px;margin:18px 0 6px;box-shadow:0 1px 0 var(--line)}
+.row1{display:grid;grid-template-columns:1fr auto;gap:10px}
+@media (max-width:640px){.row1{grid-template-columns:1fr}}
+.search{position:relative}
+.search input{width:100%;font-size:17px;padding:13px 14px}
+.sugg{position:absolute;top:100%;left:0;right:0;z-index:5;background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-top:4px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.12)}
+.sugg button{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:11px 14px}
+.sugg button:last-child{border-bottom:0}
+.sugg button[aria-selected="true"],.sugg button:hover{background:color-mix(in srgb,var(--accent) 12%,var(--panel))}
+.sugg small{color:var(--muted);font:12px var(--mono)}
+.dates{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+.dates label{display:grid;gap:3px;font:11px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.dates input{padding:11px 10px;min-width:0}
 .toggles{display:flex;gap:6px;flex-wrap:wrap;font-size:13px;color:var(--muted);align-items:center}
-.toggles label{display:inline-flex;gap:5px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px;background:var(--panel);cursor:pointer}
-.dest{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin:22px 0 8px;border-top:1px solid var(--line);padding-top:18px}
-.dest h2{font:800 clamp(24px,4vw,34px)/1.1 var(--display);margin:0}
-.dest .sub{color:var(--muted);font:13px var(--mono)}
-.pill{font:600 14px var(--body);padding:7px 14px;border-radius:999px;color:#fff;background:var(--c)}
-.banner{display:none;border:2px solid var(--l4);background:color-mix(in srgb,var(--l4) 10%,var(--panel));border-radius:10px;padding:12px 14px;margin:10px 0}
-.banner.on{display:block}
-.legend{display:flex;gap:12px;flex-wrap:wrap;font:12px var(--mono);color:var(--muted);margin:8px 0 12px}
+.toggles label{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:5px 11px;background:var(--bg);cursor:pointer;color:var(--fg)}
+.toggles label:has(input:checked){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--panel))}
+.toggles input{accent-color:var(--accent);margin:0}
+.examples{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted);margin-top:8px}
+.examples button{font-size:13px;padding:4px 10px;border-radius:999px;background:transparent}
+.dest{display:flex;justify-content:space-between;align-items:end;gap:14px;flex-wrap:wrap;margin:30px 0 10px}
+.dest h2{font:900 clamp(28px,5vw,44px)/1.02 var(--display);margin:0;letter-spacing:-.02em}
+.dest .sub{color:var(--muted);font:12px var(--mono);margin-top:6px}
+.ovr{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{font:600 15px var(--body);padding:8px 16px;border-radius:999px;color:#fff;background:var(--c)}
+:root[data-theme="dark"] .pill,.dark .pill{color:#0e1311}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pill{color:#0e1311}}
+.ovr .lbl{font:12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.acts{display:flex;gap:6px}
+.acts button{font-size:13px;padding:7px 11px}
+.note{font:13px var(--body);color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:9px 12px;margin:8px 0}
+.banner{border:2px solid var(--l3);background:color-mix(in srgb,var(--l3) 9%,var(--panel));border-radius:12px;padding:12px 14px;margin:10px 0}
+.top3{background:var(--fg);color:var(--bg);border-radius:14px;padding:16px 18px;margin:12px 0}
+.top3 h3{font:700 20px var(--display);margin:0 0 8px}
+.top3 ol{margin:0;padding-left:20px;display:grid;gap:4px}
+.top3 li::marker{font:600 13px var(--mono)}
+.top3 .lvdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:6px;vertical-align:1px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font:12px var(--mono);color:var(--muted);margin:16px 0 10px}
 .legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px;background:var(--c)}
-.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
-.card{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:10px;padding:13px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:12px;padding:14px 15px;display:flex;flex-direction:column;gap:7px;min-width:0;animation:in .35s ease both}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.card{animation:none}}
 .card .h{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
-.card .n{font-weight:600}
-.card .lv{font:600 12px var(--mono);color:var(--c);white-space:nowrap}
-.card .v{font-size:15px}
-.card ul{margin:0;padding-left:18px;font-size:14px}
-.card .m{margin-top:auto;border-top:1px dashed var(--line);padding-top:6px;display:flex;justify-content:space-between;gap:8px;font:11px var(--mono);color:var(--muted)}
+.card .n{font:700 17px var(--display)}
+.card .lv{font:600 11px var(--mono);color:var(--c);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+.card .v{font-size:15px;color:var(--ink2)}
+.card .v small{display:block;color:var(--muted);font-size:13px}
+.card ul{margin:0;padding-left:18px;font-size:14px;display:grid;gap:2px}
+.card .ext{font-size:13px;color:var(--muted);margin:0;padding-left:18px}
+.card .m{margin-top:auto;border-top:1px dashed var(--line);padding-top:7px;display:flex;justify-content:space-between;gap:8px;font:11px var(--mono);color:var(--muted)}
 .card .m a{color:var(--muted)}
 .grade{border:1px solid currentColor;border-radius:4px;padding:0 5px;font-weight:600}
-.loading{color:var(--muted);font:13px var(--mono)}
-.method{margin-top:34px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-.method>div{min-width:0}
-.method h3{font:800 20px var(--display);margin:0 0 6px}
-.method p,.method li{color:var(--muted);font-size:14px}
-a{color:var(--accent)}
+.cal{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:14px 0;overflow-x:auto}
+.cal h3{font:700 18px var(--display);margin:0 0 8px}
+.cal table{border-collapse:separate;border-spacing:3px;font:11px var(--mono)}
+.cal th{color:var(--muted);font-weight:500;text-align:left;padding-right:6px;white-space:nowrap}
+.cal td{min-width:46px;height:34px;border-radius:6px;text-align:center;background:color-mix(in srgb,var(--c) 22%,var(--panel));border-bottom:3px solid var(--c);color:var(--fg)}
+.cal thead th{text-align:center}
+.side{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-top:14px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 15px}
+.box h3{font:700 18px var(--display);margin:0 0 6px}
+.box p{margin:0 0 8px;color:var(--muted);font-size:14px}
+.box ul{margin:0;padding-left:18px;font-size:14px}
+.nums{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0}
+.num{border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-width:100px}
+.num b{display:block;font:700 26px var(--mono);color:var(--l3)}
+.num span{font-size:12px;color:var(--muted)}
+.loading{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));margin-top:26px}
+.sk{height:150px;border-radius:12px;background:linear-gradient(90deg,var(--panel),color-mix(in srgb,var(--line) 60%,var(--panel)),var(--panel));background-size:200% 100%;animation:sh 1.2s linear infinite;border:1px solid var(--line)}
+@keyframes sh{to{background-position:-200% 0}}
+.method{margin-top:44px;display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));border-top:1px solid var(--line);padding-top:20px}
+.method h3{font:700 20px var(--display);margin:0 0 6px}
+.method p{color:var(--muted);font-size:14px;margin:0}
 footer{margin-top:28px;font:12px var(--mono);color:var(--muted)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+@media print{.tools,.form,.examples,.acts,.method,.hero p{display:none!important}.card,.box,.cal{break-inside:avoid}body{background:#fff}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top">
-    <div class="brand">Salu<span>Atlas</span></div>
-    <div class="langs" id="langs" role="group" aria-label="Language"></div>
+    <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M16 7v18M7 16h18" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/></svg>Salu<span>Atlas</span></div>
+    <div class="tools">
+      <div class="seg" id="units" role="group" aria-label="Units"><button data-u="m">°C</button><button data-u="i">°F</button></div>
+      <div class="seg" id="langs" role="group" aria-label="Language"></div>
+      <div class="seg"><button id="theme" aria-label="Theme">◐</button></div>
+    </div>
   </div>
 
   <div class="hero">
-    <h1 id="tHero">Know the health risks before you go.</h1>
-    <p id="tSub">Free, live, and sourced. Every risk shows a level, what to do about it, how reliable the data is, and where it comes from.</p>
+    <h1 data-t="hero"></h1>
+    <p data-t="sub"></p>
   </div>
 
-  <div class="search">
-    <input id="q" placeholder="Search a city (e.g. Lisbon, Bangkok, Cusco)" autocomplete="off" aria-label="Destination city">
-    <div class="sugg" id="sugg" hidden></div>
+  <div class="form">
+    <div class="row1">
+      <div class="search">
+        <input id="q" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="sugg" aria-autocomplete="list">
+        <div class="sugg" id="sugg" role="listbox" hidden></div>
+      </div>
+      <div class="dates" role="group">
+        <label><span data-t="from"></span><input type="date" id="d1"></label>
+        <label><span data-t="to"></span><input type="date" id="d2"></label>
+      </div>
+    </div>
+    <div class="toggles" id="toggles">
+      <span data-t="forT"></span>
+      <label><input type="checkbox" value="kids"><span data-g="kids"></span></label>
+      <label><input type="checkbox" value="older"><span data-g="older"></span></label>
+      <label><input type="checkbox" value="pregnant"><span data-g="pregnant"></span></label>
+      <label><input type="checkbox" value="lungs"><span data-g="lungs"></span></label>
+      <label><input type="checkbox" value="allergy"><span data-g="allergy"></span></label>
+    </div>
   </div>
-  <div class="toggles" id="toggles">
-    <span id="tFor">Traveling with:</span>
-    <label><input type="checkbox" value="kids"> <span>kids</span></label>
-    <label><input type="checkbox" value="older"> <span>65+</span></label>
-    <label><input type="checkbox" value="pregnant"> <span>pregnancy</span></label>
-    <label><input type="checkbox" value="lungs"> <span>asthma / lung or heart condition</span></label>
-  </div>
+  <div class="examples" id="examples"><span data-t="tryT"></span></div>
 
-  <div id="result"></div>
+  <div id="result" aria-live="polite"></div>
 
   <section class="method">
-    <div>
-      <h3 id="tHow">How levels work</h3>
-      <p>Every level comes from a published threshold: the US Heat Index bands, WHO UV categories, the US AQI, CDC altitude guidance, and UK government travel advice. The overall level is the <b>highest single risk</b>, never an average, so a serious risk can't be diluted. We never say "safe". The best level is "Normal".</p>
-    </div>
-    <div>
-      <h3>Reliability grades</h3>
-      <p><b>A</b> = official measurement or record. <b>B</b> = a reputable forecast model. <b>C</b> = country-level guidance. <b>D</b> = thin or out of date. Every card links its source.</p>
-    </div>
-    <div>
-      <h3>Coming next</h3>
-      <p>Beach water quality (EU, UK, US, AU), wildfire smoke maps, mosquito-borne disease, drinking water, vaccines, nearby clinics, multi-stop trips, and 10 reviewed languages.</p>
-    </div>
+    <div><h3 data-t="howT"></h3><p data-th="howP"></p></div>
+    <div><h3 data-t="gradeT"></h3><p data-th="gradeP"></p></div>
+    <div><h3 data-t="nextT"></h3><p data-t="nextP"></p></div>
   </section>
-  <footer>Salu Atlas · prototype v0.1 · information, not medical advice · data: Open-Meteo (CC BY 4.0), CAMS, USGS, GOV.UK FCDO (OGL), WHO</footer>
+  <footer data-t="foot"></footer>
 </div>
+<div class="toast" id="toast"></div>
 
+<script src="i18n.js"></script>
 <script>
 (()=>{
-const $=id=>document.getElementById(id);
-/* ---------- UI strings (machine-drafted; needs native review) ---------- */
-const T={
- en:{n:"English",hero:"Know the health risks before you go.",sub:"Free, live, and sourced. Every risk shows a level, what to do about it, how reliable the data is, and where it comes from.",ph:"Search a city (e.g. Lisbon, Bangkok, Cusco)",lv:["Normal","Take precautions","High","Avoid","No data"],ov:"Overall",forT:"Traveling with:",how:"How levels work",load:"Checking live sources…",src:"Source"},
- es:{n:"Español",hero:"Conoce los riesgos de salud antes de viajar.",sub:"Gratis, en vivo y con fuentes. Cada riesgo muestra un nivel, qué hacer, qué tan fiables son los datos y de dónde vienen.",ph:"Busca una ciudad (p. ej. Lisboa, Bangkok, Cusco)",lv:["Normal","Precauciones","Alto","Evitar","Sin datos"],ov:"General",forT:"Viajo con:",how:"Cómo funcionan los niveles",load:"Consultando fuentes en vivo…",src:"Fuente"},
- fr:{n:"Français",hero:"Connaissez les risques santé avant de partir.",sub:"Gratuit, en direct et sourcé. Chaque risque indique un niveau, quoi faire, la fiabilité des données et leur source.",ph:"Cherchez une ville (ex. Lisbonne, Bangkok, Cusco)",lv:["Normal","Précautions","Élevé","À éviter","Pas de données"],ov:"Global",forT:"Je voyage avec :",how:"Comment fonctionnent les niveaux",load:"Consultation des sources…",src:"Source"},
- pt:{n:"Português",hero:"Conheça os riscos à saúde antes de viajar.",sub:"Gratuito, ao vivo e com fontes. Cada risco mostra um nível, o que fazer, a confiabilidade dos dados e a origem.",ph:"Busque uma cidade (ex. Lisboa, Bangkok, Cusco)",lv:["Normal","Precauções","Alto","Evitar","Sem dados"],ov:"Geral",forT:"Viajando com:",how:"Como os níveis funcionam",load:"Consultando fontes ao vivo…",src:"Fonte"},
- ja:{n:"日本語",hero:"出発前に健康リスクを知ろう。",sub:"無料・リアルタイム・出典付き。各リスクのレベル、対策、データの信頼性、出典を表示します。",ph:"都市を検索（例：リスボン、バンコク、クスコ）",lv:["通常","注意","高い","回避","データなし"],ov:"総合",forT:"同行者：",how:"レベルの仕組み",load:"ライブ情報を確認中…",src:"出典"}
-};
-let lang=(navigator.language||"en").slice(0,2);if(!T[lang])lang="en";
-function applyLang(){const t=T[lang];document.documentElement.lang=lang;$("tHero").textContent=t.hero;$("tSub").textContent=t.sub;$("q").placeholder=t.ph;$("tFor").textContent=t.forT;$("tHow").textContent=t.how;if(last)render(last)}
-Object.keys(T).forEach(k=>{const b=document.createElement("button");b.textContent=T[k].n;b.setAttribute("aria-pressed",k===lang);b.onclick=()=>{lang=k;[...$("langs").children].forEach(x=>x.setAttribute("aria-pressed",x===b));applyLang()};$("langs").appendChild(b)});
+const T=window.SALU_T,$=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fill=(s,o)=>s.replace(/\{(\w+)\}/g,(_,k)=>o[k]??"");
+const COL=["var(--l0)","var(--l1)","var(--l2)","var(--l3)","var(--nd)"];
+const DAY=864e5,iso=d=>d.toISOString().slice(0,10),addD=(s,n)=>iso(new Date(Date.parse(s)+n*DAY)),daysBetween=(a,b)=>Math.round((Date.parse(b)-Date.parse(a))/DAY);
+const TODAY=iso(new Date());
+const P=new URLSearchParams(location.search);
+let lang=P.get("lang")||(navigator.language||"en").slice(0,2);if(!T[lang])lang="en";
+let units=P.get("u")||((navigator.language||"")==="en-US"?"i":"m");
+let last=null;
+const t=()=>T[lang];
 
-const COL=["var(--l1)","var(--l2)","var(--l3)","var(--l4)","var(--nd)"];
-const get=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
-const groups=()=>new Set([...document.querySelectorAll("#toggles input:checked")].map(i=>i.value));
+/* ---------- units & formatting ---------- */
+const nf=(n,d=0)=>Number(n).toLocaleString(lang,{maximumFractionDigits:d,minimumFractionDigits:d});
+const fT=c=>units==="i"?`${nf(c*9/5+32)}°F`:`${nf(c)}°C`;
+const fSpd=k=>units==="i"?`${nf(k*.6214)} mph`:`${nf(k)} km/h`;
+const fMM=mm=>units==="i"?`${nf(mm/25.4,1)} in`:`${nf(mm)} mm`;
+const fM=m=>units==="i"?`${nf(m*3.281)} ft`:`${nf(m)} m`;
+const fWave=m=>units==="i"?`${nf(m*3.281,1)} ft`:`${nf(m,1)} m`;
+const fKm=k=>units==="i"?`${nf(k*.6214)} mi`:`${nf(k)} km`;
+const fDate=(s,o={month:"short",day:"numeric"})=>new Intl.DateTimeFormat(lang,{...o,timeZone:"UTC"}).format(new Date(s+"T00:00:00Z"));
+const region=(cc,l)=>{try{return new Intl.DisplayNames([l],{type:"region"}).of(cc)}catch(_){return cc}};
 
-/* ---------- search ---------- */
-let timer;
-$("q").addEventListener("input",e=>{clearTimeout(timer);const v=e.target.value.trim();if(v.length<2){$("sugg").hidden=true;return}
-  timer=setTimeout(async()=>{try{const j=await get(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(v)}&count=6&language=${lang}`);
-    const s=$("sugg");s.innerHTML="";(j.results||[]).forEach(r=>{const b=document.createElement("button");b.textContent=`${r.name}${r.admin1?", "+r.admin1:""}, ${r.country}`;b.onclick=()=>{s.hidden=true;$("q").value=b.textContent;check(r)};s.appendChild(b)});s.hidden=!s.children.length}catch(_){}},250)});
-document.addEventListener("click",e=>{if(!$("sugg").contains(e.target)&&e.target!==$("q"))$("sugg").hidden=true});
+/* ---------- static UI ---------- */
+function applyLang(){
+  const s=t();document.documentElement.lang=lang;document.title=s.title;
+  document.querySelectorAll("[data-t]").forEach(e=>e.textContent=s[e.dataset.t]);
+  document.querySelectorAll("[data-th]").forEach(e=>e.innerHTML=s[e.dataset.th]);
+  document.querySelectorAll("[data-g]").forEach(e=>e.textContent=s.g[e.dataset.g]);
+  $("q").placeholder=s.ph;document.querySelectorAll("[data-ex]").forEach(b=>b.textContent=exName(b.dataset.ex));
+  [...$("langs").children].forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===lang));
+  if(last&&last.cards)render();
+}
+Object.keys(T).forEach(k=>{const b=document.createElement("button");b.dataset.l=k;b.textContent=T[k].n;b.onclick=()=>{lang=k;applyLang();syncURL()};$("langs").appendChild(b)});
+document.querySelectorAll("#units button").forEach(b=>b.onclick=()=>{units=b.dataset.u;markUnits();if(last&&last.cards)render();syncURL()});
+const markUnits=()=>document.querySelectorAll("#units button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.u===units));
+$("theme").onclick=()=>{const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=dark?"light":"dark"};
+
+$("d1").value=P.get("s")||TODAY;$("d2").value=P.get("e")||addD(TODAY,6);$("d1").min=TODAY;$("d2").min=TODAY;
+const fixDates=()=>{if($("d2").value<$("d1").value)$("d2").value=$("d1").value;if(daysBetween($("d1").value,$("d2").value)>29)$("d2").value=addD($("d1").value,29)};
+["d1","d2"].forEach(id=>$(id).onchange=()=>{fixDates();last&&check(last.place)});
+(P.get("g")||"").split(",").forEach(g=>{const i=document.querySelector(`#toggles input[value="${g}"]`);if(i)i.checked=true});
 document.querySelectorAll("#toggles input").forEach(i=>i.onchange=()=>last&&check(last.place));
+const groups=()=>new Set([...document.querySelectorAll("#toggles input:checked")].map(i=>i.value));
+const sensitive=g=>g.has("kids")||g.has("older")||g.has("pregnant")||g.has("lungs");
 
-/* ---------- checks: each returns a card ---------- */
-// card: {name, level 0-3|4, value, actions[], source, url, grade, when}
-async function weather(p){
-  const j=await get(`https://api.open-meteo.com/v1/forecast?latitude=${p.latitude}&longitude=${p.longitude}&daily=apparent_temperature_max,apparent_temperature_min,uv_index_max&forecast_days=7&timezone=auto`);
-  const d=j.daily,hiMax=Math.max(...d.apparent_temperature_max),loMin=Math.min(...d.apparent_temperature_min),uv=Math.max(...d.uv_index_max);
-  const day=d.time[d.apparent_temperature_max.indexOf(hiMax)];const g=groups(),sens=g.has("kids")||g.has("older")||g.has("pregnant")||g.has("lungs");
-  // US NWS heat index bands, applied to "feels like" max: 27 caution, 32 extreme caution, 41 danger, 54 extreme danger
-  let hl=hiMax>=54?3:hiMax>=41?2:hiMax>=32?1:0; if(sens&&hiMax>=27&&hl<3)hl=Math.max(hl,1); if(sens&&hiMax>=38)hl=Math.max(hl,2);
-  const heat={name:"Heat",level:hl,value:`Feels like up to ${Math.round(hiMax)}°C (${day})`,grade:"B",source:"Open-Meteo forecast",url:"https://open-meteo.com/",when:"next 7 days",
-    actions:hl===0?["No special steps"]:["Plan outdoor time before 11:00 or after 17:00","Drink before you're thirsty; add electrolytes","Heat stroke signs: confusion, hot dry skin, fainting → call emergency services",...(hl>=2?["Cancel strenuous outdoor plans on the hottest days"]:[]),...(sens?["Kids, older adults and pregnancy are at higher risk: keep a cool indoor base"]:[])]};
-  const ul=uv>=11?2:uv>=6?1:0; // WHO UV index: 6–10 high/very high, 11+ extreme
-  const uvc={name:"UV",level:ul,value:`UV index up to ${uv.toFixed(0)}`,grade:"B",source:"Open-Meteo forecast",url:"https://open-meteo.com/",when:"next 7 days",
-    actions:ul===0?["Normal sun care"]:["SPF 30+ (50 if 11+), reapply every 2 hours","Shade between 11:00 and 15:00","Hat and UV sunglasses",...(g.has("kids")?["Babies under 6 months: keep out of direct sun"]:[])]};
-  const cl=loMin<=-25?2:loMin<=-10?1:0;
-  const cold={name:"Cold",level:cl,value:`Feels like as low as ${Math.round(loMin)}°C`,grade:"B",source:"Open-Meteo forecast",url:"https://open-meteo.com/",when:"next 7 days",
-    actions:cl===0?["No special steps"]:["Layers, hat and gloves; cover skin","Frostbite signs: numb, white or waxy skin → warm slowly, get care"]};
-  return [heat,uvc,cold];
+const get=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
+
+/* ---------- search with keyboard nav ---------- */
+let timer,sel=-1,results=[];
+function showSugg(){const s=$("sugg");s.innerHTML="";results.forEach((r,i)=>{const b=document.createElement("button");b.setAttribute("role","option");b.setAttribute("aria-selected",i===sel);b.innerHTML=`<span>${esc(r.name)}${r.admin1?", "+esc(r.admin1):""}</span><small>${esc(region(r.country_code,lang)||r.country||"")}</small>`;b.onmousedown=e=>{e.preventDefault();pick(r)};s.appendChild(b)});
+  if(!results.length&&$("q").value.trim().length>=2){s.innerHTML=`<button disabled>${esc(t().noRes)}</button>`}
+  s.hidden=!s.children.length;$("q").setAttribute("aria-expanded",!s.hidden)}
+function pick(r){$("sugg").hidden=true;$("q").value=`${r.name}${r.admin1?", "+r.admin1:""}`;check({name:r.name,admin1:r.admin1||"",lat:r.latitude,lon:r.longitude,cc:r.country_code})}
+$("q").addEventListener("input",e=>{clearTimeout(timer);const v=e.target.value.trim();if(v.length<2){$("sugg").hidden=true;return}
+  timer=setTimeout(async()=>{try{const j=await get(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(v)}&count=7&language=${lang}`);results=(j.results||[]).filter(r=>r.country_code);sel=-1;showSugg()}catch(_){}},220)});
+$("q").addEventListener("keydown",e=>{if($("sugg").hidden)return;if(e.key==="ArrowDown"){sel=Math.min(sel+1,results.length-1);showSugg();e.preventDefault()}else if(e.key==="ArrowUp"){sel=Math.max(sel-1,0);showSugg();e.preventDefault()}else if(e.key==="Enter"){const r=results[sel<0?0:sel];if(r)pick(r)}else if(e.key==="Escape")$("sugg").hidden=true});
+$("q").addEventListener("blur",()=>setTimeout(()=>$("sugg").hidden=true,150));
+
+const EX=[["Bangkok",13.75,100.50,"TH",""],["Cusco",-13.53,-71.97,"PE",""],["Delhi",28.65,77.23,"IN",""],["Reykjavík",64.14,-21.90,"IS",""],["Lisbon",38.72,-9.14,"PT",""],["Mexico City",19.43,-99.13,"MX",""]];
+const EXN={ja:{Bangkok:"バンコク",Cusco:"クスコ",Delhi:"デリー","Reykjavík":"レイキャビク",Lisbon:"リスボン","Mexico City":"メキシコシティ"},es:{Lisbon:"Lisboa","Mexico City":"Ciudad de México"},pt:{Lisbon:"Lisboa","Mexico City":"Cidade do México",Bangkok:"Bangcoc",Delhi:"Déli"},fr:{Lisbon:"Lisbonne","Mexico City":"Mexico"}};
+const exName=n=>(EXN[lang]&&EXN[lang][n])||n;
+EX.forEach(([n,la,lo,cc])=>{const b=document.createElement("button");b.dataset.ex=n;b.textContent=exName(n);b.onclick=()=>{const nm=exName(n);$("q").value=nm;check({name:nm,admin1:"",lat:la,lon:lo,cc})};$("examples").appendChild(b)});
+
+/* ---------- country helpers ---------- */
+const slug=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/&/g," and ").replace(/['’.]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const FCDO={US:"usa",PR:"usa",CZ:"czech-republic",TR:"turkey",MM:"myanmar",CI:"cote-d-ivoire",CD:"democratic-republic-of-the-congo",CG:"congo",HK:"hong-kong",MO:"macao",PS:"the-occupied-palestinian-territories",KR:"south-korea",KP:"north-korea",BS:"bahamas",GM:"gambia",CV:"cape-verde",TL:"timor-leste",SZ:"eswatini",MK:"north-macedonia",LA:"laos",VN:"vietnam",RU:"russia",SY:"syria",IR:"iran",TZ:"tanzania",BO:"bolivia",VE:"venezuela",MD:"moldova",BN:"brunei",FM:"micronesia",KN:"st-kitts-and-nevis",LC:"st-lucia",VC:"st-vincent-and-the-grenadines",BA:"bosnia-and-herzegovina",TT:"trinidad-and-tobago",AG:"antigua-and-barbuda",ST:"sao-tome-and-principe",VA:"italy",GB:null};
+const CDC={US:null,CZ:"czech-republic",KR:"south-korea",KP:"north-korea",CI:"cote-divoire",CD:"democratic-republic-of-congo",CG:"republic-of-the-congo",MM:"burma",TR:"turkey",HK:"hong-kong-sar",MO:"macau-sar",VN:"vietnam",RU:"russia",LA:"laos",BS:"the-bahamas",GM:"the-gambia",SZ:"eswatini",MK:"north-macedonia",TL:"timor-leste"};
+const enName=cc=>(region(cc,"en")||cc).replace(/\s*\(.*\)/,"");
+const fcdoSlug=cc=>cc in FCDO?FCDO[cc]:slug(enName(cc));
+const cdcSlug=cc=>cc in CDC?CDC[cc]:slug(enName(cc));
+const WHO_ALIAS={US:["united states"],GB:["united kingdom"],CD:["democratic republic of the congo"],CG:["republic of the congo"],TR:["türkiye","turkey"],CZ:["czechia"],KR:["republic of korea"],KP:["democratic people's republic of korea"],IR:["iran"],VN:["viet nam","vietnam"],LA:["lao people's democratic republic","lao pdr"],RU:["russian federation"],TZ:["tanzania"],BO:["bolivia"],VE:["venezuela"],SY:["syrian arab republic"],CI:["côte d'ivoire","cote d'ivoire","côte d’ivoire"],MM:["myanmar"]};
+const EMERG={US:{g:"911"},CA:{g:"911"},MX:{g:"911"},PR:{g:"911"},CR:{g:"911"},PA:{g:"911"},DO:{g:"911"},PH:{g:"911"},AR:{a:"107",p:"911"},GB:{g:"999 / 112"},IE:{g:"112 / 999"},AU:{g:"000"},NZ:{g:"111"},JP:{a:"119",p:"110"},KR:{a:"119",p:"112"},CN:{a:"120",p:"110"},TW:{a:"119",p:"110"},HK:{g:"999"},MO:{g:"999"},SG:{a:"995",p:"999"},MY:{g:"999"},TH:{a:"1669",p:"191"},VN:{a:"115",p:"113"},ID:{g:"112"},IN:{g:"112"},LK:{a:"1990",p:"119"},NP:{a:"102",p:"100"},AE:{a:"998",p:"999"},SA:{a:"997",p:"999"},QA:{g:"999"},IL:{a:"101",p:"100"},TR:{g:"112"},EG:{a:"123",p:"122"},MA:{a:"15",p:"19"},ZA:{a:"10177",p:"10111"},KE:{g:"999 / 112"},BR:{a:"192",p:"190"},CL:{a:"131",p:"133"},CO:{g:"123"},PE:{a:"106",p:"105"},CH:{a:"144",p:"117"},NO:{a:"113",p:"112"},IS:{g:"112"},RU:{g:"112"},UA:{g:"112"},GE:{g:"112"}};
+"AT BE BG HR CY CZ DK EE FI FR DE GR HU IT LV LT LU MT NL PL PT RO SK SI ES SE".split(" ").forEach(c=>EMERG[c]={g:"112"});
+
+/* ---------- level rules (published thresholds) ---------- */
+const heatLv=(f,sens)=>{let l=f>=54?3:f>=41?2:f>=32?1:0;if(sens&&f>=27)l=Math.max(l,1);if(sens&&f>=38)l=Math.max(l,2);return Math.min(l,3)}; // US NWS heat index bands on apparent temp
+const uvLv=u=>u>=11?2:u>=6?1:0; // WHO: 6–10 high/very high, 11+ extreme
+const uvWord=u=>u>=11?4:u>=8?3:u>=6?2:u>=3?1:0;
+const aqLv=(a,sens)=>{let l=a>300?3:a>150?2:a>100?1:0;if(sens&&a>100)l=Math.max(l,2);return l}; // US EPA AQI
+const aqWord=a=>a>300?5:a>200?4:a>150?3:a>100?2:a>50?1:0;
+const stormLv=(g,r,code)=>Math.max(g>=118?3:g>=89?2:g>=62?1:0, r>=100?2:r>=50?1:0, code>=95?1:0); // Beaufort 8/10/12, heavy-rain bands
+const POLH={grass:50,birch:100,alder:100,olive:200,ragweed:20,mugwort:50};
+
+/* ---------- date windows ---------- */
+function windows(){
+  const s=$("d1").value,e=$("d2").value,n=daysBetween(s,e)+1,fcEnd=addD(TODAY,15),aqEnd=addD(TODAY,4),mEnd=addD(TODAY,7);
+  const clip=(end)=>s<=end?{s,e:e<end?e:end}:null;
+  return {s,e,n,wx:clip(fcEnd),aq:clip(aqEnd),mar:clip(mEnd)};
 }
-async function air(p){
-  const j=await get(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${p.latitude}&longitude=${p.longitude}&hourly=us_aqi,pm2_5&forecast_days=5&timezone=auto`);
-  const a=j.hourly.us_aqi.filter(v=>v!=null),mx=Math.max(...a),pm=Math.max(...j.hourly.pm2_5.filter(v=>v!=null));const g=groups(),sens=g.has("lungs")||g.has("kids")||g.has("older")||g.has("pregnant");
-  if(!a.length)return {name:"Air quality",level:4,value:"No forecast available",grade:"D",source:"CAMS via Open-Meteo",url:"https://open-meteo.com/en/docs/air-quality-api",when:"–",actions:["Check a local air app on arrival"]};
-  // US AQI: 101–150 unhealthy for sensitive groups, 151–300 unhealthy/very unhealthy, 301+ hazardous
-  let l=mx>300?3:mx>150?2:mx>100?1:0;if(sens&&mx>100)l=Math.max(l,2);
-  const word=mx>300?"hazardous":mx>200?"very unhealthy":mx>150?"unhealthy":mx>100?"unhealthy for sensitive groups":mx>50?"moderate":"good";
-  return {name:"Air quality",level:l,value:`US AQI peaks at ${Math.round(mx)} (${word}), PM2.5 up to ${Math.round(pm)} µg/m³`,grade:"B",source:"CAMS forecast via Open-Meteo",url:"https://open-meteo.com/en/docs/air-quality-api",when:"next 5 days",
-    actions:l===0?["No special steps"]:["N95/KN95 mask outdoors on bad days","Move exercise indoors when AQI > 150","Keep windows closed; use AC or a purifier",...(sens?["Pack your inhaler or meds; sensitive groups react first"]:[])]};
+function pastYear(s,y){let d=new Date(s+"T00:00:00Z");d.setUTCFullYear(d.getUTCFullYear()-y);return iso(d)}
+
+/* ---------- checks: each returns card(s) ----------
+   card: {k:name key, level, v:html, a:[action keys], x:extra html, src, url, g:grade, when:string} */
+async function weather(p,W,G){
+  const sens=sensitive(G);
+  if(W.wx){
+    const j=await get(`https://api.open-meteo.com/v1/forecast?latitude=${p.lat}&longitude=${p.lon}&daily=apparent_temperature_max,apparent_temperature_min,uv_index_max,precipitation_sum,wind_gusts_10m_max,weather_code&start_date=${W.wx.s}&end_date=${W.wx.e}&timezone=auto`);
+    const d=j.daily,days=d.time.map((tm,i)=>({tm,hi:d.apparent_temperature_max[i],lo:d.apparent_temperature_min[i],uv:d.uv_index_max[i],r:d.precipitation_sum[i]??0,g:d.wind_gusts_10m_max[i]??0,c:d.weather_code[i]??0})).filter(x=>x.hi!=null);
+    last.days=days;
+    const hot=days.reduce((a,b)=>b.hi>a.hi?b:a),cold=days.reduce((a,b)=>b.lo<a.lo?b:a),uvm=Math.max(...days.map(x=>x.uv??0));
+    const gm=Math.max(...days.map(x=>x.g)),rm=Math.max(...days.map(x=>x.r)),th=days.some(x=>x.c>=95);
+    const when=fill(t().w.fc,{n:days.length});
+    return [heatCard(hot.hi,sens,G,{k:"heatV",d:hot.tm},"B",when),uvCard(uvm,G,"B",when),coldCard(cold.lo,"coldV","B",when),stormCard(gm,rm,th,"B",when,"https://open-meteo.com/en/docs")];
+  }
+  // history: same dates in each of the last 3 years (ERA5 reanalysis)
+  last.days=null;
+  const yrs=await Promise.all([1,2,3].map(y=>get(`https://archive-api.open-meteo.com/v1/archive?latitude=${p.lat}&longitude=${p.lon}&start_date=${pastYear(W.s,y)}&end_date=${pastYear(W.e,y)}&daily=apparent_temperature_max,apparent_temperature_min,precipitation_sum,wind_gusts_10m_max&timezone=auto`)));
+  const all=k=>yrs.flatMap(y=>y.daily[k]).filter(v=>v!=null);
+  const hi=Math.max(...all("apparent_temperature_max")),lo=Math.min(...all("apparent_temperature_min"));
+  const when=t().w.h3,url="https://open-meteo.com/en/docs/historical-weather-api";
+  const cards=[heatCard(hi,sens,G,{k:"heatH"},"C",when,url),coldCard(lo,"coldH","C",when,url),stormCard(Math.max(...all("wind_gusts_10m_max")),Math.max(...all("precipitation_sum")),false,"C",when,url)];
+  return cards;
 }
-async function altitude(p){
-  const j=await get(`https://api.open-meteo.com/v1/elevation?latitude=${p.latitude}&longitude=${p.longitude}`);const m=Math.round(j.elevation[0]);
+function heatCard(f,sens,G,{k,d},g,when,url="https://open-meteo.com/en/docs"){
+  const l=heatLv(f,sens);const a=l===0?["none"]:["heat1","heat2","heat3",...(l>=2?["heat4"]:[]),...(sens?["heatS"]:[])];
+  return {k:"heat",level:l,v:fill(t().v[k],{t:fT(f),d:d?fDate(d,{weekday:"short",month:"short",day:"numeric"}):""}),a,src:"Open-Meteo",url,g,when};
+}
+function uvCard(u,G,g,when,url="https://open-meteo.com/en/docs"){
+  const l=uvLv(u);const a=l===0?["sunNormal"]:["uv1","uv2","uv3",...(G.has("kids")?["uvK"]:[])];
+  return {k:"uv",level:l,v:fill(t().v.uvV,{u:nf(u),w:t().uvW[uvWord(u)]}),a,src:g==="C"?"CAMS (Open-Meteo)":"Open-Meteo",url,g,when};
+}
+function coldCard(f,k,g,when,url="https://open-meteo.com/en/docs"){
+  const l=f<=-25?2:f<=-10?1:0;return {k:"cold",level:l,v:fill(t().v[k],{t:fT(f)}),a:l===0?["none"]:["cold1","cold2"],src:"Open-Meteo",url,g,when};
+}
+function stormCard(gm,rm,th,g,when,url){
+  const l=stormLv(gm,rm,th?95:0);const a=l===0?["none"]:["storm1",...(rm>=50?["storm2"]:[]),...(gm>=62?["storm3"]:[]),...(th?["storm4"]:[])];
+  return {k:"storm",level:l,v:fill(t().v.stormV,{g:fSpd(gm),r:fMM(rm)})+(th?`<small>${esc(t().v.thunder)}</small>`:""),a,src:"Open-Meteo",url,g,when};
+}
+async function air(p,W,G){
+  const sens=sensitive(G)||G.has("lungs");
+  const hist=!W.aq,r=hist?{s:pastYear(W.s,1),e:pastYear(W.e,1)}:W.aq;
+  const vars="us_aqi,pm2_5,uv_index,alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen";
+  const j=await get(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${p.lat}&longitude=${p.lon}&hourly=${vars}&start_date=${r.s}&end_date=${r.e}&timezone=auto`);
+  const h=j.hourly,ok=k=>(h[k]||[]).filter(v=>v!=null);
+  const g=hist?"C":"B",when=hist?t().w.h1:fill(t().w.fc,{n:daysBetween(r.s,r.e)+1}),url="https://open-meteo.com/en/docs/air-quality-api";
+  // per-day air levels for calendar
+  if(!hist){last.airDays={};h.time.forEach((tm,i)=>{const d=tm.slice(0,10),v=h.us_aqi[i];if(v!=null)last.airDays[d]=Math.max(last.airDays[d]??0,v)})}
+  const out=[];const a=ok("us_aqi");
+  if(!a.length)out.push({k:"air",level:4,v:esc(t().v.naV),a:["airNA"],src:"CAMS (Open-Meteo)",url,g:"D",when:"–"});
+  else{const mx=Math.max(...a),pm=Math.max(...ok("pm2_5")),l=aqLv(mx,sens);
+    out.push({k:"air",level:l,v:fill(t().v.airV,{a:nf(mx),w:t().aqW[aqWord(mx)],p:nf(pm)}),a:l===0?["none"]:["air1","air2","air3",...(sens?["airS"]:[])],src:"CAMS (Open-Meteo)",url,g,when});}
+  if(hist){const u=ok("uv_index");out.push(u.length?uvCard(Math.max(...u),G,"C",t().w.h1,url):{k:"uv",level:4,v:esc(t().v.uvNA),a:["sunNormal"],src:"CAMS",url,g:"D",when:"–"})}
+  // pollen (Europe only; hidden elsewhere)
+  const pk=Object.keys(POLH).map(n=>({n,v:Math.max(0,...ok(n+"_pollen"))})).filter(x=>x.v>0).sort((x,y)=>y.v/POLH[y.n]-x.v/POLH[x.n]);
+  if(pk.length){const ratio=Math.max(...pk.map(x=>x.v/POLH[x.n])),al=G.has("allergy"),l=al?(ratio>=3?2:ratio>=1?1:0):0;
+    out.push({k:"pollen",level:l,v:fill(t().v.polV,{list:pk.slice(0,3).map(x=>`${t().pol[x.n]} ${nf(x.v)}`).join(", ")})+(al?"":`<small>${esc(t().v.polNote)}</small>`),a:l===0?["none"]:["pol1","pol2"],src:"CAMS (Open-Meteo)",url,g,when});}
+  return out;
+}
+async function ocean(p,W,G){
+  const r=W.mar||{s:pastYear(W.s,1),e:pastYear(W.e,1)},hist=!W.mar;
+  const j=await get(`https://marine-api.open-meteo.com/v1/marine?latitude=${p.lat}&longitude=${p.lon}&daily=wave_height_max&hourly=sea_surface_temperature&start_date=${r.s}&end_date=${r.e}&timezone=auto`);
+  const w=(j.daily?.wave_height_max||[]).filter(v=>v!=null);if(!w.length)return [];
+  const sst=(j.hourly?.sea_surface_temperature||[]).filter(v=>v!=null),mx=Math.max(...w);
+  let l=mx>=4?2:mx>=2.5?1:0;if(G.has("kids")&&mx>=1.5)l=Math.max(l,1);
+  return [{k:"ocean",level:l,v:fill(t().v.oceanV,{h:fWave(mx)})+(sst.length?fill(t().v.sst,{s:fT(sst.reduce((a,b)=>a+b,0)/sst.length)}):""),a:l===0?["ocean0"]:["ocean1","ocean2"],src:"Open-Meteo Marine",url:"https://open-meteo.com/en/docs/marine-weather-api",g:hist?"C":"B",when:hist?t().w.h1:fill(t().w.fc,{n:w.length})}];
+}
+async function altitude(p,W,G){
+  const j=await get(`https://api.open-meteo.com/v1/elevation?latitude=${p.lat}&longitude=${p.lon}`);const m=Math.round(j.elevation[0]);
   const l=m>=3500?2:m>=2500?1:0; // CDC: altitude illness common above 2,500 m
-  return {name:"Altitude",level:l,value:`${m.toLocaleString()} m above sea level`,grade:"A",source:"Copernicus DEM via Open-Meteo",url:"https://open-meteo.com/en/docs/elevation-api",when:"static",
-    actions:l===0?["No special steps"]:["Take it easy for the first 24–48 hours; no alcohol","Ask a doctor about acetazolamide before you go","Headache plus vomiting or confusion → descend and get care",...(groups().has("pregnant")?["Pregnancy: check with your doctor before going above 2,500 m"]:[])]};
+  return {k:"alt",level:l,v:fill(t().v.altV,{m:fM(m)}),a:l===0?["none"]:["alt1","alt2","alt3",...(G.has("pregnant")?["altP"]:[])],src:"Copernicus DEM",url:"https://open-meteo.com/en/docs/elevation-api",g:"A",when:t().w.stat};
 }
+const hav=(a,b,c,d)=>{const R=6371,r=x=>x*Math.PI/180,dl=r(c-a),dn=r(d-b);return 2*R*Math.asin(Math.sqrt(Math.sin(dl/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(dn/2)**2))};
 async function quakes(p){
-  const since=new Date(Date.now()-7*864e5).toISOString().slice(0,10);
-  const j=await get(`https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${since}&latitude=${p.latitude}&longitude=${p.longitude}&maxradiuskm=300&minmagnitude=4.5`);
-  const f=j.features,big=f.reduce((m,x)=>x.properties.mag>(m?.properties.mag??0)?x:m,null);const l=!big?0:big.properties.mag>=6?2:1;
-  return {name:"Earthquakes",level:l,value:big?`${f.length} quake(s) M4.5+ within 300 km this week; largest M${big.properties.mag.toFixed(1)}, ${big.properties.place}`:"No M4.5+ quakes within 300 km this week",grade:"A",source:"USGS",url:"https://earthquake.usgs.gov/earthquakes/map/",when:"last 7 days",
-    actions:l===0?["Know the local emergency number"]:["Aftershocks are likely: Drop, Cover, Hold On","Check your accommodation's structure and exits","Follow local authority alerts"]};
+  const since=addD(TODAY,-7);
+  const j=await get(`https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${since}&latitude=${p.lat}&longitude=${p.lon}&maxradiuskm=300&minmagnitude=4.5`);
+  const f=j.features;const big=f.reduce((m,x)=>!m||x.properties.mag>m.properties.mag?x:m,null);const l=!big?0:big.properties.mag>=6?2:1;
+  const v=big?fill(t().v.qV,{n:nf(f.length),m:nf(big.properties.mag,1),k:fKm(hav(p.lat,p.lon,big.geometry.coordinates[1],big.geometry.coordinates[0]))}):t().v.q0;
+  return {k:"quake",level:l,v:esc(v),a:l===0?["q0"]:["q1","q2","q3"],src:"USGS",url:big?big.properties.url:"https://earthquake.usgs.gov/earthquakes/map/",g:"A",when:t().w.last7};
 }
-const FCDO_SLUG={"United States":"usa","United Kingdom":null,"Czechia":"czech-republic","Côte d'Ivoire":"cote-d-ivoire","Democratic Republic of the Congo":"democratic-republic-of-the-congo","Republic of the Congo":"congo","Myanmar":"myanmar","South Korea":"south-korea","North Korea":"north-korea","Türkiye":"turkey","Turkey":"turkey","Vietnam":"vietnam","Russia":"russia","The Gambia":"gambia","Bahamas":"bahamas"};
 async function advisory(p){
-  let slug=FCDO_SLUG[p.country];if(slug===null)return {name:"Travel advisory",level:0,value:"Home country of the source (UK): no FCDO advice",grade:"C",source:"GOV.UK FCDO",url:"https://www.gov.uk/foreign-travel-advice",when:"–",actions:["Check local authority alerts"]};
-  slug=slug||p.country.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z]+/g,"-").replace(/^-|-$/g,"");
-  const j=await get(`https://www.gov.uk/api/content/foreign-travel-advice/${slug}`);
-  const st=(j.details&&j.details.alert_status)||[];const s=st.join(" ");
-  const l=/avoid_all_travel_to_whole|avoid_all_but_essential_travel_to_whole/.test(s)?3:/avoid_all_travel_to_parts/.test(s)?2:/avoid_all_but_essential_travel_to_parts/.test(s)?1:0;
-  const txt=l===3?"UK government advises against travel to the whole country":l===2?"UK advises against ALL travel to parts of the country":l===1?"UK advises against all but essential travel to parts of the country":"No UK travel warnings";
-  return {name:"Travel advisory",level:l,value:txt,grade:"A",source:"GOV.UK FCDO",url:`https://www.gov.uk/foreign-travel-advice/${slug}`,when:j.public_updated_at?new Date(j.public_updated_at).toLocaleDateString():"–",
-    actions:l===0?["Register your trip with your embassy"]:l===3?["Do not travel. If you're there: follow embassy instructions and keep documents ready","Check that your travel insurance is still valid (it often isn't against advice)"]:["Read which regions are affected before booking side trips","Check insurance validity for those regions"]};
+  const s=fcdoSlug(p.cc);
+  if(s===null)return {k:"adv",level:0,v:esc(t().v.advUK),a:["advUK"],src:"GOV.UK FCDO",url:"https://www.gov.uk/foreign-travel-advice",g:"C",when:"–"};
+  const j=await get(`https://www.gov.uk/api/content/foreign-travel-advice/${s}`);
+  const st=((j.details&&j.details.alert_status)||[]).join(" ");
+  const l=/avoid_all_travel_to_whole|avoid_all_but_essential_travel_to_whole/.test(st)?3:/avoid_all_travel_to_parts/.test(st)?2:/avoid_all_but_essential_travel_to_parts/.test(st)?1:0;
+  return {k:"adv",level:l,v:esc(t().v["adv"+l]),a:l===0?["adv0"]:l===3?["adv3a","adv3b"]:["adv12a","adv12b"],src:"GOV.UK FCDO",url:`https://www.gov.uk/foreign-travel-advice/${s}`,g:"A",when:j.public_updated_at?fill(t().w.upd,{d:fDate(j.public_updated_at.slice(0,10),{year:"numeric",month:"short",day:"numeric"})}):"–"};
 }
 async function outbreaks(p){
-  const j=await get("https://www.who.int/api/news/diseaseoutbreaknews?$orderby=PublicationDateAndTime%20desc&$top=60");
-  const items=(j.value||[]).filter(x=>new Date(x.PublicationDateAndTime||x.PublicationDate)>Date.now()-120*864e5&&((x.Title||"")+" "+(x.OverrideTitle||"")).toLowerCase().includes(p.country.toLowerCase()));
+  const j=await get("https://www.who.int/api/news/diseaseoutbreaknews?$orderby=PublicationDateAndTime%20desc&$top=80");
+  const names=[enName(p.cc).toLowerCase(),...(WHO_ALIAS[p.cc]||[])];
+  const items=(j.value||[]).filter(x=>{const d=new Date(x.PublicationDateAndTime||x.PublicationDate);const ti=((x.Title||"")+" "+(x.OverrideTitle||"")).toLowerCase();return d>Date.now()-120*DAY&&names.some(n=>ti.includes(n))});
   const l=items.length?1:0;
-  return {name:"Disease outbreaks",level:l,value:items.length?items.slice(0,2).map(x=>x.OverrideTitle||x.Title).join(" · "):"No WHO outbreak notices for this country in the last 4 months",grade:"A",source:"WHO Disease Outbreak News",url:"https://www.who.int/emergencies/disease-outbreak-news",when:"last 120 days",
-    actions:l===0?["Keep routine vaccines up to date"]:["Read the WHO notice for symptoms and who is at risk","See a travel clinic 4–6 weeks before you go"]};
-}
-function countryGuide(p){
-  const slug=p.country.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z]+/g,"-").replace(/^-|-$/g,"");
-  return {name:"Vaccines, water & mosquitoes",level:4,value:"Country-level guidance (not yet parsed). Open the CDC page for vaccines, tap water, malaria, dengue, rabies",grade:"C",source:"CDC Travelers' Health",url:`https://wwwnc.cdc.gov/travel/destinations/traveler/none/${slug}`,when:"–",actions:["See a travel clinic 4–6 weeks before departure"]};
+  const v=items.length?esc(fill(t().v.outV,{n:nf(items.length)})):esc(t().v.out0);
+  const x=items.length?`<ul class="ext" lang="en">${items.slice(0,3).map(i=>`<li><a href="https://www.who.int/emergencies/disease-outbreak-news/item/${esc(i.UrlName||"")}" target="_blank" rel="noopener">${esc(i.OverrideTitle||i.Title)}</a></li>`).join("")}</ul>`:"";
+  return {k:"out",level:l,v,x,a:l===0?["out0"]:["out1","out2"],src:"WHO DON",url:"https://www.who.int/emergencies/disease-outbreak-news",g:"A",when:t().w.last120};
 }
 
 /* ---------- run ---------- */
-let last=null;
+const FAILK={weather:["heat"],air:["air"],ocean:[],altitude:["alt"],quakes:["quake"],advisory:["adv"],outbreaks:["out"]};
 async function check(place){
-  last={place,cards:null};const t=T[lang];
-  $("result").innerHTML=`<p class="loading">${t.load}</p>`;
-  const jobs=[weather,air,altitude,quakes,advisory,outbreaks].map(fn=>fn(place).catch(err=>({name:{weather:"Heat & UV",air:"Air quality",altitude:"Altitude",quakes:"Earthquakes",advisory:"Travel advisory",outbreaks:"Disease outbreaks"}[fn.name],level:4,value:"Source unavailable right now",grade:"D",source:"–",url:"#",when:"–",actions:["Try again later"]})));
-  const res=(await Promise.all(jobs)).flat();res.push(countryGuide(place));
-  last.cards=res;render(last);
+  fixDates();
+  last={place,cards:null,days:null,airDays:null};const run=last;
+  const W=windows(),G=groups();run.W=W;
+  $("result").innerHTML=`<div class="loading">${"<div class='sk'></div>".repeat(6)}</div>`;
+  const fns={weather,air,ocean,altitude,quakes,advisory,outbreaks};
+  const res=await Promise.all(Object.entries(fns).map(([n,fn])=>fn(place,W,G).catch((err)=>(console.warn("source failed",n,err.message),0)||FAILK[n].map(k=>({k,level:4,v:esc(t().v.naV),a:["err"],src:"–",url:"#",g:"D",when:"–"})))));
+  if(run!==last)return;
+  run.cards=res.flat();render();syncURL();
 }
-function render({place,cards}){
-  if(!cards)return;const t=T[lang];
+function render(){
+  const {place,cards,W}=last,s=t();
+  // card text depends on language/units: re-run cheap formatters by re-checking when needed
+  const ranked=[...cards].sort((a,b)=>(b.level===4?-1:b.level)-(a.level===4?-1:a.level));
   const max=Math.max(0,...cards.filter(c=>c.level<4).map(c=>c.level));
-  const sorted=[...cards].sort((a,b)=>(b.level===4?-1:b.level)-(a.level===4?-1:a.level));
-  const four=cards.filter(c=>c.level===3);
+  const avoid=cards.filter(c=>c.level===3);
+  const country=region(place.cc,lang)||place.cc;
+  // top actions: from highest-level cards first
+  const seen=new Set(),top=[];
+  ranked.filter(c=>c.level>=1&&c.level<4).forEach(c=>c.a.slice(0,2).forEach(k=>{if(!seen.has(k)&&top.length<6){seen.add(k);top.push({k,l:c.level})}}));
+  const E=EMERG[place.cc];
+  const emerg=E?`<div class="nums">${E.g?`<div class="num"><b>${E.g}</b><span>${esc(s.gen)}</span></div>`:`<div class="num"><b>${E.a}</b><span>${esc(s.amb)}</span></div><div class="num"><b>${E.p}</b><span>${esc(s.police)}</span></div>`}</div><p>${esc(s.emergNote)}</p>`:`<p>${esc(s.emergFb)}</p>`;
+  const fc=fcdoSlug(place.cc),cdc=cdcSlug(place.cc);
   $("result").innerHTML=`
-   <div class="dest"><div><h2>${place.name}, ${place.country}</h2><div class="sub">${place.latitude.toFixed(2)}, ${place.longitude.toFixed(2)} · ${new Date().toLocaleString()}</div></div>
-     <div><span class="sub">${t.ov}</span> <span class="pill" style="--c:${COL[max]}">${t.lv[max]}</span></div></div>
-   <div class="banner ${four.length?"on":""}"><b>${t.lv[3]}:</b> ${four.map(c=>c.name+": "+c.value).join(" · ")}</div>
-   <div class="legend">${t.lv.map((n,i)=>`<span style="--c:${COL[i]}">${n}</span>`).join("")}</div>
-   <div class="cards">${sorted.map(c=>`<div class="card" style="--c:${COL[c.level]}">
-     <div class="h"><span class="n">${c.name}</span><span class="lv">${t.lv[c.level]}</span></div>
-     <div class="v">${c.value}</div><ul>${c.actions.map(a=>`<li>${a}</li>`).join("")}</ul>
-     <div class="m"><span>${t.src}: <a href="${c.url}" target="_blank" rel="noopener">${c.source}</a></span><span>${c.when} <span class="grade" title="Reliability">${c.grade}</span></span></div></div>`).join("")}</div>`;
+   <div class="dest">
+     <div><h2>${esc(place.name)}${place.admin1&&place.admin1!==place.name?`<span style="color:var(--muted);font-weight:500">, ${esc(place.admin1)}</span>`:""}, ${esc(country)}</h2>
+     <div class="sub">${fDate(W.s,{weekday:"short",month:"short",day:"numeric"})} – ${fDate(W.e,{weekday:"short",month:"short",day:"numeric",year:"numeric"})} · ${nf(place.lat,2)}, ${nf(place.lon,2)}</div></div>
+     <div class="ovr"><span class="lbl">${esc(s.ov)}</span><span class="pill" style="--c:${COL[max]}">${esc(s.lv[max])}</span>
+       <span class="acts"><button id="bShare">${esc(s.share)}</button><button id="bPrint">${esc(s.print)}</button></span></div>
+   </div>
+   ${!W.wx?`<div class="note">${esc(s.far)}</div>`:W.wx.e<W.e?`<div class="note">${esc(fill(s.coverage,{a:daysBetween(W.wx.s,W.wx.e)+1,b:W.n}))}</div>`:""}
+   ${avoid.length?`<div class="banner"><b>${esc(s.lv[3])}:</b> ${avoid.map(c=>esc(s.names[c.k])).join(" · ")}</div>`:""}
+   <div class="top3"><h3>${esc(s.topT)}</h3>${top.length?`<ol>${top.map(x=>`<li><span class="lvdot" style="--c:${COL[x.l]}"></span>${esc(s.a[x.k])}</li>`).join("")}</ol>`:`<p style="margin:0">${esc(s.allNormal)}</p>`}</div>
+   ${calendar()}
+   <div class="legend">${s.lv.map((n,i)=>`<span style="--c:${COL[i]}">${esc(n)}</span>`).join("")}</div>
+   <div class="cards">${ranked.map(c=>`<article class="card" style="--c:${COL[c.level]}">
+     <div class="h"><span class="n">${esc(s.names[c.k])}</span><span class="lv">${esc(s.lv[c.level])}</span></div>
+     <div class="v">${c.v}</div>${c.x||""}<ul>${c.a.map(k=>`<li>${esc(s.a[k])}</li>`).join("")}</ul>
+     <div class="m"><span>${esc(s.src)}: <a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.src)}</a></span><span>${esc(c.when)} <span class="grade" title="${esc(s.rel)}">${c.g}</span></span></div></article>`).join("")}</div>
+   <div class="side">
+     <div class="box"><h3>${esc(s.emergT)}</h3>${emerg}</div>
+     <div class="box"><h3>${esc(s.guideT)}</h3><p>${esc(s.guideP)}</p><ul>
+       ${fc?`<li><a href="https://www.gov.uk/foreign-travel-advice/${fc}/health" target="_blank" rel="noopener">${esc(s.guideFCDO)}</a></li>`:""}
+       ${cdc?`<li><a href="https://wwwnc.cdc.gov/travel/destinations/traveler/none/${cdc}" target="_blank" rel="noopener">${esc(s.guideCDC)}</a></li>`:""}
+       <li><a href="https://travelhealthpro.org.uk/countries" target="_blank" rel="noopener">${esc(s.guideTHP)}</a></li></ul></div>
+   </div>`;
+  $("bShare").onclick=async()=>{try{await navigator.clipboard.writeText(location.href);toast(s.copied)}catch(_){prompt("",location.href)}};
+  $("bPrint").onclick=()=>print();
 }
-applyLang();
+function calendar(){
+  const {days,airDays}=last,s=t();if(!days||!days.length)return"";
+  const sens=sensitive(groups());
+  const cell=(l,txt)=>`<td style="--c:${COL[l]}">${txt}</td>`;
+  const rows=[
+    ["heat",d=>cell(heatLv(d.hi,sens),fT(d.hi))],
+    ["uv",d=>cell(uvLv(d.uv??0),nf(d.uv??0))],
+    ["air",d=>airDays&&airDays[d.tm]!=null?cell(aqLv(airDays[d.tm],sens),nf(airDays[d.tm])):cell(4,"·")],
+    ["storm",d=>cell(stormLv(d.g,d.r,d.c),fSpd(d.g).split(" ")[0])]
+  ];
+  return `<div class="cal"><h3>${esc(s.cal)}</h3><table><thead><tr><th></th>${days.map(d=>`<th>${fDate(d.tm,{weekday:"short"})}<br>${fDate(d.tm,{day:"numeric"})}</th>`).join("")}</tr></thead><tbody>${rows.map(([k,f])=>`<tr><th>${esc(s.calRows[k])}</th>${days.map(f).join("")}</tr>`).join("")}</tbody></table></div>`;
+}
+function syncURL(){
+  const q=new URLSearchParams();q.set("lang",lang);q.set("u",units);
+  if(last){const p=last.place;q.set("lat",p.lat.toFixed(4));q.set("lon",p.lon.toFixed(4));q.set("n",p.name);if(p.admin1)q.set("a",p.admin1);q.set("cc",p.cc);q.set("s",$("d1").value);q.set("e",$("d2").value);const g=[...groups()].join(",");if(g)q.set("g",g)}
+  history.replaceState(null,"","?"+q.toString());
+}
+function toast(m){const e=$("toast");e.textContent=m;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1600)}
+
+/* re-render with fresh text when language or units change: card values are built at check time, so re-run checks */
+const _render=render;
+render=function(){ if(last&&last.cards&&(last.lang!==lang||last.units!==units)&&last.lang){last.lang=lang;last.units=units;check(last.place);return} if(last){last.lang=lang;last.units=units} _render(); };
+
+markUnits();applyLang();
+if(P.get("lat")&&P.get("cc")){const p={name:P.get("n")||"",admin1:P.get("a")||"",lat:+P.get("lat"),lon:+P.get("lon"),cc:P.get("cc")};$("q").value=p.name;check(p)}
 })();
 </script>
 </body>
