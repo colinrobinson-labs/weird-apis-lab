@@ -84,6 +84,16 @@ class Said(unittest.TestCase):
                          "Meladrazine is a drug used in urology as an antispasmodic.")
 
 
+    def test_superseded(self):
+        c = lambda r, d="10.1002/14651858.cd003592": B.superseded({"doi": d, "reasons": r})
+        self.assertTrue(c(["Notice - Limited or No Information", "Removed"]))
+        self.assertTrue(c(["Retract and Replace", "Withdrawn as Out of Date"]))
+        self.assertTrue(c(["Temporary Removal"]))
+        self.assertFalse(c(["Concerns/Issues about Data", "Notice - Limited or No Information", "Unreliable Data"]))
+        self.assertFalse(c(["Conflict of Interest", "Withdrawn as Out of Date"]))
+        self.assertFalse(c(["Removed"], "10.1016/x"))
+
+
 class Talk(unittest.TestCase):
     TXT = """== Older ==
 Hi. [[User:Someone|Someone]] 10:00, 1 January 2026 (UTC)
