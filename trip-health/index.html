@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Salu Atlas</title>
+<meta name="description" content="Free travel health check for any city: heat, UV, air, altitude, earthquakes, travel advisories and outbreaks, with what to do about each.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: search bar → destination header with overall level → risk cards sorted by level → method + sources. */
+:root{
+  --bg:#f6f4ef; --panel:#ffffff; --line:#e2ddd2; --fg:#1d2321; --muted:#5f6a66; --accent:#1f6f5c;
+  --l1:#2f8f5b; --l2:#b78a00; --l3:#d0612a; --l4:#c2283f; --nd:#8a918e;
+  --display:"Fraunces",Georgia,serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#101513;--panel:#171e1b;--line:#2a3430;--fg:#e8efeb;--muted:#9aa8a2;--accent:#5fd1a8;--l1:#5fd18f;--l2:#f0c341;--l3:#ff8a52;--l4:#ff5c74;--nd:#7d8a85;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 var(--body)}
+body{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;padding-block:22px 60px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font:800 26px var(--display);letter-spacing:-.01em}
+.brand span{color:var(--accent)}
+.langs{display:flex;gap:4px;flex-wrap:wrap}
+button,input,select{font:500 14px var(--body);color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 12px}
+button{cursor:pointer}
+.langs button{font:500 12px var(--mono);padding:5px 9px}
+button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hero{margin:26px 0 12px}
+.hero h1{font:800 clamp(28px,5vw,46px)/1.05 var(--display);margin:0 0 8px;text-wrap:balance}
+.hero p{color:var(--muted);margin:0;max-width:62ch}
+.search{position:relative;display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.search input{flex:1 1 260px;font-size:16px;padding:12px 14px}
+.sugg{position:absolute;top:100%;left:0;right:0;z-index:4;background:var(--panel);border:1px solid var(--line);border-radius:8px;margin-top:4px;overflow:hidden}
+.sugg button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);border-radius:0}
+.toggles{display:flex;gap:6px;flex-wrap:wrap;font-size:13px;color:var(--muted);align-items:center}
+.toggles label{display:inline-flex;gap:5px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px;background:var(--panel);cursor:pointer}
+.dest{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin:22px 0 8px;border-top:1px solid var(--line);padding-top:18px}
+.dest h2{font:800 clamp(24px,4vw,34px)/1.1 var(--display);margin:0}
+.dest .sub{color:var(--muted);font:13px var(--mono)}
+.pill{font:600 14px var(--body);padding:7px 14px;border-radius:999px;color:#fff;background:var(--c)}
+.banner{display:none;border:2px solid var(--l4);background:color-mix(in srgb,var(--l4) 10%,var(--panel));border-radius:10px;padding:12px 14px;margin:10px 0}
+.banner.on{display:block}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font:12px var(--mono);color:var(--muted);margin:8px 0 12px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:10px;padding:13px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card .h{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.card .n{font-weight:600}
+.card .lv{font:600 12px var(--mono);color:var(--c);white-space:nowrap}
+.card .v{font-size:15px}
+.card ul{margin:0;padding-left:18px;font-size:14px}
+.card .m{margin-top:auto;border-top:1px dashed var(--line);padding-top:6px;display:flex;justify-content:space-between;gap:8px;font:11px var(--mono);color:var(--muted)}
+.card .m a{color:var(--muted)}
+.grade{border:1px solid currentColor;border-radius:4px;padding:0 5px;font-weight:600}
+.loading{color:var(--muted);font:13px var(--mono)}
+.method{margin-top:34px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.method>div{min-width:0}
+.method h3{font:800 20px var(--display);margin:0 0 6px}
+.method p,.method li{color:var(--muted);font-size:14px}
+a{color:var(--accent)}
+footer{margin-top:28px;font:12px var(--mono);color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">Salu<span>Atlas</span></div>
+    <div class="langs" id="langs" role="group" aria-label="Language"></div>
+  </div>
+
+  <div class="hero">
+    <h1 id="tHero">Know the health risks before you go.</h1>
+    <p id="tSub">Free, live, and sourced. Every risk shows a level, what to do about it, how reliable the data is, and where it comes from.</p>
+  </div>
+
+  <div class="search">
+    <input id="q" placeholder="Search a city (e.g. Lisbon, Bangkok, Cusco)" autocomplete="off" aria-label="Destination city">
+    <div class="sugg" id="sugg" hidden></div>
+  </div>
+  <div class="toggles" id="toggles">
+    <span id="tFor">Traveling with:</span>
+    <label><input type="checkbox" value="kids"> <span>kids</span></label>
+    <label><input type="checkbox" value="older"> <span>65+</span></label>
+    <label><input type="checkbox" value="pregnant"> <span>pregnancy</span></label>
+    <label><input type="checkbox" value="lungs"> <span>asthma / lung or heart condition</span></label>
+  </div>
+
+  <div id="result"></div>
+
+  <section class="method">
+    <div>
+      <h3 id="tHow">How levels work</h3>
+      <p>Every level comes from a published threshold: the US Heat Index bands, WHO UV categories, the US AQI, CDC altitude guidance, and UK government travel advice. The overall level is the <b>highest single risk</b>, never an average, so a serious risk can't be diluted. We never say "safe". The best level is "Normal".</p>
+    </div>
+    <div>
+      <h3>Reliability grades</h3>
+      <p><b>A</b> = official measurement or record. <b>B</b> = a reputable forecast model. <b>C</b> = country-level guidance. <b>D</b> = thin or out of date. Every card links its source.</p>
+    </div>
+    <div>
+      <h3>Coming next</h3>
+      <p>Beach water quality (EU, UK, US, AU), wildfire smoke maps, mosquito-borne disease, drinking water, vaccines, nearby clinics, multi-stop trips, and 10 reviewed languages.</p>
+    </div>
+  </section>
+  <footer>Salu Atlas · prototype v0.1 · information, not medical advice · data: Open-Meteo (CC BY 4.0), CAMS, USGS, GOV.UK FCDO (OGL), WHO</footer>
+</div>
+
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+/* ---------- UI strings (machine-drafted; needs native review) ---------- */
+const T={
+ en:{n:"English",hero:"Know the health risks before you go.",sub:"Free, live, and sourced. Every risk shows a level, what to do about it, how reliable the data is, and where it comes from.",ph:"Search a city (e.g. Lisbon, Bangkok, Cusco)",lv:["Normal","Take precautions","High","Avoid","No data"],ov:"Overall",forT:"Traveling with:",how:"How levels work",load:"Checking live sources…",src:"Source"},
+ es:{n:"Español",hero:"Conoce los riesgos de salud antes de viajar.",sub:"Gratis, en vivo y con fuentes. Cada riesgo muestra un nivel, qué hacer, qué tan fiables son los datos y de dónde vienen.",ph:"Busca una ciudad (p. ej. Lisboa, Bangkok, Cusco)",lv:["Normal","Precauciones","Alto","Evitar","Sin datos"],ov:"General",forT:"Viajo con:",how:"Cómo funcionan los niveles",load:"Consultando fuentes en vivo…",src:"Fuente"},
+ fr:{n:"Français",hero:"Connaissez les risques santé avant de partir.",sub:"Gratuit, en direct et sourcé. Chaque risque indique un niveau, quoi faire, la fiabilité des données et leur source.",ph:"Cherchez une ville (ex. Lisbonne, Bangkok, Cusco)",lv:["Normal","Précautions","Élevé","À éviter","Pas de données"],ov:"Global",forT:"Je voyage avec :",how:"Comment fonctionnent les niveaux",load:"Consultation des sources…",src:"Source"},
+ pt:{n:"Português",hero:"Conheça os riscos à saúde antes de viajar.",sub:"Gratuito, ao vivo e com fontes. Cada risco mostra um nível, o que fazer, a confiabilidade dos dados e a origem.",ph:"Busque uma cidade (ex. Lisboa, Bangkok, Cusco)",lv:["Normal","Precauções","Alto","Evitar","Sem dados"],ov:"Geral",forT:"Viajando com:",how:"Como os níveis funcionam",load:"Consultando fontes ao vivo…",src:"Fonte"},
+ ja:{n:"日本語",hero:"出発前に健康リスクを知ろう。",sub:"無料・リアルタイム・出典付き。各リスクのレベル、対策、データの信頼性、出典を表示します。",ph:"都市を検索（例：リスボン、バンコク、クスコ）",lv:["通常","注意","高い","回避","データなし"],ov:"総合",forT:"同行者：",how:"レベルの仕組み",load:"ライブ情報を確認中…",src:"出典"}
+};
+let lang=(navigator.language||"en").slice(0,2);if(!T[lang])lang="en";
+function applyLang(){const t=T[lang];document.documentElement.lang=lang;$("tHero").textContent=t.hero;$("tSub").textContent=t.sub;$("q").placeholder=t.ph;$("tFor").textContent=t.forT;$("tHow").textContent=t.how;if(last)render(last)}
+Object.keys(T).forEach(k=>{const b=document.createElement("button");b.textContent=T[k].n;b.setAttribute("aria-pressed",k===lang);b.onclick=()=>{lang=k;[...$("langs").children].forEach(x=>x.setAttribute("aria-pressed",x===b));applyLang()};$("langs").appendChild(b)});
+
+const COL=["var(--l1)","var(--l2)","var(--l3)","var(--l4)","var(--nd)"];
+const get=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
+const groups=()=>new Set([...document.querySelectorAll("#toggles input:checked")].map(i=>i.value));
+
+/* ---------- search ---------- */
+let timer;
+$("q").addEventListener("input",e=>{clearTimeout(timer);const v=e.target.value.trim();if(v.length<2){$("sugg").hidden=true;return}
+  timer=setTimeout(async()=>{try{const j=await get(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(v)}&count=6&language=${lang}`);
+    const s=$("sugg");s.innerHTML="";(j.results||[]).forEach(r=>{const b=document.createElement("button");b.textContent=`${r.name}${r.admin1?", "+r.admin1:""}, ${r.country}`;b.onclick=()=>{s.hidden=true;$("q").value=b.textContent;check(r)};s.appendChild(b)});s.hidden=!s.children.length}catch(_){}},250)});
+document.addEventListener("click",e=>{if(!$("sugg").contains(e.target)&&e.target!==$("q"))$("sugg").hidden=true});
+document.querySelectorAll("#toggles input").forEach(i=>i.onchange=()=>last&&check(last.place));
+
+/* ---------- checks: each returns a card ---------- */
+// card: {name, level 0-3|4, value, actions[], source, url, grade, when}
+async function weather(p){
+  const j=await get(`https://api.open-meteo.com/v1/forecast?latitude=${p.latitude}&longitude=${p.longitude}&daily=apparent_temperature_max,apparent_temperature_min,uv_index_max&forecast_days=7&timezone=auto`);
+  const d=j.daily,hiMax=Math.max(...d.apparent_temperature_max),loMin=Math.min(...d.apparent_temperature_min),uv=Math.max(...d.uv_index_max);
+  const day=d.time[d.apparent_temperature_max.indexOf(hiMax)];const g=groups(),sens=g.has("kids")||g.has("older")||g.has("pregnant")||g.has("lungs");
+  // US NWS heat index bands, applied to "feels like" max: 27 caution, 32 extreme caution, 41 danger, 54 extreme danger
+  let hl=hiMax>=54?3:hiMax>=41?2:hiMax>=32?1:0; if(sens&&hiMax>=27&&hl<3)hl=Math.max(hl,1); if(sens&&hiMax>=38)hl=Math.max(hl,2);
+  const heat={name:"Heat",level:hl,value:`Feels like up to ${Math.round(hiMax)}°C (${day})`,grade:"B",source:"Open-Meteo forecast",url:"https://open-meteo.com/",when:"next 7 days",
+    actions:hl===0?["No special steps"]:["Plan outdoor time before 11:00 or after 17:00","Drink before you're thirsty; add electrolytes","Heat stroke signs: confusion, hot dry skin, fainting → call emergency services",...(hl>=2?["Cancel strenuous outdoor plans on the hottest days"]:[]),...(sens?["Kids, older adults and pregnancy are at higher risk: keep a cool indoor base"]:[])]};
+  const ul=uv>=11?2:uv>=6?1:0; // WHO UV index: 6–10 high/very high, 11+ extreme
+  const uvc={name:"UV",level:ul,value:`UV index up to ${uv.toFixed(0)}`,grade:"B",source:"Open-Meteo forecast",url:"https://open-meteo.com/",when:"next 7 days",
+    actions:ul===0?["Normal sun care"]:["SPF 30+ (50 if 11+), reapply every 2 hours","Shade between 11:00 and 15:00","Hat and UV sunglasses",...(g.has("kids")?["Babies under 6 months: keep out of direct sun"]:[])]};
+  const cl=loMin<=-25?2:loMin<=-10?1:0;
+  const cold={name:"Cold",level:cl,value:`Feels like as low as ${Math.round(loMin)}°C`,grade:"B",source:"Open-Meteo forecast",url:"https://open-meteo.com/",when:"next 7 days",
+    actions:cl===0?["No special steps"]:["Layers, hat and gloves; cover skin","Frostbite signs: numb, white or waxy skin → warm slowly, get care"]};
+  return [heat,uvc,cold];
+}
+async function air(p){
+  const j=await get(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${p.latitude}&longitude=${p.longitude}&hourly=us_aqi,pm2_5&forecast_days=5&timezone=auto`);
+  const a=j.hourly.us_aqi.filter(v=>v!=null),mx=Math.max(...a),pm=Math.max(...j.hourly.pm2_5.filter(v=>v!=null));const g=groups(),sens=g.has("lungs")||g.has("kids")||g.has("older")||g.has("pregnant");
+  if(!a.length)return {name:"Air quality",level:4,value:"No forecast available",grade:"D",source:"CAMS via Open-Meteo",url:"https://open-meteo.com/en/docs/air-quality-api",when:"–",actions:["Check a local air app on arrival"]};
+  // US AQI: 101–150 unhealthy for sensitive groups, 151–300 unhealthy/very unhealthy, 301+ hazardous
+  let l=mx>300?3:mx>150?2:mx>100?1:0;if(sens&&mx>100)l=Math.max(l,2);
+  const word=mx>300?"hazardous":mx>200?"very unhealthy":mx>150?"unhealthy":mx>100?"unhealthy for sensitive groups":mx>50?"moderate":"good";
+  return {name:"Air quality",level:l,value:`US AQI peaks at ${Math.round(mx)} (${word}), PM2.5 up to ${Math.round(pm)} µg/m³`,grade:"B",source:"CAMS forecast via Open-Meteo",url:"https://open-meteo.com/en/docs/air-quality-api",when:"next 5 days",
+    actions:l===0?["No special steps"]:["N95/KN95 mask outdoors on bad days","Move exercise indoors when AQI > 150","Keep windows closed; use AC or a purifier",...(sens?["Pack your inhaler or meds; sensitive groups react first"]:[])]};
+}
+async function altitude(p){
+  const j=await get(`https://api.open-meteo.com/v1/elevation?latitude=${p.latitude}&longitude=${p.longitude}`);const m=Math.round(j.elevation[0]);
+  const l=m>=3500?2:m>=2500?1:0; // CDC: altitude illness common above 2,500 m
+  return {name:"Altitude",level:l,value:`${m.toLocaleString()} m above sea level`,grade:"A",source:"Copernicus DEM via Open-Meteo",url:"https://open-meteo.com/en/docs/elevation-api",when:"static",
+    actions:l===0?["No special steps"]:["Take it easy for the first 24–48 hours; no alcohol","Ask a doctor about acetazolamide before you go","Headache plus vomiting or confusion → descend and get care",...(groups().has("pregnant")?["Pregnancy: check with your doctor before going above 2,500 m"]:[])]};
+}
+async function quakes(p){
+  const since=new Date(Date.now()-7*864e5).toISOString().slice(0,10);
+  const j=await get(`https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${since}&latitude=${p.latitude}&longitude=${p.longitude}&maxradiuskm=300&minmagnitude=4.5`);
+  const f=j.features,big=f.reduce((m,x)=>x.properties.mag>(m?.properties.mag??0)?x:m,null);const l=!big?0:big.properties.mag>=6?2:1;
+  return {name:"Earthquakes",level:l,value:big?`${f.length} quake(s) M4.5+ within 300 km this week; largest M${big.properties.mag.toFixed(1)}, ${big.properties.place}`:"No M4.5+ quakes within 300 km this week",grade:"A",source:"USGS",url:"https://earthquake.usgs.gov/earthquakes/map/",when:"last 7 days",
+    actions:l===0?["Know the local emergency number"]:["Aftershocks are likely: Drop, Cover, Hold On","Check your accommodation's structure and exits","Follow local authority alerts"]};
+}
+const FCDO_SLUG={"United States":"usa","United Kingdom":null,"Czechia":"czech-republic","Côte d'Ivoire":"cote-d-ivoire","Democratic Republic of the Congo":"democratic-republic-of-the-congo","Republic of the Congo":"congo","Myanmar":"myanmar","South Korea":"south-korea","North Korea":"north-korea","Türkiye":"turkey","Turkey":"turkey","Vietnam":"vietnam","Russia":"russia","The Gambia":"gambia","Bahamas":"bahamas"};
+async function advisory(p){
+  let slug=FCDO_SLUG[p.country];if(slug===null)return {name:"Travel advisory",level:0,value:"Home country of the source (UK): no FCDO advice",grade:"C",source:"GOV.UK FCDO",url:"https://www.gov.uk/foreign-travel-advice",when:"–",actions:["Check local authority alerts"]};
+  slug=slug||p.country.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z]+/g,"-").replace(/^-|-$/g,"");
+  const j=await get(`https://www.gov.uk/api/content/foreign-travel-advice/${slug}`);
+  const st=(j.details&&j.details.alert_status)||[];const s=st.join(" ");
+  const l=/avoid_all_travel_to_whole|avoid_all_but_essential_travel_to_whole/.test(s)?3:/avoid_all_travel_to_parts/.test(s)?2:/avoid_all_but_essential_travel_to_parts/.test(s)?1:0;
+  const txt=l===3?"UK government advises against travel to the whole country":l===2?"UK advises against ALL travel to parts of the country":l===1?"UK advises against all but essential travel to parts of the country":"No UK travel warnings";
+  return {name:"Travel advisory",level:l,value:txt,grade:"A",source:"GOV.UK FCDO",url:`https://www.gov.uk/foreign-travel-advice/${slug}`,when:j.public_updated_at?new Date(j.public_updated_at).toLocaleDateString():"–",
+    actions:l===0?["Register your trip with your embassy"]:l===3?["Do not travel. If you're there: follow embassy instructions and keep documents ready","Check that your travel insurance is still valid (it often isn't against advice)"]:["Read which regions are affected before booking side trips","Check insurance validity for those regions"]};
+}
+async function outbreaks(p){
+  const j=await get("https://www.who.int/api/news/diseaseoutbreaknews?$orderby=PublicationDateAndTime%20desc&$top=60");
+  const items=(j.value||[]).filter(x=>new Date(x.PublicationDateAndTime||x.PublicationDate)>Date.now()-120*864e5&&((x.Title||"")+" "+(x.OverrideTitle||"")).toLowerCase().includes(p.country.toLowerCase()));
+  const l=items.length?1:0;
+  return {name:"Disease outbreaks",level:l,value:items.length?items.slice(0,2).map(x=>x.OverrideTitle||x.Title).join(" · "):"No WHO outbreak notices for this country in the last 4 months",grade:"A",source:"WHO Disease Outbreak News",url:"https://www.who.int/emergencies/disease-outbreak-news",when:"last 120 days",
+    actions:l===0?["Keep routine vaccines up to date"]:["Read the WHO notice for symptoms and who is at risk","See a travel clinic 4–6 weeks before you go"]};
+}
+function countryGuide(p){
+  const slug=p.country.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z]+/g,"-").replace(/^-|-$/g,"");
+  return {name:"Vaccines, water & mosquitoes",level:4,value:"Country-level guidance (not yet parsed). Open the CDC page for vaccines, tap water, malaria, dengue, rabies",grade:"C",source:"CDC Travelers' Health",url:`https://wwwnc.cdc.gov/travel/destinations/traveler/none/${slug}`,when:"–",actions:["See a travel clinic 4–6 weeks before departure"]};
+}
+
+/* ---------- run ---------- */
+let last=null;
+async function check(place){
+  last={place,cards:null};const t=T[lang];
+  $("result").innerHTML=`<p class="loading">${t.load}</p>`;
+  const jobs=[weather,air,altitude,quakes,advisory,outbreaks].map(fn=>fn(place).catch(err=>({name:{weather:"Heat & UV",air:"Air quality",altitude:"Altitude",quakes:"Earthquakes",advisory:"Travel advisory",outbreaks:"Disease outbreaks"}[fn.name],level:4,value:"Source unavailable right now",grade:"D",source:"–",url:"#",when:"–",actions:["Try again later"]})));
+  const res=(await Promise.all(jobs)).flat();res.push(countryGuide(place));
+  last.cards=res;render(last);
+}
+function render({place,cards}){
+  if(!cards)return;const t=T[lang];
+  const max=Math.max(0,...cards.filter(c=>c.level<4).map(c=>c.level));
+  const sorted=[...cards].sort((a,b)=>(b.level===4?-1:b.level)-(a.level===4?-1:a.level));
+  const four=cards.filter(c=>c.level===3);
+  $("result").innerHTML=`
+   <div class="dest"><div><h2>${place.name}, ${place.country}</h2><div class="sub">${place.latitude.toFixed(2)}, ${place.longitude.toFixed(2)} · ${new Date().toLocaleString()}</div></div>
+     <div><span class="sub">${t.ov}</span> <span class="pill" style="--c:${COL[max]}">${t.lv[max]}</span></div></div>
+   <div class="banner ${four.length?"on":""}"><b>${t.lv[3]}:</b> ${four.map(c=>c.name+": "+c.value).join(" · ")}</div>
+   <div class="legend">${t.lv.map((n,i)=>`<span style="--c:${COL[i]}">${n}</span>`).join("")}</div>
+   <div class="cards">${sorted.map(c=>`<div class="card" style="--c:${COL[c.level]}">
+     <div class="h"><span class="n">${c.name}</span><span class="lv">${t.lv[c.level]}</span></div>
+     <div class="v">${c.value}</div><ul>${c.actions.map(a=>`<li>${a}</li>`).join("")}</ul>
+     <div class="m"><span>${t.src}: <a href="${c.url}" target="_blank" rel="noopener">${c.source}</a></span><span>${c.when} <span class="grade" title="Reliability">${c.grade}</span></span></div></div>`).join("")}</div>`;
+}
+applyLang();
+})();
+</script>
+</body>
+</html>

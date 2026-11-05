@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zombie Facts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1210;--panel:#171c18;--line:#2a332c;--ink:#e8efe6;--mute:#93a294;--zombie:#9be15d;--warn:#ffb547;--dead:#ff5d5d;--ok:#5dc8ff}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f4f6f1;--panel:#fff;--line:#dde3da;--ink:#141a15;--mute:#5d6b5f;--zombie:#3f8a12;--warn:#b86a00;--dead:#c62828;--ok:#0b6fa8}}
+:root[data-theme="dark"]{--bg:#0f1210;--panel:#171c18;--line:#2a332c;--ink:#e8efe6;--mute:#93a294;--zombie:#9be15d;--warn:#ffb547;--dead:#ff5d5d;--ok:#5dc8ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 16px 80px}
+h1{font-family:"Archivo Black",sans-serif;font-size:clamp(34px,7vw,64px);line-height:1;margin:0;letter-spacing:-.02em}
+h1 span{color:var(--zombie)}
+.tag{color:var(--mute);margin:10px 0 22px;max-width:680px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px}
+button,select{font:inherit;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer}
+button.primary{background:var(--zombie);color:#0f1210;border-color:var(--zombie);font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.stat b{display:block;font-family:"Archivo Black",sans-serif;font-size:28px}
+.stat small{color:var(--mute)}
+.status{font:12px "IBM Plex Mono",monospace;color:var(--mute);margin-bottom:12px;min-height:18px}
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:8px}
+.card.zombie{border-left:4px solid var(--zombie)}
+.card.clean{opacity:.75}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{font:600 11px "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.04em;padding:3px 8px;border-radius:99px;border:1px solid currentColor}
+.p-z{color:var(--zombie)}.p-r{color:var(--dead)}.p-c{color:var(--mute)}.p-w{color:var(--warn)}.p-o{color:var(--ok)}
+.title{font-weight:600;font-size:16px}
+.meta{color:var(--mute);font-size:13px}
+.meta a,.card a{color:var(--ok)}
+ul.hits{margin:4px 0 0;padding-left:18px}
+ul.hits li{margin:2px 0}
+.outreach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:12px "IBM Plex Mono",monospace;color:var(--mute)}
+.step{padding:3px 8px;border-radius:6px;border:1px dashed var(--line)}
+.step.on{border-style:solid;border-color:var(--zombie);color:var(--ink)}
+details{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-top:22px}
+summary{cursor:pointer;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+td,th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+pre{white-space:pre-wrap;font:12px/1.5 "IBM Plex Mono",monospace;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
+.demo{color:var(--warn);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ZOMBIE <span>FACTS</span></h1>
+  <p class="tag">Facts that officially died but keep walking around. We pull fresh retractions from Crossref (which includes the Retraction Watch database), then check whether Wikipedia is still citing them. Every match is a zombie. v0.1: detection is live, outreach is a mock.</p>
+
+  <div class="bar">
+    <button class="primary" id="run">Scan latest retractions</button>
+    <select id="rows"><option value="20">20 retractions</option><option value="40" selected>40 retractions</option><option value="80">80 retractions</option></select>
+    <select id="filter"><option value="all">Show all</option><option value="zombie" selected>Zombies only</option></select>
+    <button id="theme" aria-label="Toggle theme">◐</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="sRet">–</b><small>retractions scanned</small></div>
+    <div class="stat"><b id="sZ">–</b><small>zombies (still cited)</small></div>
+    <div class="stat"><b id="sCit">–</b><small>live Wikipedia citations</small></div>
+    <div class="stat"><b id="sAge">–</b><small>oldest zombie (yrs since pub)</small></div>
+  </div>
+  <div class="status" id="status">Press scan. Each retraction takes one Crossref lookup and one Wikipedia search.</div>
+  <div class="grid" id="list"></div>
+
+  <details>
+    <summary>How detection works (and how reliable it is)</summary>
+    <table>
+      <tr><th>Step</th><th>Source</th><th>Reliability</th></tr>
+      <tr><td>1. Find retraction notices, newest first</td><td>Crossref REST API, <code>filter=update-type:retraction</code>. Notices carry <code>update-to</code> pointing at the original DOI.</td><td>A. Publisher-registered, and Retraction Watch data merged into Crossref.</td></tr>
+      <tr><td>2. Look up the original paper</td><td>Crossref <code>/works/{doi}</code></td><td>A</td></tr>
+      <tr><td>3. Is it still cited?</td><td>Wikipedia search, <code>insource:"DOI"</code> across English Wikipedia</td><td>B. An exact DOI match is strong. A page may already say "retracted" next to it, which v0.2 will check before flagging.</td></tr>
+      <tr><td>4. News still citing it</td><td>GDELT DOC API (planned v0.2)</td><td>C. Fuzzy title match needs human review.</td></tr>
+    </table>
+    <p class="meta">Rule: we never call the people citing it liars. A zombie is a citation that predates or ignores an official correction. The outreach message says exactly that.</p>
+  </details>
+
+  <details>
+    <summary>Outreach loop (mock, needs a backend in v0.2)</summary>
+    <p class="meta">Detected → Notified (polite note to the page talk/editor or newsroom corrections desk) → Responded → Fixed or Declined. Every step is public with timestamps. Draft notice:</p>
+    <pre id="draft">Hi, a quick heads-up from Zombie Facts, a free public tracker of facts that were officially corrected.
+
+Your page "{PAGE}" cites:
+  {TITLE} ({DOI})
+That paper was retracted by {PUBLISHER} on {DATE}. Notice: https://doi.org/{NOTICE}
+
+No action is required. If you update or annotate the citation, reply and we'll mark it fixed publicly. If you think the retraction doesn't affect your use of it, tell us and we'll publish your response alongside.
+
+Thanks for keeping things accurate.</pre>
+  </details>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const UA_MAILTO = ''; // add a contact address before production for Crossref's polite pool
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let usingDemo = false;
+
+$('theme').onclick = () => {
+  const r = document.documentElement;
+  const dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme = dark ? 'light' : 'dark';
+};
+
+async function getJSON(url){
+  const res = await fetch(url);
+  if(!res.ok) throw new Error(res.status + ' ' + url);
+  return res.json();
+}
+
+const DEMO = [
+  {notice:'10.1000/demo.notice1', original:'10.1000/demo.paper1', title:'Demo: Hydroxy compound reduces viral load in hospitalized patients', publisher:'Demo Journal of Medicine', retracted:'2026-10-21', published:2020, hits:[{title:'Demo article A'},{title:'Demo article B'}]},
+  {notice:'10.1000/demo.notice2', original:'10.1000/demo.paper2', title:'Demo: Superconductivity at room temperature in a doped lattice', publisher:'Demo Physics Letters', retracted:'2026-10-18', published:2023, hits:[{title:'Demo article C'}]},
+  {notice:'10.1000/demo.notice3', original:'10.1000/demo.paper3', title:'Demo: Effects of image duplication on nothing at all', publisher:'Demo Cell Reports', retracted:'2026-10-15', published:2019, hits:[]}
+];
+
+async function fetchRetractions(rows){
+  const q = `https://api.crossref.org/works?filter=update-type:retraction&sort=created&order=desc&rows=${rows}&select=DOI,title,publisher,created,update-to${UA_MAILTO?'&mailto='+UA_MAILTO:''}`;
+  const j = await getJSON(q);
+  const out = [];
+  const seen = new Set();
+  for(const n of j.message.items){
+    for(const u of (n['update-to']||[])){
+      if(u.type !== 'retraction' || !u.DOI || seen.has(u.DOI.toLowerCase())) continue;
+      seen.add(u.DOI.toLowerCase());
+      const d = u.updated && u.updated['date-parts'] ? u.updated['date-parts'][0] : (n.created && n.created['date-parts'][0]);
+      out.push({notice:n.DOI, original:u.DOI, publisher:n.publisher||'', retracted: d ? d.map(x=>String(x).padStart(2,'0')).join('-') : ''});
+    }
+  }
+  return out;
+}
+
+async function enrich(item){
+  try{
+    const w = await getJSON(`https://api.crossref.org/works/${encodeURIComponent(item.original)}`);
+    const m = w.message;
+    item.title = (m.title && m.title[0]) || item.original;
+    const p = (m.issued && m.issued['date-parts'] && m.issued['date-parts'][0]) || [];
+    item.published = p[0] || null;
+    item.publisher = m.publisher || item.publisher;
+  }catch(e){ item.title = item.title || item.original; }
+}
+
+async function wikiHits(doi){
+  const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent('insource:"'+doi+'"')}&srlimit=10&format=json&origin=*`;
+  const j = await getJSON(url);
+  return (j.query && j.query.search || []).map(s => ({title:s.title}));
+}
+
+function card(it){
+  const z = it.hits && it.hits.length > 0;
+  const el = document.createElement('div');
+  el.className = 'card ' + (z ? 'zombie' : 'clean');
+  el.dataset.z = z ? 1 : 0;
+  const age = it.published ? (new Date().getFullYear() - it.published) : null;
+  el.innerHTML = `
+    <div class="row">
+      ${z ? '<span class="pill p-z">🧟 Zombie</span>' : '<span class="pill p-c">Not cited on Wikipedia</span>'}
+      <span class="pill p-r">Retracted ${it.retracted||''}</span>
+      ${age !== null ? `<span class="pill p-w">${age} yr${age===1?'':'s'} in circulation</span>` : ''}
+    </div>
+    <div class="title"></div>
+    <div class="meta"><span class="pub"></span> · paper <a target="_blank" rel="noopener" href="https://doi.org/${it.original}">${it.original}</a> · notice <a target="_blank" rel="noopener" href="https://doi.org/${it.notice}">${it.notice}</a></div>
+    ${z ? `<div><b>Still cited on ${it.hits.length} Wikipedia page${it.hits.length===1?'':'s'}:</b><ul class="hits">${it.hits.map(h=>`<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/${encodeURIComponent(h.title.replace(/ /g,'_'))}">${h.title.replace(/</g,'&lt;')}</a></li>`).join('')}</ul></div>
+    <div class="outreach">Outreach: <span class="step on">Detected</span>→<span class="step">Notified</span>→<span class="step">Responded</span>→<span class="step">Fixed / Declined</span></div>` : ''}`;
+  el.querySelector('.title').textContent = it.title || it.original;
+  el.querySelector('.pub').textContent = it.publisher || '';
+  return el;
+}
+
+function applyFilter(){
+  const only = $('filter').value === 'zombie';
+  document.querySelectorAll('#list .card').forEach(c => c.style.display = (only && c.dataset.z === '0') ? 'none' : '');
+}
+$('filter').onchange = applyFilter;
+
+function stats(items){
+  const zs = items.filter(i => i.hits && i.hits.length);
+  $('sRet').textContent = items.length;
+  $('sZ').textContent = zs.length;
+  $('sCit').textContent = zs.reduce((a,i)=>a+i.hits.length,0);
+  const ages = zs.map(i => i.published ? new Date().getFullYear() - i.published : 0);
+  $('sAge').textContent = ages.length ? Math.max(...ages) : '–';
+}
+
+async function run(){
+  const btn = $('run'); btn.disabled = true;
+  $('list').innerHTML = '';
+  const rows = +$('rows').value;
+  let items = [];
+  try{
+    $('status').textContent = 'Fetching retraction notices from Crossref…';
+    items = await fetchRetractions(rows);
+    usingDemo = false;
+  }catch(e){
+    usingDemo = true;
+    items = DEMO.map(d => ({...d}));
+    $('status').innerHTML = '<span class="demo">Demo data</span>: Crossref could not be reached from here (' + e.message.split(' ')[0] + '). Showing labelled sample records.';
+  }
+  const done = [];
+  for(let i=0;i<items.length;i++){
+    const it = items[i];
+    if(!usingDemo){
+      $('status').textContent = `Checking ${i+1}/${items.length}: ${it.original}`;
+      await enrich(it);
+      try{ it.hits = await wikiHits(it.original); }catch(e){ it.hits = []; it.wikiErr = true; }
+      await sleep(120);
+    }
+    done.push(it);
+    const el = card(it);
+    if(it.hits && it.hits.length) $('list').prepend(el); else $('list').append(el);
+    stats(done); applyFilter();
+  }
+  if(!usingDemo){
+    const errs = done.filter(d=>d.wikiErr).length;
+    $('status').textContent = `Done. ${done.length} retracted papers checked against English Wikipedia${errs?`, ${errs} lookups failed`:''}. ${new Date().toLocaleString()}`;
+  }
+  if(!done.some(d=>d.hits && d.hits.length) && $('filter').value==='zombie'){
+    $('list').insertAdjacentHTML('afterbegin','<div class="card"><div class="meta">No zombies in this batch. Fresh retractions often haven\'t been cited yet. Try 80, or switch to "Show all".</div></div>');
+  }
+  btn.disabled = false;
+}
+$('run').onclick = run;
+</script>
+</body>
+</html>

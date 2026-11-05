@@ -1,0 +1,17 @@
+{
+  "states": ["CA", "AZ", "NV", "OR", "UT"],
+  "post_when_empty": false,
+  "exclude": ["parts only", "salvage", "inoperable", "scrap"],
+  "categories": [
+    {"name": "Generator", "keywords": ["generator", "genset", "gen set"], "max_bid": 15000, "deal_under": 3000},
+    {"name": "Light tower", "keywords": ["light tower", "light plant", "lighting tower", "light cart"], "max_bid": 8000, "deal_under": 2000},
+    {"name": "Truck / van", "keywords": ["box truck", "cargo van", "stake bed", "flatbed truck", "step van"], "max_bid": 25000, "deal_under": 8000},
+    {"name": "Trailer", "keywords": ["trailer", "enclosed trailer", "utility trailer", "stage trailer"], "max_bid": 15000, "deal_under": 3000},
+    {"name": "Lift / forklift", "keywords": ["forklift", "telehandler", "scissor lift", "boom lift", "genie lift"], "max_bid": 25000, "deal_under": 6000},
+    {"name": "Barricade / fencing", "keywords": ["barricade", "crowd control", "bike rack", "fencing", "jersey barrier"], "max_bid": 5000, "deal_under": 800},
+    {"name": "Staging / tents", "keywords": ["staging", "stage", "riser", "platform", "tent", "canopy", "frame tent"], "max_bid": 8000, "deal_under": 1500},
+    {"name": "Audio / radios", "keywords": ["speaker", "public address", "pa system", "amplifier", "mixer", "two-way radio", "radios", "motorola"], "max_bid": 5000, "deal_under": 800},
+    {"name": "Power distro", "keywords": ["distribution box", "power distribution", "cable ramp", "cord reel"], "max_bid": 3000, "deal_under": 500},
+    {"name": "Sanitation / water", "keywords": ["portable toilet", "restroom trailer", "water trailer", "water tank"], "max_bid": 10000, "deal_under": 2000}
+  ]
+}
