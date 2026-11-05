@@ -1,7 +1,7 @@
 /* Earth MIDI v0.5 · export, import, save, share, credit, network ledger */
 "use strict";
 const CREDIT="Planetary data sonified with Earth MIDI by Colin Robinson · earthmidi.com";
-const SOURCES="Data: USGS/ANSS earthquakes; NOAA SWPC solar wind, Kp, Dst, GOES X-rays and protons; NOAA CO-OPS tides (all public domain); NASA EONET natural events (public domain); ISS orbital elements (NORAD via wheretheiss.at / CelesTrak); Open-Meteo weather, upper-air, marine and air quality (CC BY 4.0, open-meteo.com).";
+const SOURCES="Data: USGS/ANSS earthquakes; NOAA SWPC real-time solar wind (DSCOVR/ACE/IMAP), Kp, Dst, GOES X-rays and protons; NOAA CO-OPS tides (all public domain); NASA EONET natural events (public domain); ISS orbital elements (NORAD via wheretheiss.at / CelesTrak); Open-Meteo weather, upper-air, marine and air quality (CC BY 4.0, open-meteo.com).";
 const LICENSE="Free to use in music and media, commercial included. Credit required: "+CREDIT;
 function xs(m){const e=$("xState");if(!e)return;e.textContent=m;e.classList.add("on");clearTimeout(xs.t);xs.t=setTimeout(()=>{e.textContent="";e.classList.remove("on")},4500)}
 const stamp=()=>new Date().toISOString().slice(0,16).replace(/[-:T]/g,"").replace(/(\d{8})(\d{4})/,"$1-$2");
