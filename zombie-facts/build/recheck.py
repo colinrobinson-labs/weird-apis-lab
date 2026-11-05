@@ -15,7 +15,7 @@ import json, os, re, sys, urllib.parse
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(__file__))
-from build_data import OUT, log, read_pages, context_for, is_author_page  # noqa: E402
+from build_data import OUT, log, read_pages, context_for, is_author_page, clean_said  # noqa: E402
 
 OUTREACH = os.path.join(os.path.dirname(__file__), "..", "outreach.json")
 CONTEXT_DUMP = os.environ.get("ZF_DUMP_CONTEXT")  # optional path: write raw wikitext around each open citation
@@ -186,6 +186,9 @@ def main():
     if still_open and len(closed) > max(10, 0.5 * still_open):
         sys.exit(f"would close {len(closed)} of {still_open} cases in one day; refusing (looks broken)")
     replies = watch_outreach(outreach, pages, now_ts)
+    for p in data["papers"]:  # older builds stored list rows and markup as quotes
+        for w in p["wiki"]:
+            w["said"] = clean_said(w.get("said"))
     data["checked"] = now_ts
     s = data["stats"]
     s["zombie_citations"] = sum(p["zombies"] for p in data["papers"])

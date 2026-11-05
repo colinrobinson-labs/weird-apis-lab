@@ -73,6 +73,17 @@ class Classify(unittest.TestCase):
         self.assertFalse(fl2)
 
 
+class Said(unittest.TestCase):
+    def test_clean(self):
+        self.assertEqual(B.clean_said("* Estrogen receptor alpha,"), "")
+        self.assertEqual(B.clean_said("** The probe Juno is launched. (BBC) [http://www.nasa.go"), "")
+        self.assertEqual(B.clean_said("|title = Art Spiegelman's"), "")
+        good = "*16 November – The Emperor of All Maladies: a biography of cancer is published."
+        self.assertTrue(B.clean_said(good).startswith("16 November"))
+        self.assertEqual(B.clean_said("Meladrazine is a drug used in urology as an antispasmodic."),
+                         "Meladrazine is a drug used in urology as an antispasmodic.")
+
+
 class Talk(unittest.TestCase):
     TXT = """== Older ==
 Hi. [[User:Someone|Someone]] 10:00, 1 January 2026 (UTC)

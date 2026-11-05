@@ -203,6 +203,16 @@ def plain(s):
     return re.sub(r"\s+", " ", s).strip()
 
 
+def clean_said(s):
+    """The quoted sentence, or "" when it isn't a readable sentence (list rows, markup, cut-off fragments)."""
+    s = re.sub(r"^[\s*#:;•\-–]+", "", s or "").strip()
+    if not s or re.search(r"https?:|\[\[|\]\]|\[\S+\.\S+|\{|\}|\|", s):
+        return ""
+    if len(re.findall(r"[A-Za-z]{2,}", s)) < 6:
+        return ""
+    return s
+
+
 def context_for(txt, low, i):
     """Sentence the citation supports, its section, and whether the retraction is mentioned."""
     rs = low.rfind("<ref", 0, i)
@@ -219,7 +229,7 @@ def context_for(txt, low, i):
     sentence = parts[-1] if parts else sent
     if len(sentence) < 40 and len(parts) > 1:
         sentence = parts[-2] + " " + sentence
-    sentence = sentence[-420:]
+    sentence = clean_said(sentence[-420:])
     sec = "Lead"
     for m in re.finditer(r"^(={2,4})\s*(.+?)\s*\1\s*$", txt[:i], flags=re.M):
         sec = plain(m.group(2))
