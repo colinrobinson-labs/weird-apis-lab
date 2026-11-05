@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gear Tracker setup</title>
+<meta name="description" content="Five steps to get federal surplus event-gear deals posting into Slack.">
+<style>
+:root{--bg:#f3f1ec;--ink:#17181a;--mute:#6b6a66;--card:#fff;--line:#dedad1;--acc:#e8601c;--ok:#0f7b52;--code:#efece5}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121314;--ink:#ececea;--mute:#9a9893;--card:#1b1c1e;--line:#2c2d30;--acc:#ff7a3d;--ok:#3cc68a;--code:#232427}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+.w{max-width:720px;margin:0 auto;padding:36px 16px 80px}
+.kicker{font:600 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+h1{font-size:clamp(30px,7vw,46px);line-height:1.05;letter-spacing:-.025em;margin:10px 0 12px}
+.lede{color:var(--mute);margin:0 0 22px;max-width:56ch}
+.bar{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin:0 0 26px}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .4s cubic-bezier(.2,.8,.2,1)}
+ol{list-style:none;margin:0;padding:0;counter-reset:s}
+li.step{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 18px 18px 64px;margin:0 0 12px;transition:border-color .2s,opacity .2s}
+li.step::before{counter-increment:s;content:counter(s);position:absolute;left:18px;top:18px;width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;font:700 14px/1 ui-monospace,Menlo,monospace}
+li.step.done{border-color:var(--ok)}
+li.step.done::before{content:"✓";background:var(--ok);border-color:var(--ok);color:#fff}
+li.step.done .body{opacity:.62}
+h2{font-size:18px;margin:2px 0 6px;letter-spacing:-.01em}
+.t{font-size:13px;color:var(--mute);font-weight:500;margin-left:6px}
+p{margin:6px 0}
+.sm{font-size:14px;color:var(--mute)}
+.go{display:inline-flex;align-items:center;gap:8px;margin:10px 8px 2px 0;padding:10px 16px;border-radius:10px;background:var(--ink);color:var(--bg);font-weight:700;text-decoration:none;font-size:15px;border:0;cursor:pointer}
+.go.alt{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.go:active{transform:translateY(1px)}
+.kv{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+code{font:600 13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--code);padding:4px 8px;border-radius:6px;word-break:break-all}
+.copy{font:600 12px ui-sans-serif,system-ui;padding:5px 10px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+label.chk{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:14px;font-weight:600;cursor:pointer;user-select:none}
+label.chk input{width:20px;height:20px;accent-color:var(--ok)}
+details{margin-top:8px;font-size:14px}summary{cursor:pointer;color:var(--mute)}
+pre{background:var(--code);padding:12px;border-radius:8px;overflow:auto;font-size:12.5px}
+.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--line);font-size:14px;color:var(--mute)}
+.foot a{color:inherit}
+@media(max-width:480px){li.step{padding:16px 14px 16px 54px}li.step::before{left:14px;top:16px;width:28px;height:28px}.go{width:100%;justify-content:center;margin-right:0}}
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="kicker">Gear Tracker · setup</div>
+  <h1>Get surplus gear deals in Slack.</h1>
+  <p class="lede">Five steps, about 10 minutes, all in the browser. When you finish, the bot posts a first scan of everything that matches, then checks twice a day.</p>
+  <div class="bar"><i id="bar"></i></div>
+
+  <ol>
+    <li class="step" data-k="key"><div class="body">
+      <h2>Get the free GSA data key <span class="t">2 min</span></h2>
+      <p>Fill in your name and email. The key shows on screen and arrives by email.</p>
+      <a class="go" href="https://api.data.gov/signup/" target="_blank" rel="noopener">Get the key ↗</a>
+    </div><label class="chk"><input type="checkbox"> I have the key</label></li>
+
+    <li class="step" data-k="chan"><div class="body">
+      <h2>Make the Slack channel <span class="t">1 min</span></h2>
+      <p>In Slack, create a channel like <code>#gear-deals</code> and invite anyone you want in it. Private or public both work.</p>
+    </div><label class="chk"><input type="checkbox"> Channel made</label></li>
+
+    <li class="step" data-k="app"><div class="body">
+      <h2>Create the Slack app <span class="t">3 min</span></h2>
+      <p>This button opens Slack with everything filled in. Pick your workspace, then tap <b>Next</b> and <b>Create</b>.</p>
+      <a class="go" id="slackgo" href="#" target="_blank" rel="noopener">Create the app in Slack ↗</a>
+      <p class="sm">Then open <b>Incoming Webhooks</b> in the left menu, tap <b>Add New Webhook</b>, choose <code>#gear-deals</code> and tap <b>Allow</b>. Copy the URL that starts with <code>https://hooks.slack.com/</code>.</p>
+      <details><summary>Button didn't fill it in? Paste this manifest instead</summary>
+        <p class="sm">Go to api.slack.com/apps → Create New App → From a manifest → paste:</p>
+        <pre id="manifest"></pre><button class="copy" data-copy-el="manifest">Copy manifest</button>
+      </details>
+    </div><label class="chk"><input type="checkbox"> I have the webhook URL</label></li>
+
+    <li class="step" data-k="sec"><div class="body">
+      <h2>Paste both into GitHub <span class="t">2 min</span></h2>
+      <p>Each button opens a "New secret" form. Copy the name, paste the value, tap <b>Add secret</b>. Do it twice.</p>
+      <div class="kv"><code>GSA_API_KEY</code><button class="copy" data-copy="GSA_API_KEY">Copy name</button></div>
+      <a class="go alt" href="https://github.com/colinrobinson-labs/weird-apis-lab/settings/secrets/actions/new" target="_blank" rel="noopener">Add GSA_API_KEY ↗</a>
+      <div class="kv" style="margin-top:14px"><code>SLACK_WEBHOOK_URL</code><button class="copy" data-copy="SLACK_WEBHOOK_URL">Copy name</button></div>
+      <a class="go alt" href="https://github.com/colinrobinson-labs/weird-apis-lab/settings/secrets/actions/new" target="_blank" rel="noopener">Add SLACK_WEBHOOK_URL ↗</a>
+      <p class="sm">Secrets stay hidden. Nobody, including the public repo's visitors, can read them back.</p>
+    </div><label class="chk"><input type="checkbox"> Both secrets added</label></li>
+
+    <li class="step" data-k="run"><div class="body">
+      <h2>Run the first scan <span class="t">1 min</span></h2>
+      <p>Tap <b>Run workflow</b>, leave it on <b>post</b>, and tap the green <b>Run workflow</b> button. The first scan lands in Slack in about a minute. Or just tell Claude "secrets are in" and it'll start it.</p>
+      <a class="go" href="https://github.com/colinrobinson-labs/weird-apis-lab/actions/workflows/gear-tracker.yml" target="_blank" rel="noopener">Open the workflow ↗</a>
+      <p class="sm">After that it runs on its own at about 7am and 5pm Pacific. If nothing new matches, it stays quiet.</p>
+    </div><label class="chk"><input type="checkbox"> First scan posted</label></li>
+  </ol>
+
+  <div class="foot">
+    <a href="preview.html">See what the posts look like</a> · <a href="https://github.com/colinrobinson-labs/weird-apis-lab/blob/main/gear-tracker/config.json" target="_blank" rel="noopener">Tune categories and values</a> · <a href="https://github.com/colinrobinson-labs/weird-apis-lab/tree/main/gear-tracker" target="_blank" rel="noopener">How it works</a>
+  </div>
+</div>
+<script>
+const manifest = {
+  display_information: {name: "Gear Tracker", description: "Event gear deals from federal surplus auctions", background_color: "#1a1d21"},
+  features: {bot_user: {display_name: "Gear Tracker", always_online: false}},
+  oauth_config: {scopes: {bot: ["incoming-webhook"]}},
+  settings: {org_deploy_enabled: false, socket_mode_enabled: false, token_rotation_enabled: false}
+};
+document.getElementById("slackgo").href = "https://api.slack.com/apps?new_app=1&manifest_json=" + encodeURIComponent(JSON.stringify(manifest));
+document.getElementById("manifest").textContent = JSON.stringify(manifest, null, 2);
+
+function store(k, v) { try { v === undefined ? (k = localStorage.getItem(k)) : localStorage.setItem(k, v); } catch (e) { return null; } return k; }
+const steps = [...document.querySelectorAll("li.step")];
+function paint() {
+  const n = steps.filter(s => s.classList.contains("done")).length;
+  document.getElementById("bar").style.width = (n / steps.length * 100) + "%";
+}
+steps.forEach(s => {
+  const box = s.querySelector("input"), key = "gt-setup-" + s.dataset.k;
+  if (store(key) === "1") { box.checked = true; s.classList.add("done"); }
+  box.addEventListener("change", () => { s.classList.toggle("done", box.checked); store(key, box.checked ? "1" : "0"); paint(); });
+});
+paint();
+
+document.querySelectorAll(".copy").forEach(b => b.addEventListener("click", async () => {
+  const txt = b.dataset.copy || document.getElementById(b.dataset.copyEl).textContent;
+  try { await navigator.clipboard.writeText(txt); } catch (e) {
+    const t = document.createElement("textarea"); t.value = txt; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove();
+  }
+  const o = b.textContent; b.textContent = "Copied"; setTimeout(() => b.textContent = o, 1400);
+}));
+</script>
+</body>
+</html>

@@ -101,11 +101,11 @@ def num(v):
 
 
 def text_of(lot):
-    return f"{s(lot.get('ItemName'))} {s(lot.get('LotDescript'))}".lower()
+    return f"{s(lot.get('itemname'))} {s(lot.get('lotdescript'))} {lot.get('_info', '')[:1500]}".lower()
 
 
 def state_of(lot):
-    return (s(lot.get("PropertyState")) or s(lot.get("LocationST"))).upper()
+    return s(lot.get("propertystate")).upper()
 
 
 def zip5(v):
@@ -113,6 +113,69 @@ def zip5(v):
     if len(z) in (4, 8):  # numeric ZIPs lose their leading zero
         z = "0" + z
     return z[:5] if len(z) >= 5 else ""
+
+
+def normalize(lot):
+    """The live feed uses camelCase keys (itemName) while GSA's docs say ItemName. Lower-case them all,
+    and turn the HTML lotInfo (the full description) into plain text."""
+    if not isinstance(lot, dict):
+        return None
+    out = {str(k).lower(): v for k, v in lot.items()}
+    out["_info"] = html_text(out.get("lotinfo"))
+    return out
+
+
+def html_text(h):
+    t = s(h)
+    if not t:
+        return ""
+    t = re.sub(r"(?i)<br\s*/?>|</p>|</li>|</div>|</h\d>", "\n", t)
+    t = re.sub(r"(?i)<li[^>]*>", "\n• ", t)
+    t = re.sub(r"<[^>]+>", " ", t)
+    t = html.unescape(t).replace("\xa0", " ")
+    lines = [re.sub(r"[ \t]+", " ", x).strip() for x in t.split("\n")]
+    return "\n".join(x for x in lines if x)
+
+
+BOILER = re.compile(r"(?i)appointment|inspect|removal|remove|payment|pay |contact|business hours|working days|terms|bidder|"
+                    r"buyer|sold as|as-is|as is|where is|liability|warrant|government|gsa|loading|forklift on site|title|sf-?97|"
+                    r"note:|disclaimer|mandatory|must |shall |responsib")
+
+
+def summary_of(lot):
+    """A short, useful description: the first lines of lotInfo that describe the item, not the rules."""
+    keep = []
+    for line in lot.get("_info", "").split("\n"):
+        line = line.strip(" •")
+        if len(line) < 8 or BOILER.search(line):
+            continue
+        keep.append(line.rstrip(".") + ".")
+        if sum(len(x) for x in keep) > 260:
+            break
+    txt = " ".join(keep) or s(lot.get("lotdescript"))
+    txt = sentence_case(txt)
+    return txt[:300].rsplit(" ", 1)[0] + "…" if len(txt) > 300 else txt
+
+
+def sentence_case(t):
+    """GSA text is often ALL CAPS. Make it readable without wrecking model numbers like MEP-806B."""
+    letters = [c for c in t if c.isalpha()]
+    if not letters or sum(c.isupper() for c in letters) / len(letters) < 0.7:
+        return t
+    t = re.sub(r"[A-Za-z0-9][A-Za-z0-9'/-]*", lambda m: m.group(0) if re.search(r"\d", m.group(0)) else m.group(0).lower(), t)
+    t = re.sub(r"(^|[.!?:]\s+)([a-z])", lambda m: m.group(1) + m.group(2).upper(), t)
+    t = re.sub(r"\b(gsa|usa|usmc|usaf|vin|pto|hvac|am|pm|pst|pdt|mst|ups|led|mep|ac|dc|ca|az|nv|or|ut)\b(?=[\s.,;:)]|$)",
+               lambda m: m.group(1).upper() if m.group(1) not in ("or",) else "or", t)
+    return re.sub(r"\b(\d+(?:\.\d+)?)\s?(kw|kva)\b", lambda m: m.group(1) + " " + {"kw": "kW", "kva": "kVA"}[m.group(2)], t)
+
+
+def status_of(lot):
+    st = s(lot.get("auctionstatus")).lower()
+    if st in ("a", "active"):
+        return "live now, taking bids"
+    if st in ("p", "preview"):
+        return "preview, bidding opens soon"
+    return st or "scheduled"
 
 
 # ---------- location ----------
@@ -147,13 +210,14 @@ def has(text, words):
 
 def match(lot, cfg):
     text = text_of(lot)
+    name = s(lot.get("itemname")).lower() + " " + s(lot.get("lotdescript")).lower()
     if cfg.get("states") and state_of(lot) not in cfg["states"]:
         return None
     if has(text, cfg.get("exclude", [])):
         return None
     for cat in cfg["categories"]:
-        if has(text, cat["keywords"]) and not has(text, cat.get("not", [])):
-            if cat.get("max_bid") is not None and money(lot.get("HighBidAmount")) > cat["max_bid"]:
+        if has(name, cat["keywords"]) and not has(name, cat.get("not", [])):
+            if cat.get("max_bid") is not None and money(lot.get("highbidamount")) > cat["max_bid"]:
                 return None
             return cat
     return None
@@ -262,9 +326,9 @@ def parse_end(v):
 
 
 def ends_in(lot, now):
-    end, has_time = parse_end(lot.get("AucEndDt"))
+    end, has_time = parse_end(lot.get("aucenddt"))
     if not end:
-        return None, s(lot.get("AucEndDt")) or "?", None, has_time
+        return None, s(lot.get("aucenddt")) or "?", None, has_time
     hrs = (end - now).total_seconds() / 3600
     if hrs < 0:
         return end, "ended", hrs, has_time
@@ -291,17 +355,17 @@ def phone(p):
 
 
 def lot_id(lot):
-    return f"{s(lot.get('SaleNo'))}-{s(lot.get('LotNo'))}"
+    return f"{s(lot.get('saleno'))}-{s(lot.get('lotno'))}"
 
 
 def appraise(lot, cat, cfg, now):
-    bid = money(lot.get("HighBidAmount"))
-    inc = money(lot.get("AucIncrement"))
+    bid = money(lot.get("highbidamount"))
+    inc = money(lot.get("aucincrement"))
     lo, hi, basis = estimate_value(lot, cat)
     grade, good, bad, facts = condition(lot)
-    city = nice(lot.get("PropertyCity") or lot.get("LocationCity"))
+    city = nice(lot.get("propertycity"))
     st = state_of(lot)
-    zp = zip5(lot.get("PropertyZip") or lot.get("LocationZip"))
+    zp = zip5(lot.get("propertyzip"))
     home = cfg.get("home")
     ll = zip_latlon(zp)
     dist = round(miles((home["lat"], home["lon"]), ll)) if (ll and home) else None
@@ -309,7 +373,8 @@ def appraise(lot, cat, cfg, now):
     haul_kind = cat.get("haul", "pickup")
     rate = cfg.get("haul_per_mile", {}).get(haul_kind, 0)
     haul = round(dist * 2 * rate) if (dist is not None and rate) else None  # round trip
-    next_bid = bid + inc if bid else max(inc, money(lot.get("Reserve")) or 0) or None
+    reserve_amt = money(lot.get("reserve")) if not isinstance(lot.get("reserve"), bool) else 0
+    next_bid = bid + inc if bid else (reserve_amt or inc or None)
     cost = (next_bid or bid) + (haul or 0)
     score, vs = deal_score(cost, lo, hi)
     if bad and score:
@@ -318,13 +383,14 @@ def appraise(lot, cat, cfg, now):
     walk_away = max(0, round((lo * max_pct - (haul or 0)) / 25) * 25) if lo else None
 
     end, left, hrs_left, has_time = ends_in(lot, now)
-    agency = nice(lot.get("AgencyName")) or nice(lot.get("PropertyAddr1"))
-    bureau = nice(lot.get("BureauName"))
-    addr = ", ".join(x for x in [nice(lot.get("PropertyAddr3")), city, st, zp] if x)
-    img = s(lot.get("ImageURL"))
+    agency = nice(lot.get("agencyname")) or nice(lot.get("propertyaddr1"))
+    bureau = nice(lot.get("bureauname"))
+    street = next((nice(lot.get(k)) for k in ("propertyaddr2", "propertyaddr3") if re.match(r"\s*\d", s(lot.get(k)))), "")
+    addr = ", ".join(x for x in [nice(lot.get("propertyaddr1")), street, city, st, zp] if x)
+    img = s(lot.get("imageurl"))
     if img.startswith("//"):
         img = "https:" + img
-    url = s(lot.get("ItemDescURL")) or "https://www.gsaauctions.gov"
+    url = s(lot.get("itemdescurl")) or "https://www.gsaauctions.gov"
     if url.startswith("http://"):
         url = "https://" + url[7:]
     return {
@@ -333,17 +399,17 @@ def appraise(lot, cat, cfg, now):
         "grade": grade, "good": good, "bad": bad, "facts": facts,
         "city": city, "st": st, "zip": zp, "dist": dist, "drive_h": round(dist / 55, 1) if dist is not None else None,
         "end": end, "left": left, "hrs_left": hrs_left, "end_has_time": has_time,
-        "name": nice(lot.get("ItemName")) or "Untitled lot",
-        "desc": s(lot.get("LotDescript")),
+        "name": nice(lot.get("itemname")) or "Untitled lot",
+        "desc": summary_of(lot),
         "url": url, "img": img if img.startswith("https://") else "",
-        "reserve": money(lot.get("Reserve")), "bidders": num(lot.get("BiddersCount")),
-        "inactivity": num(lot.get("InactivityTime")),
-        "inspect": " ".join(s(lot.get(f"Instruction{i}")) for i in (1, 2, 3)).strip(),
-        "co": nice(lot.get("ContractOfficer")), "co_email": s(lot.get("COEmail")).lower(), "co_phone": phone(lot.get("COPhone")),
+        "reserve": reserve_amt, "has_reserve": bool(lot.get("reserve")), "bidders": num(lot.get("bidderscount")),
+        "inactivity": num(lot.get("inactivitytime")),
+        "inspect": sentence_case(" ".join(s(lot.get(k)) for k in ("instruction", "instruction1", "instruction2", "instruction3")).strip()),
+        "co": re.sub(r"(?<=[a-z])(?=[A-Z])", " ", s(lot.get("contractofficer"))), "co_email": s(lot.get("coemail")).lower(), "co_phone": phone(lot.get("cophone")),
         "agency": agency + (f" · {bureau}" if bureau and bureau.lower() not in agency.lower() else ""),
-        "site": nice(lot.get("PropertyAddr1")), "addr": addr,
-        "sale": s(lot.get("SaleNo")), "lotno": s(lot.get("LotNo")),
-        "status": {"A": "live now", "P": "preview, bidding opens soon"}.get(s(lot.get("AuctionStatus")).upper(), "scheduled"),
+        "site": nice(lot.get("propertyaddr1")), "addr": addr,
+        "sale": s(lot.get("saleno")), "lotno": s(lot.get("lotno")),
+        "status": status_of(lot),
     }
 
 
@@ -409,7 +475,12 @@ def blocks_for(a, reminder=False):
     fmt = ["*Format:* timed online auction, *bid only* (GSA has no Buy Now). Highest bid at close wins. Sold as-is, where-is, no returns."]
     if a["inc"]:
         fmt.append(f"Bid increment {money_s(a['inc'])}.")
-    fmt.append(f"Reserve {money_s(a['reserve'])}, below that it won't sell." if a["reserve"] else "No reserve listed.")
+    if a["reserve"]:
+        fmt.append(f"Reserve {money_s(a['reserve'])}: below that it won't sell.")
+    elif a["has_reserve"]:
+        fmt.append("*Hidden reserve:* there's a minimum price GSA doesn't show, so a low bid may not win it.")
+    else:
+        fmt.append("No reserve.")
     if a["inactivity"]:
         fmt.append(f"*Soft close:* it only ends after {a['inactivity']} min with no new bids, so sniping doesn't work. Set your max and stick to it.")
 
@@ -605,9 +676,9 @@ def main():
             sys.exit("Set GSA_API_KEY (free at https://api.data.gov/signup/)")
         lots = fetch_lots(key)
         if args.dump:
-            matched = [l for l in lots if isinstance(l, dict) and match(l, {**cfg, "states": []})]
-            others = [l for l in lots if l not in matched][:25]
-            Path(args.dump).write_text(json.dumps({"fetched": now.isoformat(), "total": len(lots), "matched_any_state": matched[:300], "other_sample": others}, indent=1))
+            slim = [{**{k: v for k, v in l.items() if k != "lotInfo"}, "lotInfo": s(l.get("lotInfo"))[:6000]} for l in lots if isinstance(l, dict)]
+            Path(args.dump).write_text(json.dumps({"fetched": now.isoformat(), "total": len(lots), "lots": slim}, indent=0))
+    lots = [x for x in (normalize(l) for l in lots) if x]
     log(f"{len(lots)} open lots from GSA")
 
     items = []
