@@ -28,7 +28,7 @@ def log(*a):
     print(time.strftime("%H:%M:%S"), *a, flush=True)
 
 
-def get(url, tries=5, raw=False):
+def get(url, tries=7, raw=False):
     for i in range(tries):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Encoding": "gzip"})
@@ -39,7 +39,7 @@ def get(url, tries=5, raw=False):
                 return b if raw else json.loads(b)
         except Exception as e:
             code = getattr(e, "code", None)
-            wait = 2 * (i + 1) * (3 if code == 429 else 1)
+            wait = 2 * (i + 1) * (5 if code == 429 else 1)
             log("retry", i, code or e, url[:120])
             time.sleep(wait)
     raise RuntimeError("failed: " + url)
@@ -128,33 +128,59 @@ def exturl(query, protocol):
     return res
 
 
+DUMPS = [
+    "https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-externallinks.sql.gz",
+    "https://mirror.accum.se/mirror/wikimedia.org/dumps/enwiki/latest/enwiki-latest-externallinks.sql.gz",
+]
+
+
 def find_wiki_links(rw):
-    prefixes = sorted({d.split("/")[0] for d in rw})
-    log("prefixes", len(prefixes))
-    jobs = [("doi.org/" + p + "/", "https") for p in prefixes]
-    jobs += [("dx.doi.org", "https"), ("dx.doi.org", "http"), ("doi.org", "http")]
-    hits = defaultdict(set)
-    seen_links = 0
-
-    def run(job):
-        q, proto = job
+    """Stream the full enwiki externallinks table (official dump) and keep doi.org links to retracted papers."""
+    import subprocess
+    pat = r"\([0-9]+,[0-9]+,'https?://org\.doi\.(dx\.)?','[^']*'\)"
+    rows = None
+    for u in DUMPS:
+        log("streaming dump", u)
+        cmd = f"curl -sSfL --retry 3 -A '{UA}' '{u}' | zcat | grep -oE \"{pat}\""
+        pr = subprocess.run(["bash", "-o", "pipefail", "-c", cmd], capture_output=True)
+        if pr.returncode == 0 and pr.stdout:
+            rows = pr.stdout.decode("utf-8", "replace").splitlines()
+            break
+        log("dump failed", pr.returncode, pr.stderr[-400:])
+    if rows is None:
+        raise SystemExit("no dump reachable")
+    log("doi.org links in enwiki", len(rows))
+    rx = re.compile(r"\(([0-9]+),([0-9]+),'[^']*','([^']*)'\)")
+    by_page = defaultdict(set)
+    for line in rows:
+        m = rx.match(line)
+        if not m:
+            continue
+        d = norm(m.group(3).lstrip("/"))
+        if d in rw:
+            by_page[int(m.group(2))].add(d)
+    log("pages linking retracted DOIs (all namespaces)", len(by_page))
+    # page ids -> titles, mainspace only
+    ids = list(by_page)
+    titles = {}
+    for i in range(0, len(ids), 50):
+        chunk = ids[i:i + 50]
         try:
-            return exturl(q, proto)
+            j = get(WP + "?" + urllib.parse.urlencode({"action": "query", "pageids": "|".join(map(str, chunk)),
+                                                         "format": "json", "formatversion": "2"}))
         except Exception as e:
-            log("job failed", q, e)
-            return []
-
-    with ThreadPoolExecutor(6) as ex:
-        for n, rows in enumerate(ex.map(run, jobs)):
-            seen_links += len(rows)
-            for title, url in rows:
-                d = norm(url)
-                if d in rw:
-                    hits[d].add(title)
-            if n % 100 == 0:
-                log(f"link jobs {n}/{len(jobs)} links scanned {seen_links} retracted cited {len(hits)}")
-    log("total DOI links scanned", seen_links, "retracted DOIs cited", len(hits))
-    return hits, seen_links
+            log("title lookup failed", e); continue
+        for pg in j.get("query", {}).get("pages", []):
+            if pg.get("ns") == 0 and "title" in pg:
+                titles[pg["pageid"]] = pg["title"]
+        time.sleep(0.2)
+    hits = defaultdict(set)
+    for pid, ds in by_page.items():
+        if pid in titles:
+            for d in ds:
+                hits[d].add(titles[pid])
+    log("retracted DOIs cited in articles", len(hits), "articles", len(titles))
+    return hits, len(rows)
 
 
 # ---------------------------------------------------------------- 3. read articles
@@ -222,7 +248,7 @@ def read_pages(titles):
 
     # content of many pages per request is limited; 10 is safe and fast enough
     chunks = [titles[i:i + 10] for i in range(0, len(titles), 10)]
-    with ThreadPoolExecutor(4) as ex:
+    with ThreadPoolExecutor(2) as ex:
         for n, r in enumerate(ex.map(batch, chunks)):
             out.update(r)
             if n % 50 == 0:
@@ -336,8 +362,4 @@ def main():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "probe":
-        print(exturl("doi.org/10.1016/S0140-6736(97)11096-0", "https")[:20])
-        print(len(exturl("doi.org/10.1016/s0140-6736(97)", "https")))
-        sys.exit()
     main()

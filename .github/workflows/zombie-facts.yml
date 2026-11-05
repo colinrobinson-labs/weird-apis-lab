@@ -19,8 +19,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Probe Wikipedia link search
-        run: python zombie-facts/build/build_data.py probe
       - name: Build dataset
         run: python zombie-facts/build/build_data.py
       - name: Commit and redeploy
