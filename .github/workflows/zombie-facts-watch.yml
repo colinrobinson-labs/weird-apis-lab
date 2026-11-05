@@ -58,6 +58,9 @@ jobs:
         env:
           ZF_DUMP_CONTEXT: ${{ github.ref != 'refs/heads/main' && '/tmp/contexts.json' || '' }}
         run: python zombie-facts/build/recheck.py
+      - name: Print review contexts
+        if: github.ref != 'refs/heads/main'
+        run: test -f /tmp/contexts.json && python -c "import json;d=json.load(open('/tmp/contexts.json'));[print('CTX', json.dumps({'k':k,**v})) for k,v in d.items()]" || true
       - name: Upload review contexts
         if: github.ref != 'refs/heads/main'
         uses: actions/upload-artifact@v4
