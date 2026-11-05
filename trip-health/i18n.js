@@ -1,7 +1,7 @@
 /* Salu Atlas strings. Every visible string lives here. Keys are identical across languages. */
 window.SALU_T = {
 en:{
- n:"English",title:"Salu Atlas · Travel health check for any city",
+ attn:"Needs attention",clear:"At normal levels",clearNote:"Everything else for this trip is at normal levels.",n:"English",title:"Salu Atlas · Travel health check for any city",
  hero:"Know the health risks before you go.",
  sub:"Free, live and sourced. Every risk shows a level, what to do about it, how reliable the data is, and where it comes from.",
  ph:"Search a city (e.g. Lisbon, Bangkok, Cusco)",dates:"Trip dates",from:"From",to:"To",
@@ -54,7 +54,7 @@ en:{
  foot:"Salu Atlas · prototype v0.2 · information, not medical advice · data: Open-Meteo (CC BY 4.0), CAMS, ERA5, USGS, GOV.UK FCDO (OGL), WHO"
 },
 es:{
- n:"Español",title:"Salu Atlas · Riesgos de salud para viajar a cualquier ciudad",
+ attn:"Requiere atención",clear:"En niveles normales",clearNote:"Todo lo demás de este viaje está en niveles normales.",n:"Español",title:"Salu Atlas · Riesgos de salud para viajar a cualquier ciudad",
  hero:"Conoce los riesgos de salud antes de viajar.",
  sub:"Gratis, en tiempo real y con fuentes. Cada riesgo muestra un nivel, qué hacer, qué tan fiables son los datos y de dónde vienen.",
  ph:"Busca una ciudad (p. ej., Lisboa, Bangkok, Cusco)",dates:"Fechas del viaje",from:"Ida",to:"Vuelta",
@@ -107,7 +107,7 @@ es:{
  foot:"Salu Atlas · prototipo v0.2 · información, no consejo médico · datos: Open-Meteo (CC BY 4.0), CAMS, ERA5, USGS, GOV.UK FCDO (OGL), OMS"
 },
 fr:{
- n:"Français",title:"Salu Atlas · Risques santé en voyage, pour toutes les villes",
+ attn:"À surveiller",clear:"Niveaux normaux",clearNote:"Tout le reste de ce voyage est à un niveau normal.",n:"Français",title:"Salu Atlas · Risques santé en voyage, pour toutes les villes",
  hero:"Connaissez les risques santé avant de partir.",
  sub:"Gratuit, en temps réel et sourcé. Chaque risque indique un niveau, que faire, la fiabilité des données et leur source.",
  ph:"Cherchez une ville (ex. Lisbonne, Bangkok, Cusco)",dates:"Dates du voyage",from:"Départ",to:"Retour",
@@ -160,7 +160,7 @@ fr:{
  foot:"Salu Atlas · prototype v0.2 · information, pas un avis médical · données : Open-Meteo (CC BY 4.0), CAMS, ERA5, USGS, GOV.UK FCDO (OGL), OMS"
 },
 pt:{
- n:"Português",title:"Salu Atlas · Riscos à saúde para viajar a qualquer cidade",
+ attn:"Requer atenção",clear:"Em níveis normais",clearNote:"Todo o resto desta viagem está em níveis normais.",n:"Português",title:"Salu Atlas · Riscos à saúde para viajar a qualquer cidade",
  hero:"Conheça os riscos à saúde antes de viajar.",
  sub:"Gratuito, em tempo real e com fontes. Cada risco mostra um nível, o que fazer, a confiabilidade dos dados e de onde eles vêm.",
  ph:"Busque uma cidade (ex.: Lisboa, Bangkok, Cusco)",dates:"Datas da viagem",from:"Ida",to:"Volta",
@@ -213,7 +213,7 @@ pt:{
  foot:"Salu Atlas · protótipo v0.2 · informação, não aconselhamento médico · dados: Open-Meteo (CC BY 4.0), CAMS, ERA5, USGS, GOV.UK FCDO (OGL), OMS"
 },
 ja:{
- n:"日本語",title:"Salu Atlas · 世界中の都市の旅行健康チェック",
+ attn:"注意が必要",clear:"通常レベル",clearNote:"この旅行のその他の項目はすべて通常レベルです。",n:"日本語",title:"Salu Atlas · 世界中の都市の旅行健康チェック",
  hero:"出発前に、旅先の健康リスクを確認。",
  sub:"無料・リアルタイム・出典付き。リスクごとにレベル、取るべき対策、データの信頼性、情報源を表示します。",
  ph:"都市を検索（例：リスボン、バンコク、クスコ）",dates:"旅行日程",from:"出発",to:"帰国",

@@ -106,6 +106,32 @@ button{cursor:pointer}
 .loading{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));margin-top:26px}
 .sk{height:150px;border-radius:12px;background:linear-gradient(90deg,var(--panel),color-mix(in srgb,var(--line) 60%,var(--panel)),var(--panel));background-size:200% 100%;animation:sh 1.2s linear infinite;border:1px solid var(--line)}
 @keyframes sh{to{background-position:-200% 0}}
+.grp{font:700 22px var(--display);margin:26px 0 10px;letter-spacing:-.01em}
+.clear{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.clear details{border-bottom:1px solid var(--line)}.clear details:last-child{border-bottom:0}
+.clear summary{display:grid;grid-template-columns:150px 1fr auto;gap:12px;align-items:baseline;padding:11px 15px;cursor:pointer;list-style:none}
+.clear summary::-webkit-details-marker{display:none}
+.clear summary .n{font:700 15px var(--display);display:flex;align-items:center;gap:8px}
+.clear summary .n::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
+.clear summary .cv{color:var(--muted);font-size:14px}.clear summary .cv small{display:inline;margin-left:6px}
+.clear summary .grade{font:600 11px var(--mono);color:var(--muted)}
+.clear .cd{padding:0 15px 12px 31px;font-size:14px}.clear .cd ul{margin:0 0 6px;padding-left:18px}.clear .m{font:11px var(--mono);color:var(--muted)}.clear .m a{color:var(--muted)}
+@media (max-width:640px){
+ .top{flex-direction:column;align-items:stretch}.tools{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px}
+ #langs{overflow-x:auto;scrollbar-width:none}#langs button{flex:none}
+ .hero{margin-top:22px}.hero p{font-size:15px}
+ .form{padding:12px;border-radius:12px}
+ .dates{display:grid;grid-template-columns:1fr 1fr}.dates input{width:100%}
+ .toggles{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;margin-inline:-12px;padding-inline:12px;scrollbar-width:none}
+ .toggles label,.toggles span{white-space:nowrap;flex:none}
+ .examples{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.examples button,.examples span{flex:none}
+ .dest{margin-top:22px}.ovr{width:100%;justify-content:space-between}
+ .acts{width:100%}.acts button{flex:1}
+ .top3{padding:14px}.top3 h3{font-size:18px}
+ .cards{grid-template-columns:1fr}
+ .clear summary{grid-template-columns:1fr auto;gap:2px 10px}.clear summary .cv{grid-column:1/-1;grid-row:2;padding-left:16px}
+ .cal{margin-inline:-4px}
+}
 .method{margin-top:44px;display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));border-top:1px solid var(--line);padding-top:20px}
 .method h3{font:700 20px var(--display);margin:0 0 6px}
 .method p{color:var(--muted);font-size:14px;margin:0}
@@ -392,10 +418,12 @@ function render(){
    <div class="top3"><h3>${esc(s.topT)}</h3>${top.length?`<ol>${top.map(x=>`<li><span class="lvdot" style="--c:${COL[x.l]}"></span>${esc(s.a[x.k])}</li>`).join("")}</ol>`:`<p style="margin:0">${esc(s.allNormal)}</p>`}</div>
    ${calendar()}
    <div class="legend">${s.lv.map((n,i)=>`<span style="--c:${COL[i]}">${esc(n)}</span>`).join("")}</div>
-   <div class="cards">${ranked.map(c=>`<article class="card" style="--c:${COL[c.level]}">
+   ${ranked.some(c=>c.level>=1&&c.level<4)?`<h3 class="grp">${esc(s.attn)}</h3>`:""}
+   <div class="cards">${ranked.filter(c=>c.level>=1).map(c=>`<article class="card" style="--c:${COL[c.level]}">
      <div class="h"><span class="n">${esc(s.names[c.k])}</span><span class="lv">${esc(s.lv[c.level])}</span></div>
      <div class="v">${c.v}</div>${c.x||""}<ul>${c.a.map(k=>`<li>${esc(s.a[k])}</li>`).join("")}</ul>
      <div class="m"><span>${esc(s.src)}: <a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.src)}</a></span><span>${esc(c.when)} <span class="grade" title="${esc(s.rel)}">${c.g}</span></span></div></article>`).join("")}</div>
+   ${ranked.some(c=>c.level===0)?`<h3 class="grp">${esc(s.clear)}</h3><div class="clear">${ranked.filter(c=>c.level===0).map(c=>`<details style="--c:${COL[0]}"><summary><span class="n">${esc(s.names[c.k])}</span><span class="cv">${c.v}</span><span class="grade" title="${esc(s.rel)}">${c.g}</span></summary><div class="cd">${c.x||""}<ul>${c.a.map(k=>`<li>${esc(s.a[k])}</li>`).join("")}</ul><div class="m">${esc(s.src)}: <a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.src)}</a> · ${esc(c.when)}</div></div></details>`).join("")}</div>`:""}
    <div class="side">
      <div class="box"><h3>${esc(s.emergT)}</h3>${emerg}</div>
      <div class="box"><h3>${esc(s.guideT)}</h3><p>${esc(s.guideP)}</p><ul>
@@ -430,6 +458,7 @@ const _render=render;
 render=function(){ if(last&&last.cards&&(last.lang!==lang||last.units!==units)&&last.lang){last.lang=lang;last.units=units;check(last.place);return} if(last){last.lang=lang;last.units=units} _render(); };
 
 markUnits();applyLang();
+if(!P.get("lat")){const e=EX[4];const nm=exName(e[0]);check({name:nm,admin1:"",lat:e[1],lon:e[2],cc:e[3]})}
 if(P.get("lat")&&P.get("cc")){const p={name:P.get("n")||"",admin1:P.get("a")||"",lat:+P.get("lat"),lon:+P.get("lon"),cc:P.get("cc")};$("q").value=p.name;check(p)}
 })();
 </script>
