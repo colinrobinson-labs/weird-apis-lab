@@ -248,6 +248,32 @@ footer .np{font:400 26px/1 var(--black);color:var(--ink)}
  .ticker .row{font-size:15px;animation-duration:120s}
  .vitals b{font-size:38px}
 }
+
+/* correction desk */
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--ink);margin-bottom:26px}
+.board div{padding:12px 14px 10px 0;border-bottom:1px solid var(--rule);min-width:0}
+.board div+div{padding-left:14px;border-left:1px solid var(--rule)}
+.board b{display:block;font:400 clamp(30px,4vw,48px)/1 var(--head);font-variant-numeric:tabular-nums}
+.board span{display:block;font:500 10.5px/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.board .fx b{color:var(--acidInk)}
+@media (max-width:760px){.board{grid-template-columns:1fr 1fr}.board div:nth-child(3){padding-left:0;border-left:0}}
+.desk{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(24px,4vw,56px)}
+@media (max-width:860px){.desk{grid-template-columns:minmax(0,1fr)}}
+.desk h4{margin:0 0 4px;font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;border-bottom:2px solid var(--ink);padding-bottom:8px}
+.desk .dim{color:var(--mute);font-weight:400}
+.cases{list-style:none;margin:0;padding:0}
+.cases li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;padding:12px 0;border-bottom:1px solid var(--rule);align-items:start}
+.cases .cp{font:500 17px/1.3 var(--serif);cursor:pointer;text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:4px;background:none;border:0;padding:0;text-align:left}
+.cases .cp:hover{text-decoration-color:currentColor}
+.cases .ca{grid-column:1;font:400 12px/1.4 var(--mono);color:var(--mute)}
+.cases .cd{grid-row:span 2;font:600 10.5px/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;text-align:right;color:var(--blood);white-space:nowrap}
+.cases .cd.ok{color:var(--acidInk)}
+.cases .cd small{display:block;color:var(--mute);font-weight:500}
+.cases .nil{display:block;padding:14px 0;font-style:italic;color:var(--mute);border-bottom:1px solid var(--rule)}
+.wfix{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.wfix a,.wfix button{font:600 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--ink);background:none;padding:7px 9px;text-decoration:none;cursor:pointer;color:var(--ink)}
+.wfix .p{background:var(--ink);color:var(--paper)}
+.wcase{font:500 11px var(--mono);color:var(--mute);margin-top:6px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}.bars li i::after,.hist div{transform:none}}
 </style>
 </head>
@@ -255,7 +281,7 @@ footer .np{font:400 26px/1 var(--black);color:var(--ink)}
 <div class="wrap">
   <header class="top">
     <span class="np">The Zombie Facts Register</span>
-    <nav><a href="#worst">Most read</a><a href="#register">Register</a><a href="#autopsy">Autopsy</a><a href="#check">Check a page</a><a href="#method">Method</a></nav>
+    <nav><a href="#worst">Most read</a><a href="#register">Register</a><a href="#desk">Desk</a><a href="#autopsy">Autopsy</a><a href="#check">Check a page</a><a href="#method">Method</a></nav>
     <button class="iconbtn" id="theme" aria-label="Switch light or dark"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"/></svg></button>
   </header>
   <div class="ed"><span>Vol. 1 · <b id="edDate">—</b></span><span>Retraction Watch × English Wikipedia</span><span>Free · No ads</span></div>
@@ -294,8 +320,17 @@ footer .np{font:400 26px/1 var(--black);color:var(--ink)}
     <button class="more" id="more" hidden>Show 30 more</button>
   </section>
 
+  <section class="sec" id="desk">
+    <div class="sh"><span class="no">03</span><h2>The correction desk</h2><p>Every zombie citation is a case. Post a note and an editor can fix it. Each weekly build checks every open case again and closes it on its own when the citation is gone or Wikipedia now warns readers.</p></div>
+    <div class="board" id="board"></div>
+    <div class="desk">
+      <div><h4>Open cases <span class="mono dim">· most read first</span></h4><ol class="cases" id="openCases"></ol></div>
+      <div><h4>Closed cases</h4><ol class="cases" id="fixedCases"></ol></div>
+    </div>
+  </section>
+
   <section class="sec reveal" id="autopsy">
-    <div class="sh"><span class="no">03</span><h2>Autopsy</h2><p>Why these papers died, and when. Causes come from the Retraction Watch database. A paper can have several.</p></div>
+    <div class="sh"><span class="no">04</span><h2>Autopsy</h2><p>Why these papers died, and when. Causes come from the Retraction Watch database. A paper can have several.</p></div>
     <div class="charts">
       <div><h4>Cause of death</h4><ul class="bars" id="reasons"></ul></div>
       <div><h4>Year of retraction <span class="mono" style="color:var(--mute);font-weight:400">· still-cited papers</span></h4><div class="hist" id="hist"></div><div class="hx" id="hx"></div>
@@ -306,7 +341,7 @@ footer .np{font:400 26px/1 var(--black);color:var(--ink)}
   </section>
 
   <section class="sec" id="check">
-    <div class="sh"><span class="no">04</span><h2>Check it yourself, live</h2><p>These run in your browser against Crossref and Wikipedia right now, so they catch anything newer than the register.</p></div>
+    <div class="sh"><span class="no">05</span><h2>Check it yourself, live</h2><p>These run in your browser against Crossref and Wikipedia right now, so they catch anything newer than the register.</p></div>
     <div class="live">
       <div class="panel">
         <h3>Scan a Wikipedia article</h3>
@@ -325,26 +360,28 @@ footer .np{font:400 26px/1 var(--black);color:var(--ink)}
   </section>
 
   <section class="sec" id="method">
-    <div class="sh"><span class="no">05</span><h2>How this works</h2><p>Built from two open sources, rebuilt every week by a script anyone can read.</p></div>
+    <div class="sh"><span class="no">06</span><h2>How this works</h2><p>Built from two open sources, rebuilt every week by a script anyone can read.</p></div>
     <div class="method">
       <div><h4>The record</h4><ol>
         <li>The Retraction Watch database, now published openly by Crossref, lists every known retraction. We keep only full retractions, not corrections.</li>
         <li>We walk every link to doi.org on English Wikipedia (<span id="mLinks">millions</span> of them) and match each one to that list.</li>
         <li>For each match we read the article, find the sentence the citation supports, and check the citation and its surroundings for any mention of the retraction.</li></ol></div>
-      <div><h4>Zombie or flagged</h4><p><b style="background:var(--acid);color:#141412;padding:0 4px">Zombie</b> means the retracted paper is cited and nothing near it says so. <b style="color:var(--flag)">Flagged</b> means the article already warns readers, usually with Wikipedia's Retracted template.</p><p>A zombie is not an accusation. Some articles cite a retracted paper to discuss it, and some retractions were for reasons that don't touch the cited claim. A person should read the context before editing. Every entry links to the article and the official notice.</p><p>We leave out, by default, reviews withdrawn only because a newer version replaced them (common with Cochrane). Those are outdated, not discredited. One switch in the register brings them back.</p></div>
+      <div><h4>Zombie or flagged</h4><p><b style="background:var(--acid);color:#141412;padding:0 4px">Zombie</b> means the retracted paper is cited and nothing near it says so. <b style="color:var(--flag)">Flagged</b> means the article already warns readers, usually with Wikipedia's Retracted template. A citation on the biography of one of the paper's own authors is listed separately, since it is there to describe their work.</p><p>A zombie is not an accusation. Some articles cite a retracted paper to discuss it, and some retractions were for reasons that don't touch the cited claim. A person should read the context before editing. Every entry links to the article and the official notice.</p><p>We leave out, by default, reviews withdrawn only because a newer version replaced them (common with Cochrane). Those are outdated, not discredited. One switch in the register brings them back.</p></div>
       <div><h4>Note to editors</h4><pre id="tpl">A note from Zombie Facts, a free public tracker of retracted research.
 
-The article "{PAGE}" cites
+The article "{PAGE}" ({SECTION}) cites
   {TITLE}
   https://doi.org/{DOI}
 which was retracted on {DATE}: https://doi.org/{NOTICE}
 
-If the citation is there to discuss the retraction, nothing to do. Otherwise it may need replacing, or marking with {{Retracted}}.</pre></div>
+It supports this sentence: "{SAID}"
+
+If the citation is there to discuss the retraction, nothing to do. Otherwise it may need replacing, or marking with {{tl|Retracted}}. ~~~~</pre></div>
     </div>
   </section>
 
   <footer>
-    <div><span class="np">Zombie Facts</span><br>Prototype · <span id="built">—</span></div>
+    <div><span class="np">Zombie Facts</span><br>v0.4 · <span id="built">—</span></div>
     <div style="max-width:60ch">Data: Retraction Watch database via Crossref (CC0), Wikipedia (CC BY-SA), Crossref REST API. Not affiliated with any of them. Built by Colin Robinson.</div>
   </footer>
 </div>
@@ -437,7 +474,7 @@ async function load(){
   $("kick").textContent=`Updated ${new Date(D.built).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})} · ${full(ZP.filter(p=>p._z).length)} retracted papers still cited with no warning`;
   $("built").textContent="data rebuilt "+D.built.replace("T"," ").replace("Z"," UTC");
   $("mLinks").textContent=fmt(S.links_scanned);
-  ticker();featured();toetag();chips();render();autopsy();
+  ticker();featured();toetag();chips();render();autopsy();desk();
   const m=location.hash.match(/^#p=(.+)/);if(m)openP(decodeURIComponent(m[1]));
 }
 function countUp(el,v){if(v==null)return;const dur=1600,t0=performance.now(),f=v>=1e6?fmt:full;
@@ -515,6 +552,8 @@ function autopsy(){
 /* drawer */
 function openI(i){const p=ZP[i];if(p)show(p)}
 function openP(doi){const p=ZP.find(x=>x.doi===doi.toLowerCase());if(p)show(p)}
+function fixRow(p,w,wi){const c=caseOf(p,w);
+  return `<div class="wcase">${c?`Case open since ${esc(shortD(c.o))}${c.re?` · reopened ${c.re}×`:""}`:"New this week"}</div><div class="wfix"><a class="p" data-talk="${wi}" href="${talkURL(p,w)}" target="_blank" rel="noopener">Post a note on the talk page</a><a href="${editURL(w)}" target="_blank" rel="noopener">Edit the article</a><button type="button" data-note="${wi}">Copy note</button></div>`}
 function show(p){
   history.replaceState(null,"","#p="+encodeURIComponent(p.doi));
   const ws=p.wiki;
@@ -524,11 +563,13 @@ function show(p){
    <p class="by">${esc((p.authors||[]).slice(0,4).join(", "))}${(p.authors||[]).length>4?" et al.":""}<br>${esc(p.journal)}${p.publisher?" · "+esc(p.publisher):""}${p.cites?` · cited ${full(p.cites)} times by other papers`:""}</p>
    <div class="tl">${lifeSVG(p,56,1)}<div class="ty"><span>Published ${esc(fmtDate(p.published)||"?")}</span><span style="color:var(--blood)">Retracted ${esc(fmtDate(p.retracted))}</span><span style="color:var(--acidInk)">Now · ${ago(p)} undead</span></div></div>
    ${p.reasons&&p.reasons.length?`<div class="cause">${p.reasons.slice(0,8).map(r=>`<span>${esc(r)}</span>`).join("")}</div>`:""}
-   <div class="ws"><h4>Where Wikipedia still uses it</h4>${ws.map(w=>`<div class="w ${w.status==="zombie"?"":"fl"}"><div class="wt"><a href="${wurl(w.page,w.section)}" target="_blank" rel="noopener">${esc(w.page)}</a><span class="pill ${w.status==="zombie"?"z":"fl"}">${w.status}</span></div>
-     ${said(w,500)?`<blockquote>${esc(said(w,500))}</blockquote>`:""}<div class="wm">${w.section?esc(w.section)+" · ":""}${full(w.views)} views in the last 30 days</div></div>`).join("")}</div>
+   <div class="ws"><h4>Where Wikipedia still uses it</h4>${ws.map((w,wi)=>`<div class="w ${w.status==="zombie"?"":"fl"}"><div class="wt"><a href="${wurl(w.page,w.section)}" target="_blank" rel="noopener">${esc(w.page)}</a><span class="pill ${w.status==="zombie"?"z":"fl"}">${w.status==="author"?"author's own page":w.status}</span></div>
+     ${said(w,500)?`<blockquote>${esc(said(w,500))}</blockquote>`:""}<div class="wm">${w.section?esc(w.section)+" · ":""}${full(w.views)} views in the last 30 days</div>${w.status==="zombie"?fixRow(p,w,wi):""}</div>`).join("")}</div>
    <div class="acts"><a class="p" href="https://doi.org/${esc(p.notice||p.doi)}" target="_blank" rel="noopener">Retraction notice</a><a href="https://doi.org/${esc(p.doi)}" target="_blank" rel="noopener">The paper</a>${p.zombies?`<button id="cpy">Copy note to editors</button>`:""}<button id="shr">Share</button></div>`;
   const z=ws.find(w=>w.status==="zombie");
-  const c=$("cpy");if(c)c.onclick=()=>copy($("tpl").textContent.replace("{PAGE}",z.page).replace("{TITLE}",p.title).replace("{DOI}",p.doi).replace("{DATE}",fmtDate(p.retracted)).replace("{NOTICE}",p.notice||p.doi),"Note copied");
+  const c=$("cpy");if(c)c.onclick=()=>copy(noteFor(p,z),"Note copied");
+  $("db").querySelectorAll("[data-talk]").forEach(a=>a.onclick=()=>{copy(noteFor(p,ws[+a.dataset.talk]),"Note copied. Paste it into the talk page.")});
+  $("db").querySelectorAll("[data-note]").forEach(b=>b.onclick=()=>copy(noteFor(p,ws[+b.dataset.note]),"Note copied"));
   $("shr").onclick=async()=>{const u=location.href,t=`Wikipedia still cites this retracted paper: ${p.title}`;if(navigator.share){try{await navigator.share({title:"Zombie Facts",text:t,url:u})}catch(_){}}else copy(u,"Link copied")};
   $("db").scrollTop=0;$("drawer").classList.add("on");$("scrim").classList.add("on");document.body.style.overflow="hidden";setTimeout(()=>$("dClose").focus(),50);
 }
@@ -543,6 +584,31 @@ addEventListener("hashchange",()=>{const m=location.hash.match(/^#p=(.+)/);if(m)
 const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("on");ro.unobserve(e.target)}}),{threshold:.08});
 document.querySelectorAll(".reveal").forEach(e=>ro.observe(e));
 
+
+/* ---------- correction desk ---------- */
+const CASES=()=>(D&&D.ledger&&D.ledger.cases)||{};
+const caseOf=(p,w)=>CASES()[p.doi+"|"+w.page];
+const dayMs=864e5,dd=s=>new Date(s+"T12:00Z");
+const daysBetween=(a,b)=>Math.max(0,Math.round((dd(b)-dd(a))/dayMs));
+const shortD=s=>dd(s).toLocaleDateString("en-US",{month:"short",day:"numeric",timeZone:"UTC"});
+const talkURL=(p,w)=>"https://en.wikipedia.org/w/index.php?title="+encodeURIComponent("Talk:"+w.page)+"&action=edit&section=new&preloadtitle="+encodeURIComponent("Retracted source cited: "+(p.title.length>70?p.title.slice(0,68)+"…":p.title));
+const editURL=w=>"https://en.wikipedia.org/w/index.php?title="+encodeURIComponent(w.page)+"&action=edit";
+const noteFor=(p,w)=>{let t=$("tpl").textContent.replace("{PAGE}",w.page).replace("{SECTION}",w.section||"Lead").replace("{TITLE}",p.title).replace("{DOI}",p.doi).replace("{DATE}",fmtDate(p.retracted)).replace("{NOTICE}",p.notice||p.doi);const sd=said(w,400);return sd?t.replace("{SAID}",sd):t.replace(/\n\nIt supports this sentence: "\{SAID\}"/,"")};
+function nextCheck(){const b=dd(D.built.slice(0,10));const n=new Date(b);n.setUTCDate(b.getUTCDate()+((8-b.getUTCDay())%7||7));return n.toISOString().slice(0,10)}
+function desk(){
+  const L=D.ledger;if(!L){$("desk").hidden=true;return}
+  const today=D.built.slice(0,10),byDoi={};ZP.forEach(p=>byDoi[p.doi]=p);
+  const all=Object.entries(L.cases).map(([k,c])=>{const doi=k.slice(0,k.indexOf("|"));return {...c,doi,p:byDoi[doi]}}).filter(c=>!(c.p&&c.p._sup));
+  const open=all.filter(c=>!c.c).sort((a,b)=>(b.v||0)-(a.v||0)),shut=all.filter(c=>c.c).sort((a,b)=>b.c.localeCompare(a.c));
+  const ds=shut.map(c=>daysBetween(c.o,c.c)).sort((a,b)=>a-b),med=ds.length?ds[Math.floor(ds.length/2)]:null;
+  const fixedReads=shut.filter(c=>c.how!=="author").reduce((a,c)=>a+(c.v||0),0);
+  $("board").innerHTML=`<div><b>${full(open.length)}</b><span>Open cases</span></div><div class="fx"><b>${full(shut.length)}</b><span>Closed${fixedReads?` · ${fmt(fixedReads)} reads a month now clean`:""}</span></div><div><b>${med==null?"—":med+" d"}</b><span>Median days to close</span></div><div><b>${esc(shortD(L.since))}</b><span>Tracking since · next check ${esc(shortD(nextCheck()))}</span></div>`;
+  const cap=innerWidth<641?6:10;
+  $("openCases").innerHTML=open.slice(0,cap).map(c=>`<li><button class="cp" data-doi="${esc(c.doi)}">${esc(c.pg)}</button><span class="cd">${daysBetween(c.o,today)?"Open "+daysBetween(c.o,today)+" d":"Opened "+esc(shortD(c.o))}<small>${fmt(c.v)} reads/mo</small></span><span class="ca">${esc(cleanT(c.t).slice(0,90))}${(c.t||"").length>90?"…":""} · retracted ${esc((c.r||"").slice(0,4))}</span></li>`).join("")+(open.length>cap?`<li><span class="ca">+ ${open.length-cap} more open cases in the register above</span></li>`:"");
+  $("fixedCases").innerHTML=shut.length?shut.slice(0,cap).map(c=>`<li><button class="cp" data-doi="${esc(c.doi)}">${esc(c.pg)}</button><span class="cd ok">${c.how==="flagged"?"Now flagged":c.how==="author"?"Reclassified":"Citation removed"}<small>${esc(shortD(c.c))} · ${daysBetween(c.o,c.c)} d</small></span><span class="ca">${esc(cleanT(c.t).slice(0,90))}</span></li>`).join("")
+    :`<li class="nil">Nothing closed yet. The first re-check runs Monday, ${esc(shortD(nextCheck()))}. Cases close here when the citation is removed or Wikipedia flags it, with the date and how.</li>`;
+  $("desk").querySelectorAll(".cp").forEach(b=>b.onclick=()=>openP(b.dataset.doi));
+}
 /* ---------- live tools (browser → Crossref + Wikipedia) ---------- */
 const CR="https://api.crossref.org",WP="https://en.wikipedia.org/w/api.php";
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
