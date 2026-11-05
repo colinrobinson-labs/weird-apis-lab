@@ -258,6 +258,22 @@ def read_pages(titles):
     return out
 
 
+def _nm(s):
+    return re.sub(r"[^a-z ]", "", re.sub(r"\s*\(.*?\)", "", s.lower())).split()
+
+
+def is_author_page(title, authors):
+    """True when the article title is one of the paper's authors (first and last name match)."""
+    t = _nm(title)
+    if len(t) < 2:
+        return False
+    for a in authors:
+        n = _nm(a)
+        if len(n) >= 2 and n[0] == t[0] and n[-1] == t[-1]:
+            return True
+    return False
+
+
 # ---------------------------------------------------------------- 4. Crossref extras
 def crossref_counts(dois):
     out = {}
@@ -280,6 +296,69 @@ def crossref_counts(dois):
                 out[w["DOI"].lower()] = w
     log("crossref enriched", len(out))
     return out
+
+
+# ---------------------------------------------------------------- 5. correction ledger
+def load_prev():
+    try:
+        with open(OUT) as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def update_ledger(prev, papers, hits, pages, today):
+    """Carry every zombie citation forward as a case, week to week.
+
+    A case is one retracted DOI cited on one article. It opens the first week the
+    citation is seen with no warning nearby, and closes when a later build finds
+    the article now flags it ("flagged") or no longer links the DOI ("removed").
+    Pages we failed to read this run never close a case.
+    """
+    old = (prev.get("ledger") or {})
+    cases = {k: dict(v) for k, v in (old.get("cases") or {}).items()}
+    since = old.get("since") or today
+    by_doi = {p["doi"]: p for p in papers}
+    now_z, now_f = {}, {}
+    for p in papers:
+        for c in p["wiki"]:
+            k = p["doi"] + "|" + c["page"]
+            if c["status"] == "zombie":
+                now_z[k] = (p, c)
+            else:
+                now_f[k] = c["status"]
+    opened = closed = reopened = 0
+    for k, (p, c) in now_z.items():
+        rec = cases.get(k)
+        if rec is None:
+            cases[k] = {"o": today, "c": None, "how": None}
+            opened += 1
+        elif rec.get("c"):
+            rec.update(c=None, how=None, re=(rec.get("re") or 0) + 1)
+            reopened += 1
+        cases[k].update(t=p["title"][:200], pg=c["page"], v=c["views"], r=p["retracted"])
+    to_close = []
+    for k, rec in cases.items():
+        if rec.get("c") or k in now_z:
+            continue
+        doi, page = k.split("|", 1)
+        if k in now_f:
+            to_close.append((k, now_f[k]))
+        elif page not in hits.get(doi, ()):
+            to_close.append((k, "removed"))
+        elif page in pages and pages[page].get("text"):
+            # still linked and readable but neither zombie nor flagged: DOI text gone from wikitext
+            to_close.append((k, "removed"))
+        # else: page not read this run, leave open
+    still_open = sum(1 for r in cases.values() if not r.get("c"))
+    if still_open and len(to_close) > max(10, 0.5 * still_open):
+        log("ledger: refusing to close", len(to_close), "of", still_open, "cases in one run (looks like a partial build)")
+        to_close = []
+    for k, how in to_close:
+        cases[k].update(c=today, how=how)
+        closed += 1
+    log("ledger: opened", opened, "closed", closed, "reopened", reopened)
+    return {"since": since, "cases": cases}
 
 
 def main():
@@ -324,7 +403,10 @@ def main():
                 if not fl:
                     flagged_all = False
                 j = low.find(d, j + len(d))
-            cites.append({"page": t, "status": "flagged" if flagged_all else "zombie", "said": sent,
+            status = "flagged" if flagged_all else "zombie"
+            if status == "zombie" and is_author_page(t, rec["authors"]):
+                status = "author"  # biography of an author: the citation is about the paper itself
+            cites.append({"page": t, "status": status, "said": sent,
                           "section": sec, "views": pg["views"], "rev": pg["ts"][:10]})
         if not cites:
             continue
@@ -334,6 +416,8 @@ def main():
         papers.append(rec)
 
     papers.sort(key=lambda p: (-p["reach"], -p["zombies"]))
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    ledger = update_ledger(load_prev(), papers, hits, pages, today)
     reasons = Counter(r for p in papers if p["zombies"] for r in p["reasons"])
     countries = Counter(c for p in papers if p["zombies"] for c in p["country"])
     years = Counter((p["retracted"] or "")[:4] for p in papers if p["zombies"])
@@ -357,6 +441,7 @@ def main():
         "subjects": subjects.most_common(25),
         "years": sorted(years.items()),
         "papers": papers,
+        "ledger": ledger,
     }
     with open(OUT, "w") as f:
         json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
