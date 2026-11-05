@@ -74,11 +74,16 @@ async function loadQuakes(){
 function demoQuakes(){const now=Date.now(),a=[];for(let i=0;i<200;i++){const r=Math.random(),belt=r<.4?[35+Math.random()*25,-125+Math.random()*-30]:r<.7?[-10+Math.random()*50,120+Math.random()*30]:[-40+Math.random()*50,-75+Math.random()*8];
   a.push({id:"d"+i,mag:+(Math.random()**2.2*5.8+.6).toFixed(1),place:"demo data",time:now-864e5+i*432e3,lat:belt[0],lon:belt[1],depth:Math.random()**2*400})}return a}
 async function loadSun(){
-  try{const [p,m]=await Promise.all([getJSON("https://services.swpc.noaa.gov/products/solar-wind/plasma-1-day.json"),getJSON("https://services.swpc.noaa.gov/products/solar-wind/mag-1-day.json")]);
+  try{// NOAA real-time solar wind (RTSW): 1-minute data from the active L1 spacecraft
+    const [p,m]=await Promise.all([getJSON("https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json"),getJSON("https://services.swpc.noaa.gov/json/rtsw/rtsw_mag_1m.json")]);
+    const P=p.filter(r=>r.active&&Number.isFinite(r.proton_speed)).map(r=>({t:Date.parse(r.time_tag+"Z"),sp:r.proton_speed,de:r.proton_density})).sort((a,b)=>a.t-b.t),M=m.filter(r=>r.active&&Number.isFinite(r.bz_gsm)).map(r=>({t:Date.parse(r.time_tag+"Z"),bz:r.bz_gsm,bt:r.bt})).sort((a,b)=>a.t-b.t);
+    if(P.length<10||M.length<10)throw 0;
+    S.sun.t=P.map(r=>r.t);S.sun.speed=P.map(r=>r.sp);S.sun.density=P.map(r=>Number.isFinite(r.de)?r.de:NaN);S.sun.mt=M.map(r=>r.t);S.sun.bz=M.map(r=>r.bz);S.sun.bt=M.map(r=>r.bt);S.demo.s=false;
+  }catch(e0){try{const [p,m]=await Promise.all([getJSON("https://services.swpc.noaa.gov/products/solar-wind/plasma-1-day.json"),getJSON("https://services.swpc.noaa.gov/products/solar-wind/mag-1-day.json")]);
     const P=rows(p).filter(r=>Number.isFinite(num(r.speed))),M=rows(m).filter(r=>Number.isFinite(num(r.bz_gsm??r.bz)));
     S.sun.t=P.map(r=>swpcT(r.time_tag));S.sun.speed=P.map(r=>num(r.speed));S.sun.density=P.map(r=>num(r.density));
     S.sun.mt=M.map(r=>swpcT(r.time_tag));S.sun.bz=M.map(r=>num(r.bz_gsm??r.bz));S.sun.bt=M.map(r=>num(r.bt));S.demo.s=false;
-  }catch(e){if(!S.sun.speed.length){const n=288,t0=Date.now()-864e5;S.sun.t=S.sun.mt=[...Array(n)].map((_,i)=>t0+i*3e5);S.sun.speed=wave(n,430,60);S.sun.density=wave(n,5,3).map(v=>Math.max(.5,v));S.sun.bz=wave(n,-1,5);S.sun.bt=wave(n,6,2);S.demo.s=true}}
+  }catch(e){if(!S.sun.speed.length){const n=288,t0=Date.now()-864e5;S.sun.t=S.sun.mt=[...Array(n)].map((_,i)=>t0+i*3e5);S.sun.speed=wave(n,430,60);S.sun.density=wave(n,5,3).map(v=>Math.max(.5,v));S.sun.bz=wave(n,-1,5);S.sun.bt=wave(n,6,2);S.demo.s=true}}}
   try{const k=rows(await getJSON("https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json"));S.kp=k.map(r=>({t:swpcT(r.time_tag),v:num(r.Kp??r.kp_index??r.kp)})).filter(r=>Number.isFinite(r.v)&&Number.isFinite(r.t));S.demo.k=false}
   catch(e){if(!S.kp.length){S.kp=[...Array(8)].map((_,i)=>({t:Date.now()-(8-i)*108e5,v:2+Math.sin(i)}));S.demo.k=true}}
 }
