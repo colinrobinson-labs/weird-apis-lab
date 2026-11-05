@@ -7,6 +7,15 @@
 <meta name="description" content="Research that was officially retracted, still cited as evidence on Wikipedia. Every retracted paper in the Retraction Watch database, checked against every DOI link on English Wikipedia.">
 <meta property="og:title" content="Zombie Facts: retracted research that Wikipedia still cites">
 <meta property="og:description" content="The paper died. The fact kept walking. See the sentences on Wikipedia still resting on retracted science.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://colinrobinson-labs.github.io/weird-apis-lab/zombie-facts/">
+<meta property="og:image" content="https://colinrobinson-labs.github.io/weird-apis-lab/zombie-facts/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Zombie Facts: the paper was retracted, the fact kept walking on Wikipedia.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Zombie Facts: retracted research that Wikipedia still cites">
+<meta name="twitter:description" content="The paper died. The fact kept walking. See the sentences on Wikipedia still resting on retracted science.">
+<meta name="twitter:image" content="https://colinrobinson-labs.github.io/weird-apis-lab/zombie-facts/og.png">
 <meta name="theme-color" content="#ece7da">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23121210'/%3E%3Cpath d='M2 18h7l2-6 3 12 3-16 2 10h3' fill='none' stroke='%23c6f432' stroke-width='2.4'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -565,11 +574,12 @@ function show(p){
    ${p.reasons&&p.reasons.length?`<div class="cause">${p.reasons.slice(0,8).map(r=>`<span>${esc(r)}</span>`).join("")}</div>`:""}
    <div class="ws"><h4>Where Wikipedia still uses it</h4>${ws.map((w,wi)=>`<div class="w ${w.status==="zombie"?"":"fl"}"><div class="wt"><a href="${wurl(w.page,w.section)}" target="_blank" rel="noopener">${esc(w.page)}</a><span class="pill ${w.status==="zombie"?"z":"fl"}">${w.status==="author"?"author's own page":w.status}</span></div>
      ${said(w,500)?`<blockquote>${esc(said(w,500))}</blockquote>`:""}<div class="wm">${w.section?esc(w.section)+" · ":""}${full(w.views)} views in the last 30 days</div>${w.status==="zombie"?fixRow(p,w,wi):""}</div>`).join("")}</div>
-   <div class="acts"><a class="p" href="https://doi.org/${esc(p.notice||p.doi)}" target="_blank" rel="noopener">Retraction notice</a><a href="https://doi.org/${esc(p.doi)}" target="_blank" rel="noopener">The paper</a>${p.zombies?`<button id="cpy">Copy note to editors</button>`:""}<button id="shr">Share</button></div>`;
+   <div class="acts"><a class="p" href="https://doi.org/${esc(p.notice||p.doi)}" target="_blank" rel="noopener">Retraction notice</a><a href="https://doi.org/${esc(p.doi)}" target="_blank" rel="noopener">The paper</a>${p.zombies?`<button id="cpy">Copy note to editors</button>`:""}<button id="shr">Share</button>${p.zombies&&said(z1(p))?`<button id="card">Save share image</button>`:""}</div>`;
   const z=ws.find(w=>w.status==="zombie");
   const c=$("cpy");if(c)c.onclick=()=>copy(noteFor(p,z),"Note copied");
   $("db").querySelectorAll("[data-talk]").forEach(a=>a.onclick=()=>{copy(noteFor(p,ws[+a.dataset.talk]),"Note copied. Paste it into the talk page.")});
   $("db").querySelectorAll("[data-note]").forEach(b=>b.onclick=()=>copy(noteFor(p,ws[+b.dataset.note]),"Note copied"));
+  const cb=$("card");if(cb)cb.onclick=()=>shareCard(p,z1(p),cb);
   $("shr").onclick=async()=>{const u=location.href,t=`Wikipedia still cites this retracted paper: ${p.title}`;if(navigator.share){try{await navigator.share({title:"Zombie Facts",text:t,url:u})}catch(_){}}else copy(u,"Link copied")};
   $("db").scrollTop=0;$("drawer").classList.add("on");$("scrim").classList.add("on");document.body.style.overflow="hidden";setTimeout(()=>$("dClose").focus(),50);
 }
@@ -585,6 +595,41 @@ const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.targ
 document.querySelectorAll(".reveal").forEach(e=>ro.observe(e));
 
 
+
+/* ---------- share image (1080x1350, drawn in the browser) ---------- */
+async function shareCard(p,w,btn){
+  btn.disabled=true;const lbl=btn.textContent;btn.textContent="Drawing…";
+  try{
+    await Promise.all(['400 40px "UnifrakturMaguntia"','400 40px "Anton"','italic 400 40px "Newsreader"','500 20px "IBM Plex Mono"','600 20px "IBM Plex Mono"'].map(f=>document.fonts.load(f).catch(()=>0)));
+    const W=1080,H=1350,M=84,c=document.createElement("canvas");c.width=W;c.height=H;const g=c.getContext("2d");
+    const INK="#141412",PAPER="#ece7da",ACID="#c6f432",BLOOD="#b42318",MUTE="#6c675b";
+    g.fillStyle=PAPER;g.fillRect(0,0,W,H);
+    g.fillStyle=INK;g.font='400 52px "UnifrakturMaguntia",serif';g.textBaseline="alphabetic";g.fillText("Zombie Facts",M,M+40);
+    g.font='600 20px "IBM Plex Mono",monospace';g.textAlign="right";g.fillStyle=BLOOD;g.fillText("SOURCE RETRACTED "+(p.retracted||"").slice(0,4),W-M,M+34);g.textAlign="left";
+    g.fillStyle=INK;g.fillRect(M,M+66,W-2*M,3);
+    g.font='600 22px "IBM Plex Mono",monospace';g.fillStyle=MUTE;
+    const kick=("STILL ON WIKIPEDIA · "+w.page.toUpperCase());g.fillText(kick.length>52?kick.slice(0,51)+"…":kick,M,M+130);
+    // quote, auto-sized to fit
+    const q="“"+said(w,420).replace(/"([^"]*)"/g,"‘$1’")+"”";let fs=80,lines;
+    const wrap=(t,max)=>{const out=[];let cur="";t.split(/\s+/).forEach(x=>{const tr=cur?cur+" "+x:x;if(g.measureText(tr).width>max&&cur){out.push(cur);cur=x}else cur=tr});if(cur)out.push(cur);return out};
+    for(;fs>=34;fs-=4){g.font=`italic 400 ${fs}px "Newsreader",Georgia,serif`;lines=wrap(q,W-2*M-16);if(lines.length*fs*1.3<=640)break}
+    const lh=fs*1.3,top=M+170,bot=H-460;let y=top+Math.max(0,(bot-top-lines.length*lh)/2)+fs;
+    lines.forEach(l=>{const tw=g.measureText(l).width;g.fillStyle=ACID;g.fillRect(M-6,y+fs*.22-lh+fs*.38,tw+12,lh*.78);g.fillStyle=INK;g.fillText(l,M,y+fs*.12);y+=lh});
+    // source block
+    y=Math.max(y+40,H-420);g.strokeStyle=INK;g.setLineDash([8,8]);g.lineWidth=2;g.beginPath();g.moveTo(M,y);g.lineTo(W-M,y);g.stroke();g.setLineDash([]);
+    g.font='500 36px "Newsreader",Georgia,serif';g.fillStyle=INK;const tl=wrap(p.title,W-2*M).slice(0,3);if(wrap(p.title,W-2*M).length>3)tl[2]=tl[2].replace(/\s*\S+$/,"…");
+    tl.forEach((l,i)=>g.fillText(l,M,y+56+i*46));y+=56+tl.length*46;
+    g.font='500 22px "IBM Plex Mono",monospace';g.fillStyle=MUTE;
+    const meta=[p.journal,"retracted "+fmtDate(p.retracted)].filter(Boolean).join(" · ");wrap(meta,W-2*M).slice(0,2).forEach((l,i)=>g.fillText(l,M,y+10+i*32));
+    // footer
+    g.fillStyle=INK;g.fillRect(0,H-118,W,118);g.fillStyle=ACID;g.font='400 46px "Anton",Impact,sans-serif';g.fillText("THE PAPER DIED. THE FACT KEPT WALKING.",M,H-46);
+    const blob=await new Promise(r=>c.toBlob(r,"image/png"));const name="zombie-facts-"+w.page.replace(/[^a-z0-9]+/gi,"-").toLowerCase().slice(0,40)+".png";
+    const file=new File([blob],name,{type:"image/png"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:`Wikipedia still cites a retracted paper on “${w.page}”. ${location.href}`})}catch(_){}}
+    else{const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast("Image saved")}
+  }catch(e){toast("Couldn't draw the image")}
+  btn.disabled=false;btn.textContent=lbl;
+}
 /* ---------- correction desk ---------- */
 const CASES=()=>(D&&D.ledger&&D.ledger.cases)||{};
 const caseOf=(p,w)=>CASES()[p.doi+"|"+w.page];
