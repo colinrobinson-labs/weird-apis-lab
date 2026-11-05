@@ -1,17 +1,21 @@
 {
+  "home": {"name": "La Mesa, CA", "lat": 32.7678, "lon": -117.0231},
   "states": ["CA", "AZ", "NV", "OR", "UT"],
+  "max_miles": 700,
   "post_when_empty": false,
-  "exclude": ["parts only", "salvage", "inoperable", "scrap"],
+  "initial_scan_limit": 15,
+  "exclude": ["parts only", "salvage", "inoperable", "scrap", "for parts", "not operational", "non-operational"],
+  "_value_note": "Rough used-market ranges for working gear, used to score deals. Tune these to your own experience. per_kw = dollars per kW of generator output; per_qty = dollars per unit when a quantity is listed.",
   "categories": [
-    {"name": "Generator", "keywords": ["generator", "genset", "gen set"], "max_bid": 15000, "deal_under": 3000},
-    {"name": "Light tower", "keywords": ["light tower", "light plant", "lighting tower", "light cart"], "max_bid": 8000, "deal_under": 2000},
-    {"name": "Truck / van", "keywords": ["box truck", "cargo van", "stake bed", "flatbed truck", "step van"], "max_bid": 25000, "deal_under": 8000},
-    {"name": "Trailer", "keywords": ["trailer", "enclosed trailer", "utility trailer", "stage trailer"], "max_bid": 15000, "deal_under": 3000},
-    {"name": "Lift / forklift", "keywords": ["forklift", "telehandler", "scissor lift", "boom lift", "genie lift"], "max_bid": 25000, "deal_under": 6000},
-    {"name": "Barricade / fencing", "keywords": ["barricade", "crowd control", "bike rack", "fencing", "jersey barrier"], "max_bid": 5000, "deal_under": 800},
-    {"name": "Staging / tents", "keywords": ["staging", "stage", "riser", "platform", "tent", "canopy", "frame tent"], "max_bid": 8000, "deal_under": 1500},
-    {"name": "Audio / radios", "keywords": ["speaker", "public address", "pa system", "amplifier", "mixer", "two-way radio", "radios", "motorola"], "max_bid": 5000, "deal_under": 800},
-    {"name": "Power distro", "keywords": ["distribution box", "power distribution", "cable ramp", "cord reel"], "max_bid": 3000, "deal_under": 500},
-    {"name": "Sanitation / water", "keywords": ["portable toilet", "restroom trailer", "water trailer", "water tank"], "max_bid": 10000, "deal_under": 2000}
+    {"name": "Generator", "emoji": "⚡", "keywords": ["generator", "genset", "gen set"], "max_bid": 20000, "value": {"per_kw": [180, 380], "fallback": [3000, 12000]}},
+    {"name": "Light tower", "emoji": "💡", "keywords": ["light tower", "light plant", "lighting tower", "light cart"], "max_bid": 9000, "value": {"fixed": [3500, 9000]}},
+    {"name": "Truck / van", "emoji": "🚚", "keywords": ["box truck", "cargo van", "stake bed", "flatbed truck", "step van"], "max_bid": 30000, "value": {"fixed": [9000, 30000]}},
+    {"name": "Trailer", "emoji": "🛻", "keywords": ["enclosed trailer", "utility trailer", "stage trailer", "cargo trailer", "flatbed trailer", "office trailer"], "max_bid": 15000, "value": {"fixed": [2500, 9000]}},
+    {"name": "Lift / forklift", "emoji": "🏗️", "keywords": ["forklift", "telehandler", "scissor lift", "boom lift", "genie lift", "man lift"], "max_bid": 30000, "value": {"fixed": [6000, 22000]}},
+    {"name": "Barricade / fencing", "emoji": "🚧", "keywords": ["barricade", "barricades", "crowd control", "bike rack", "fencing", "jersey barrier"], "max_bid": 6000, "value": {"per_qty": [35, 90], "fallback": [500, 3000]}},
+    {"name": "Staging / tents", "emoji": "🎪", "keywords": ["staging", "stage", "riser", "platform", "frame tent", "tent", "canopy"], "max_bid": 10000, "value": {"fixed": [800, 6000]}},
+    {"name": "Audio / radios", "emoji": "📻", "keywords": ["speaker", "public address", "pa system", "amplifier", "mixer", "two-way radio", "radios", "motorola"], "max_bid": 6000, "value": {"per_qty": [60, 180], "fallback": [300, 2500]}},
+    {"name": "Power distro", "emoji": "🔌", "keywords": ["distribution box", "power distribution", "cable ramp", "cord reel", "spider box"], "max_bid": 4000, "value": {"fixed": [300, 2500]}},
+    {"name": "Sanitation / water", "emoji": "🚰", "keywords": ["portable toilet", "restroom trailer", "water trailer", "water tank", "water buffalo"], "max_bid": 15000, "value": {"fixed": [1500, 12000]}}
   ]
 }

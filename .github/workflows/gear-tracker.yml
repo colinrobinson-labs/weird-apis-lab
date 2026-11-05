@@ -1,0 +1,37 @@
+name: Gear tracker
+on:
+  schedule:
+    - cron: "0 15 * * *"   # 7–8am Pacific
+    - cron: "0 1 * * *"    # 5–6pm Pacific
+  workflow_dispatch:
+    inputs:
+      initial:
+        description: "First run: post a ranked summary of everything that matches"
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency: gear-tracker
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    if: ${{ vars.GEAR_TRACKER_ENABLED == 'true' || github.event_name == 'workflow_dispatch' }}
+    defaults:
+      run:
+        working-directory: gear-tracker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Scan and post
+        env:
+          GSA_API_KEY: ${{ secrets.GSA_API_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: python gear_tracker.py ${{ inputs.initial && '--initial' || '' }}
+      - name: Remember what was posted
+        run: |
+          git config user.name "gear-tracker"
+          git config user.email "actions@users.noreply.github.com"
+          git add seen.json digest.md
+          git diff --cached --quiet || (git commit -m "gear tracker: update seen lots" && git push)
