@@ -1,6 +1,4 @@
 # Gear deals 2026-11-12
 
-- — Generator: 8 kW Diesel Generator · bid $0 · all-in $1,157 · Tucson, AZ · 8 days left · https://www.gsaauctions.gov/auctions/preview/383267
-- — Generator: 8 kW Diesel Generator · bid $0 · all-in $1,157 · Tucson, AZ · 8 days left · https://www.gsaauctions.gov/auctions/preview/383268
-- — Generator: 8 kW Diesel Generator · bid $0 · all-in $1,157 · Tucson, AZ · 8 days left · https://www.gsaauctions.gov/auctions/preview/383269
-- — Generator: 8 kW Diesel Generator · bid $0 · all-in $1,157 · Tucson, AZ · 8 days left · https://www.gsaauctions.gov/auctions/preview/383270
+- 🔥🔥 Trailer: 2003 Pai Pt-514T Trailer Flatbed · bid $0 · all-in $1,167 · St George, UT · 7 days left · https://www.gsaauctions.gov/auctions/preview/383307
+- 🔥🔥 Trailer: 2015 Trailer Flatbed · bid $0 · all-in $1,167 · St George, UT · 7 days left · https://www.gsaauctions.gov/auctions/preview/383308
