@@ -1,3 +1,3 @@
-# Gear deals 2026-11-14
+# Gear deals 2026-11-15
 
 Nothing new.
