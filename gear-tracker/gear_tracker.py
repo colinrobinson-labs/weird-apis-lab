@@ -41,11 +41,11 @@ def load_json(path, default):
         return default
 
 
-def http_json(url, timeout=60, tries=3):
+def http_json(url, timeout=60, tries=3, headers=None):
     last = None
     for i in range(tries):
         try:
-            req = urllib.request.Request(url, headers=UA)
+            req = urllib.request.Request(url, headers={**UA, **(headers or {})})
             with urllib.request.urlopen(req, timeout=timeout) as r:
                 return json.load(r)
         except urllib.error.HTTPError as e:
@@ -63,8 +63,9 @@ def http_json(url, timeout=60, tries=3):
 
 
 def fetch_lots(api_key):
-    q = urllib.parse.urlencode({"api_key": api_key, "format": "JSON"})
-    data = http_json(f"{API}?{q}", timeout=120)
+    # The key goes in a header (api.data.gov accepts X-Api-Key) so it never sits in a URL
+    q = urllib.parse.urlencode({"format": "JSON"})
+    data = http_json(f"{API}?{q}", timeout=120, headers={"X-Api-Key": api_key})
     return unwrap(data)
 
 
