@@ -1,0 +1,596 @@
+{
+"dal": {
+"t": "Red lentil dal with rice",
+"s": [
+"Start the rice. Soften the chopped onion in the oil for 5 minutes, then stir in the garlic and spices for 1 minute.",
+"Add the rinsed lentils, the tomatoes and 4 cups of water. Simmer 20 to 25 minutes, stirring now and then, until soft and thick.",
+"Salt to taste and serve over the rice."
+],
+"tip": "Red lentils cook fastest. Brown or green work too: give them 10 more minutes."
+},
+"bbrice": {
+"t": "Black bean and rice skillet",
+"s": [
+"In a wide pot, cook the chopped onion and pepper in the oil for 5 minutes.",
+"Stir in the rice and spices for 1 minute. Add 3 cups of water and the bouillon cube, cover and cook on low 18 minutes.",
+"Fold in the drained beans and the salsa, cover 5 more minutes, then serve."
+],
+"tip": "Top with a fried egg or a spoon of yogurt if you have one."
+},
+"sheetchk": {
+"t": "Sheet-pan chicken, potatoes and carrots",
+"s": [
+"Heat the oven to 425°F (220°C). Cut potatoes and carrots into chunks and the onion into wedges.",
+"Toss everything on a sheet pan with the oil, spices and a good pinch of salt. Chicken skin-side up on top.",
+"Roast 40 to 45 minutes, until the chicken is browned and reaches 165°F (74°C) inside."
+],
+"tip": "Save the bones in the freezer for soup later."
+},
+"friedrice": {
+"t": "Egg fried rice with vegetables",
+"s": [
+"Cook the rice ahead and let it cool. Day-old rice works best.",
+"Scramble the eggs in half the oil, then set them aside.",
+"Add the rest of the oil, the garlic and the frozen vegetables. Cook 4 minutes, add the rice and soy sauce, and fry until hot.",
+"Fold the eggs back in and top with sliced green onions."
+],
+"tip": "Any leftover meat or tofu can go in at step 3."
+},
+"pbnoodle": {
+"t": "Peanut noodles with crunchy cabbage",
+"s": [
+"Boil the spaghetti. Save 1 cup of the cooking water before you drain it.",
+"Whisk the peanut butter, soy sauce, vinegar, sugar and grated garlic with splashes of the hot water until smooth.",
+"Toss the noodles with the sauce, the shredded cabbage and carrot, and the green onions. Good warm or cold."
+],
+"tip": "Packs well for lunch the next day."
+},
+"mugegg": {
+"t": "Microwave egg and spinach burrito",
+"s": [
+"Beat the eggs in a mug with a pinch of salt and a small handful of frozen spinach.",
+"Microwave 45 seconds, stir, then 30 to 45 seconds more until just set.",
+"Spoon into the tortilla with the cheese and salsa and roll it up."
+],
+"tip": "Works in a dorm or a motel room with just a microwave."
+},
+"onoats": {
+"t": "Peanut butter banana overnight oats",
+"s": [
+"Stir the oats, milk, peanut butter and cinnamon together in a jar or bowl.",
+"Cover and leave it in the fridge overnight.",
+"In the morning, slice the banana on top. Eat cold or warm it up."
+],
+"tip": "Make five jars on Sunday and breakfast is done for the week."
+},
+"burritos": {
+"t": "Freezer bean and cheese burritos",
+"s": [
+"Cook the rice. Soften the chopped onion in the oil, add the spices and the drained beans, and mash roughly with a fork.",
+"Warm the tortillas so they bend. Fill each with rice, beans, salsa and cheese, fold in the sides and roll tight.",
+"Eat now, or wrap each one and freeze. Microwave from frozen 2 to 3 minutes, turning once."
+],
+"tip": "Eight lunches for about the price of one takeout meal."
+},
+"chickcurry": {
+"t": "Chickpea and spinach curry",
+"s": [
+"Start the rice. Soften the chopped onion in the oil, then add garlic and curry powder for 1 minute.",
+"Add the tomatoes, coconut milk and drained chickpeas. Simmer 15 minutes.",
+"Stir in the frozen spinach until hot. Salt to taste and serve over rice."
+],
+"tip": "No coconut milk? Use a cup of milk or yogurt, stirred in at the end."
+},
+"tunapasta": {
+"t": "Creamy tuna pasta with peas",
+"s": [
+"Boil the pasta. Add the frozen peas for the last 2 minutes, then drain.",
+"In the same pot, melt the butter, stir in the flour for 1 minute, then whisk in the milk until it thickens.",
+"Stir in the cheese, then the pasta, peas and drained tuna. Season with salt and pepper."
+],
+"tip": "Swap the tuna for a can of white beans to make it vegetarian."
+},
+"splitpea": {
+"t": "Split pea and potato soup",
+"s": [
+"Soften the chopped onion, carrot and celery in the oil for 8 minutes. Add the garlic.",
+"Add the rinsed split peas, diced potato, bouillon and 8 cups of water.",
+"Simmer, partly covered, about 1 hour, stirring now and then, until the peas fall apart."
+],
+"tip": "Freezes perfectly in single portions."
+},
+"chili": {
+"t": "Stretch chili (a little beef, lots of beans)",
+"s": [
+"Brown the beef with the chopped onion, 8 minutes. Add garlic, chili powder and cumin for 1 minute.",
+"Add the tomato paste, tomatoes, the beans with their liquid and 1 cup of water.",
+"Simmer 25 minutes, stirring now and then. Salt to taste."
+],
+"tip": "Skip the beef and add one more can of beans for a vegan pot."
+},
+"pancakes": {
+"t": "Banana pancakes",
+"s": [
+"Mash the bananas in a bowl. Whisk in the eggs, milk and 1 tablespoon of the oil.",
+"Stir in the flour, sugar, baking powder and a pinch of salt until just mixed. Lumps are fine.",
+"Cook ¼ cup at a time in a lightly oiled pan on medium, flipping when bubbles appear."
+],
+"tip": "Very ripe, spotty bananas make the sweetest pancakes."
+},
+"arrozpollo": {
+"t": "One-pot chicken and rice",
+"s": [
+"Season the chicken with salt, cumin and paprika. Brown it in the oil in a big pot, 4 minutes a side. Set aside.",
+"Cook the chopped onion and pepper 5 minutes, add garlic and rice, and stir 2 minutes.",
+"Add the tomato sauce, bouillon and 3½ cups of water. Nestle the chicken in, cover and cook on low 30 minutes.",
+"Scatter the peas on top, cover 5 minutes more, and check the chicken reads 165°F (74°C)."
+],
+"tip": "One pot means one pot to wash."
+},
+"ramenup": {
+"t": "Upgraded microwave ramen",
+"s": [
+"Put the noodles and a handful of frozen vegetables in a big bowl. Cover with water and microwave 3 minutes.",
+"Crack in the egg, poke the yolk once, and microwave 45 to 60 seconds more until the white is set.",
+"Stir in half the seasoning packet (it's very salty) and the green onion."
+],
+"tip": "Using half the packet cuts the salt a lot and you won't miss it."
+},
+"potato": {
+"t": "Loaded microwave baked potato",
+"s": [
+"Scrub the potato and poke it all over with a fork.",
+"Microwave 5 minutes, turn it over, then 3 to 5 minutes more until a knife slides in easily.",
+"Split it open, top with warmed beans, cheese, salsa and a spoon of yogurt."
+],
+"tip": "Plain yogurt is a cheaper sour cream."
+},
+"rollup": {
+"t": "Peanut butter banana roll-up",
+"s": [
+"Spread the peanut butter over the tortilla and dust with cinnamon.",
+"Lay the banana at one edge and roll it up tight. Slice into rounds for small kids."
+],
+"tip": "No stove, no mess, about two minutes."
+},
+"quesadilla": {
+"t": "Black bean and corn quesadillas",
+"s": [
+"Mash the drained beans with the cumin and a pinch of salt. Stir in the drained corn.",
+"Spread on half of each tortilla, add cheese, and fold.",
+"Cook in a dry pan on medium, 2 to 3 minutes a side, until golden. Serve with salsa."
+],
+"tip": "Fast enough for a weeknight, fun enough for kids to help."
+},
+"minestrone": {
+"t": "Freezer-aisle minestrone",
+"s": [
+"Soften the chopped onion in the oil 5 minutes, then add the garlic and herbs.",
+"Add the tomatoes, frozen vegetables, beans, bouillon and 7 cups of water. Bring to a boil.",
+"Add the pasta and simmer 10 minutes until tender."
+],
+"tip": "Frozen vegetables are picked ripe and often cost less than fresh."
+},
+"sptacos": {
+"t": "Sweet potato and black bean tacos",
+"s": [
+"Heat the oven to 425°F (220°C). Dice the sweet potatoes and onion, toss with oil, spices and salt, and roast 25 minutes.",
+"Warm the beans. Toss the shredded cabbage with lime juice and a pinch of salt.",
+"Warm the tortillas in a dry pan and fill with everything."
+],
+"tip": "Double up two corn tortillas per taco so they don't tear."
+},
+"shakshuka": {
+"t": "Eggs in spiced tomato sauce (shakshuka)",
+"s": [
+"Cook the sliced onion and pepper in the oil 8 minutes. Add the garlic and spices for 1 minute.",
+"Add the tomatoes and simmer 10 minutes until thick. Salt to taste.",
+"Make 8 little wells, crack in the eggs, cover and cook on low 6 to 8 minutes. Serve with bread for dipping."
+],
+"tip": "Breakfast, lunch or dinner. It works for all three."
+},
+"tofubowl": {
+"t": "Crispy tofu and broccoli rice bowls",
+"s": [
+"Start the rice. Press the tofu between towels for 10 minutes, then cut into cubes.",
+"Fry the tofu in the oil on medium-high, turning, until golden on most sides, about 10 minutes.",
+"Add the frozen broccoli and garlic and cook 5 minutes. Stir in the soy sauce and sugar until glossy. Serve over rice."
+],
+"tip": "Tofu is one of the cheapest proteins per gram at most stores."
+},
+"chknoodle": {
+"t": "Chicken noodle soup",
+"s": [
+"Put the chicken, the bouillon, half the onion and 10 cups of water in a big pot. Simmer 35 minutes.",
+"Lift out the chicken. When it's cool enough, pull the meat off the bones and shred it.",
+"Add the sliced carrots, celery, the rest of the onion, the garlic and herbs to the broth. Cook 10 minutes, add the noodles and cook until tender. Return the chicken."
+],
+"tip": "Cook the noodles separately if you plan to freeze it."
+},
+"pinto": {
+"t": "Costa Rican rice and beans (gallo pinto) with eggs",
+"s": [
+"Cook the rice ahead. Day-old rice is best.",
+"Soften the chopped onion and pepper in the oil, add garlic, then the beans with a few spoons of their liquid.",
+"Fold in the rice until it's speckled and hot. Stir in chopped cilantro and top each plate with a fried egg."
+],
+"tip": "Black beans are traditional, but use whatever beans you have."
+},
+"tunasalad": {
+"t": "White bean and tuna salad on toast",
+"s": [
+"Drain and rinse the beans. Drain the tuna.",
+"Mix with the sliced green onions, vinegar, oil, salt and pepper.",
+"Pile onto bread or toast."
+],
+"tip": "No cooking at all, and it keeps 3 days in the fridge."
+},
+"chicksmash": {
+"t": "Smashed chickpea sandwiches",
+"s": [
+"Drain the chickpeas and mash them with a fork, leaving some chunky.",
+"Stir in the mayo, finely chopped celery, vinegar, salt and pepper.",
+"Spread thick on bread."
+],
+"tip": "It's like a tuna sandwich without the tuna."
+},
+"mugmac": {
+"t": "Mug mac and cheese",
+"s": [
+"Put the pasta in a big mug with water to cover by 1 inch and a pinch of salt.",
+"Microwave in 1-minute bursts, stirring each time, 4 to 5 minutes, until tender. Add a splash of water if it gets dry.",
+"Stir in the milk and cheese and microwave 30 seconds more."
+],
+"tip": "Set the mug on a plate in case it bubbles over."
+},
+"beanpot": {
+"t": "The big pot of beans",
+"s": [
+"Rinse the beans and pick out any stones. Soak them overnight in plenty of water if you can.",
+"Drain, then cover with fresh water by 2 inches. Add the halved onion, garlic, bouillon and cumin.",
+"Simmer gently, partly covered, 1½ to 2 hours, until creamy. Salt at the end."
+],
+"tip": "Dried beans cost about half what canned do. One pot feeds a week of burritos, soups and rice bowls."
+},
+"bftacos": {
+"t": "Potato and egg breakfast tacos",
+"s": [
+"Dice the potatoes small and fry them in the oil, covered for 8 minutes, then uncovered until crisp.",
+"Pour in the beaten eggs with a pinch of salt and scramble gently.",
+"Fill warm tortillas and top with salsa."
+],
+"tip": "A dozen tacos for less than a drive-thru combo."
+},
+"canhcai": {
+"t": "Cabbage and tofu soup (canh)",
+"s": [
+"Cut the cabbage into bite-size pieces and the tofu into cubes. Slice the green onion.",
+"Warm the oil in a pot, fry the garlic 30 seconds, then add 6 cups of water and the bouillon. Bring to a boil.",
+"Add the cabbage and simmer 6 minutes. Add the tofu and soy sauce and simmer 3 minutes more. Top with green onion and serve with rice."
+],
+"tip": "A light soup that goes with any rice meal. Add a few shrimp or some ground pork if you have them."
+},
+"chaoga": {
+"t": "Chicken and ginger rice porridge (cháo gà, arroz caldo)",
+"s": [
+"In a big pot, fry the chopped onion, garlic and sliced ginger in the oil for 3 minutes. Add the rice and stir 1 minute.",
+"Add the chicken, the bouillon and 10 cups of water. Simmer, stirring now and then, for 40 minutes, until the rice is soft and creamy.",
+"Lift out the chicken, pull the meat off the bones and stir it back in. Salt to taste and top with green onion."
+],
+"tip": "Gentle on the stomach and good for anyone who is sick. A squeeze of lime or a dash of fish sauce at the table is great."
+},
+"tomatoegg": {
+"t": "Tomato and egg stir-fry",
+"s": [
+"Start the rice. Beat the eggs with a pinch of salt. Slice the green onion.",
+"Scramble the eggs in half the oil until just set, then move them to a plate.",
+"Add the rest of the oil and the tomatoes with their juice and the sugar. Cook 4 minutes, mashing a little. Fold the eggs back in, top with green onion and serve over rice."
+],
+"tip": "Fresh tomatoes are great here in summer. Use 4 chopped ones instead of the can."
+},
+"scallion": {
+"t": "Scallion oil noodles",
+"s": [
+"Boil the noodles or thin spaghetti until tender and drain.",
+"Meanwhile, cut the green onions into short pieces. Cook them in the oil on low for 8 to 10 minutes, until dark and crisp.",
+"Stir the soy sauce and sugar into the hot oil, then toss with the noodles."
+],
+"tip": "Top with a fried egg to make it a full meal."
+},
+"monggo": {
+"t": "Mung bean stew with spinach (ginisang monggo)",
+"s": [
+"Rinse the mung beans and simmer them in 6 cups of water for 30 to 35 minutes, until soft and splitting.",
+"In another pan, fry the garlic, chopped onion and tomatoes in the oil for 5 minutes. Start the rice.",
+"Stir the onion mix and bouillon into the beans. Add the frozen spinach and cook 5 minutes. Salt to taste and serve with rice."
+],
+"tip": "Traditionally served on Fridays. A little fried fish or pork on top is common when there's extra money."
+},
+"tofuadobo": {
+"t": "Tofu and potato adobo",
+"s": [
+"Start the rice. Cut the tofu and potatoes into cubes and smash the garlic.",
+"Brown the tofu in the oil on medium-high, about 8 minutes, then push it aside and fry the garlic 1 minute.",
+"Add the potatoes, soy sauce, vinegar, sugar, a few cracks of black pepper and 1 cup of water. Cover and simmer 15 minutes, until the potatoes are soft and the sauce is glossy."
+],
+"tip": "Don't stir for the first few minutes after adding the vinegar. It mellows as it cooks."
+},
+"mujaddara": {
+"t": "Lentils and rice with crispy onions (mujaddara)",
+"s": [
+"Slice the onions thin. Cook them in the oil on medium, stirring often, 20 to 25 minutes until deep brown. Lift half out for the top.",
+"Meanwhile, simmer the rinsed brown lentils in 4 cups of water for 15 minutes. Don't drain.",
+"Add the rice, cumin, 1 teaspoon of salt and the onions left in the pot to the lentils. Cover and cook on low 20 minutes. Serve topped with the crispy onions and a spoon of yogurt."
+],
+"tip": "The browned onions are the flavor, so take your time with them."
+},
+"adas": {
+"t": "Red lentil soup (shorbat adas)",
+"s": [
+"Chop the onion and carrot. Soften them in the oil for 6 minutes, then add the garlic and cumin for 1 minute.",
+"Add the rinsed red lentils, the bouillon and 8 cups of water. Simmer 20 minutes, until the lentils fall apart.",
+"Mash or blend until smooth. Salt to taste and squeeze in the lime juice. Serve with bread."
+],
+"tip": "Thick and filling for very little money. It thickens as it sits, so add water when you reheat."
+},
+"ful": {
+"t": "Warm mashed beans with lime and garlic (ful)",
+"s": [
+"Put the beans with half their liquid in a bowl or pot and warm them, 3 minutes in the microwave or 5 on the stove.",
+"Mash roughly with the crushed garlic, cumin, lime juice and a pinch of salt.",
+"Drizzle with the oil and eat with bread. Add chopped tomato, onion or a boiled egg if you have them."
+],
+"tip": "Fava beans are traditional. Pinto, kidney or chickpeas all work."
+},
+"kichiri": {
+"t": "Mung bean and rice (kichiri)",
+"s": [
+"Rinse the mung beans and the rice. Simmer the mung beans in 3 cups of water for 15 minutes.",
+"Fry the chopped onion in the oil until golden, then add the garlic and cumin for 1 minute.",
+"Add the rice, the onions, 1 teaspoon of salt and 2 more cups of water to the beans. Cover and cook on low 20 minutes until soft and a little sticky. Serve with yogurt."
+],
+"tip": "Stir a little dried mint or garlic into the yogurt the way it's served at home."
+},
+"shorwa": {
+"t": "Chickpea and potato soup (shorwa)",
+"s": [
+"Soften the chopped onion in the oil 6 minutes. Add the garlic and curry powder for 1 minute.",
+"Add the tomatoes, the diced potatoes, the drained chickpeas, the bouillon and 7 cups of water.",
+"Simmer 25 minutes until the potatoes are soft. Salt to taste, top with cilantro and serve with bread for dipping."
+],
+"tip": "Tear the bread into the bowl and pour the soup over it, the traditional way."
+},
+"bariis": {
+"t": "Spiced rice with chicken (bariis iskukaris)",
+"s": [
+"Season the chicken with salt, cumin and curry powder. Brown it in the oil in a big pot, 4 minutes a side. Set aside.",
+"Cook the chopped onion 6 minutes, then add the garlic, tomato paste and cinnamon for 1 minute. Stir in the rinsed rice.",
+"Add 3 cups of water and the bouillon, set the chicken on top, cover and cook on low 30 minutes, until the chicken reads 165°F (74°C). Serve with a banana on the side."
+],
+"tip": "A banana with rice is how many Somali families eat it. Try it before you skip it."
+},
+"diripwa": {
+"t": "Haitian rice and beans (diri ak pwa)",
+"s": [
+"Drain the beans but keep their liquid. Blend or mash the garlic, half the green onions and a pinch of salt with the lime juice. This is a quick epis.",
+"Fry the chopped onion and the epis in the oil 3 minutes. Add the beans and fry 3 more minutes.",
+"Add the bean liquid plus water to make 4 cups, and the bouillon. Bring to a boil, stir in the rinsed rice, cover and cook on low 20 minutes. Top with the rest of the green onions."
+],
+"tip": "Red kidney beans are classic. Black or pinto beans work too."
+},
+"legim": {
+"t": "Haitian vegetable stew (legim)",
+"s": [
+"Start the rice. Chop the cabbage, carrots and onion.",
+"Fry the onion and garlic in the oil 4 minutes, then stir in the tomato paste for 1 minute.",
+"Add the cabbage, carrots, spinach, bouillon and 1½ cups of water. Cover and simmer 25 minutes, mashing the vegetables as they soften. Salt to taste and serve over rice."
+],
+"tip": "Add a little chicken or beef if you have it. It's just as good without."
+},
+"grechka": {
+"t": "Buckwheat with onion, carrot and egg (grechka)",
+"s": [
+"Rinse the buckwheat. Put it in a pot with 2½ cups of water and a pinch of salt. Bring to a boil, cover and cook on low 15 minutes.",
+"Meanwhile, fry the chopped onion and grated carrot in the butter until soft and golden. Boil or fry the eggs.",
+"Stir the vegetables into the buckwheat and serve with an egg on each plate."
+],
+"tip": "Leftover buckwheat with milk and a little sugar is a classic breakfast."
+},
+"borscht": {
+"t": "Beet and cabbage soup (borscht)",
+"s": [
+"Soften the chopped onion and grated carrot in the oil 6 minutes. Stir in the tomato paste for 1 minute.",
+"Add 8 cups of water, the bouillon and the diced potatoes. Simmer 10 minutes, then add the shredded cabbage and simmer 10 more.",
+"Add the beets cut into strips with their juice, the garlic and the vinegar. Simmer 5 minutes. Salt to taste and serve with a spoon of yogurt."
+],
+"tip": "Plain yogurt stands in for sour cream. Borscht tastes even better the next day."
+},
+"kimchirice": {
+"t": "Kimchi fried rice with egg (kimchi bokkeumbap)",
+"s": [
+"Cook the rice ahead. Cold, day-old rice fries best. Chop the kimchi.",
+"Fry the kimchi in the oil 3 minutes. Add the rice, the soy sauce, the sugar and a splash of kimchi juice and fry until hot.",
+"Fry the eggs. Serve each bowl with an egg on top and sliced green onion."
+],
+"tip": "Older, sour kimchi is the best kind for this."
+},
+"gyeranjjim": {
+"t": "Microwave steamed egg (gyeran-jjim)",
+"s": [
+"Beat the eggs in a large mug or bowl with ⅓ cup of water, the soy sauce and a little sliced green onion.",
+"Cover loosely and microwave 1 minute. Stir gently.",
+"Microwave 30 to 60 seconds more, until puffed and just set. Eat with rice."
+],
+"tip": "Use a big bowl. It rises a lot, then settles."
+},
+"caldoverde": {
+"t": "Potato and greens soup (caldo verde)",
+"s": [
+"Soften the chopped onion and garlic in 2 tablespoons of the oil for 5 minutes.",
+"Add the diced potatoes, the bouillon and 7 cups of water. Simmer 20 minutes, then mash until mostly smooth.",
+"Stir in the very finely shredded cabbage or kale and cook 5 minutes. Salt to taste and drizzle with the last of the oil."
+],
+"tip": "Slice in a little sausage if you have some. That's how it's served at parties."
+},
+"fideo": {
+"t": "Toasted noodle soup (sopa de fideo)",
+"s": [
+"Break the thin noodles into short pieces. Fry them in the oil on medium, stirring, until golden brown, about 4 minutes.",
+"Blend or finely chop the onion and garlic and add them with the tomato sauce. Cook 2 minutes.",
+"Add 6 cups of water and the bouillon. Simmer 8 to 10 minutes until the noodles are soft."
+],
+"tip": "Squeeze in lime and add a little chopped cilantro at the table."
+},
+"ing": {
+"rice": "White rice",
+"pasta": "Pasta",
+"flour": "All-purpose flour",
+"oats": "Rolled oats",
+"lentils": "Dried lentils",
+"dbeans": "Dried beans (pinto or black)",
+"peas_d": "Dried split peas",
+"cbeans": "Canned beans (black, pinto or kidney)",
+"chick": "Canned chickpeas",
+"ctom": "Canned diced tomatoes",
+"tpaste": "Tomato paste",
+"tsauce": "Tomato sauce",
+"tuna": "Canned tuna",
+"coco": "Coconut milk",
+"corn": "Canned corn",
+"eggs": "Eggs",
+"milk": "Milk",
+"cheddar": "Cheddar cheese",
+"yogurt": "Plain yogurt",
+"butter": "Butter",
+"oil": "Vegetable oil",
+"pb": "Peanut butter",
+"mayo": "Mayonnaise",
+"chleg": "Chicken legs or thighs, bone-in",
+"chbr": "Boneless chicken breast",
+"beef": "Ground beef",
+"tofu": "Firm tofu",
+"bread": "Bread",
+"ftort": "Flour tortillas",
+"ctort": "Corn tortillas",
+"ramen": "Instant ramen",
+"potato": "Potatoes",
+"sweetp": "Sweet potatoes",
+"onion": "Onion",
+"carrot": "Carrots",
+"cabbage": "Green cabbage",
+"garlic": "Garlic",
+"celery": "Celery",
+"pepper": "Bell pepper",
+"gonion": "Green onions",
+"cilantro": "Cilantro",
+"lime": "Lime",
+"banana": "Bananas",
+"fmix": "Frozen mixed vegetables",
+"fpeas": "Frozen peas",
+"fspin": "Frozen spinach",
+"fbroc": "Frozen broccoli",
+"salsa": "Salsa",
+"soy": "Soy sauce",
+"vinegar": "Vinegar",
+"sugar": "Sugar",
+"bpowder": "Baking powder",
+"bouil": "Bouillon cubes",
+"cumin": "Ground cumin",
+"chili": "Chili powder",
+"curry": "Curry powder",
+"paprika": "Paprika",
+"italian": "Italian seasoning",
+"garpow": "Garlic powder",
+"cinn": "Cinnamon",
+"mungb": "Dried mung beans",
+"buckwheat": "Buckwheat groats (kasha)",
+"beets": "Canned beets",
+"kimchi": "Kimchi",
+"ginger": "Fresh ginger"
+},
+"units": {
+"lb": "lb",
+"oz": "oz",
+"floz": "fl oz",
+"gal": "gallon",
+"can": {
+"one": "can",
+"other": "cans"
+},
+"egg": {
+"one": "egg",
+"other": "eggs"
+},
+"cup": {
+"one": "cup",
+"other": "cups"
+},
+"tbsp": "tbsp",
+"tsp": "tsp",
+"slice": {
+"one": "slice",
+"other": "slices"
+},
+"tortilla": {
+"one": "tortilla",
+"other": "tortillas"
+},
+"pack": {
+"one": "pack",
+"other": "packs"
+},
+"onion": {
+"one": "onion",
+"other": "onions"
+},
+"clove": {
+"one": "clove",
+"other": "cloves"
+},
+"bunch": {
+"one": "bunch",
+"other": "bunches"
+},
+"pepper": {
+"one": "pepper",
+"other": "peppers"
+},
+"lime": {
+"one": "lime",
+"other": "limes"
+},
+"banana": {
+"one": "banana",
+"other": "bananas"
+},
+"bag": {
+"one": "bag",
+"other": "bags"
+},
+"box": {
+"one": "box",
+"other": "boxes"
+},
+"block": {
+"one": "block",
+"other": "blocks"
+},
+"cube": {
+"one": "cube",
+"other": "cubes"
+},
+"head": {
+"one": "head",
+"other": "heads"
+},
+"each": "each",
+"jar": {
+"one": "jar",
+"other": "jars"
+},
+"piece": {
+"one": "piece",
+"other": "pieces"
+}
+}
+}

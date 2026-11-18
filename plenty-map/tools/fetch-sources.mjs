@@ -56,11 +56,9 @@ await step("osm", async () => {
   const b = `${BBOX.s},${BBOX.w},${BBOX.n},${BBOX.e}`;
   const q = `[out:json][timeout:170];
 (
-  nwr["shop"~"^(supermarket|grocery|greengrocer|wholesale|frozen_food)$"](${b});
-  nwr["shop"="convenience"]["name"~"(?i)(market|mercado|grocery|carniceria|halal|asian|oriental|99 cents|dollar)"](${b});
+  nwr["amenity"~"^(food_bank|community_fridge|food_sharing|soup_kitchen)$"](${b});
+  nwr["amenity"="social_facility"]["social_facility"~"^(food_bank|soup_kitchen)$"](${b});
   nwr["amenity"="marketplace"](${b});
-  nwr["amenity"~"^(food_bank|social_facility|community_fridge|food_sharing|soup_kitchen)$"](${b});
-  nwr["social_facility"~"^(food_bank|soup_kitchen)$"](${b});
 );
 out center tags;
 (
@@ -90,7 +88,8 @@ await step("zcta", async () => {
       await writeFile("/tmp/zcta.zip", buf);
       const txt = execFileSync("unzip", ["-p", "/tmp/zcta.zip"], { maxBuffer: 64 << 20 }).toString();
       const lines = txt.split(/\r?\n/);
-      const keep = [lines[0], ...lines.slice(1).filter(l => /^9(19|20|21)\d\d\t/.test(l))];
+      const keep = [lines[0], ...lines.slice(1).filter(l => /^9(19|20|21)\d\d[|\t]/.test(l))];
+      if (keep.length < 50) throw new Error("too few San Diego ZIPs: " + keep.length);
       await save("zcta.tsv", keep.join("\n"));
       report.zcta_year = yr;
       return;

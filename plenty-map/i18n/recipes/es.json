@@ -1,0 +1,596 @@
+{
+"dal": {
+"t": "Dal de lentejas con arroz",
+"s": [
+"Pon el arroz. Sofríe la cebolla picada en el aceite 5 minutos y agrega el ajo y las especias 1 minuto.",
+"Agrega las lentejas enjuagadas, el tomate y 4 tazas de agua. Hierve a fuego bajo 20 a 25 minutos, moviendo de vez en cuando, hasta que espese.",
+"Sala al gusto y sirve sobre el arroz."
+],
+"tip": "Las lentejas rojas se cuecen más rápido. Las cafés o verdes también sirven: dales 10 minutos más."
+},
+"bbrice": {
+"t": "Sartén de arroz con frijoles negros",
+"s": [
+"En una olla ancha, cocina la cebolla y el pimiento picados en el aceite 5 minutos.",
+"Agrega el arroz y las especias 1 minuto. Añade 3 tazas de agua y el cubo de consomé, tapa y cocina a fuego bajo 18 minutos.",
+"Incorpora los frijoles escurridos y la salsa, tapa 5 minutos más y sirve."
+],
+"tip": "Ponle un huevo estrellado o una cucharada de yogur si tienes."
+},
+"sheetchk": {
+"t": "Pollo con papas y zanahorias al horno",
+"s": [
+"Calienta el horno a 425°F (220°C). Corta las papas y zanahorias en trozos y la cebolla en gajos.",
+"Mezcla todo en una charola con el aceite, las especias y sal. El pollo encima, con la piel hacia arriba.",
+"Hornea 40 a 45 minutos, hasta que el pollo dore y llegue a 165°F (74°C) por dentro."
+],
+"tip": "Guarda los huesos en el congelador para hacer caldo después."
+},
+"friedrice": {
+"t": "Arroz frito con huevo y verduras",
+"s": [
+"Cuece el arroz antes y déjalo enfriar. El arroz del día anterior queda mejor.",
+"Revuelve los huevos en la mitad del aceite y apártalos.",
+"Agrega el resto del aceite, el ajo y las verduras congeladas. Cocina 4 minutos, añade el arroz y la soya y fríe hasta que esté caliente.",
+"Regresa el huevo y termina con cebollita picada."
+],
+"tip": "Puedes agregar sobras de carne o tofu en el paso 3."
+},
+"pbnoodle": {
+"t": "Fideos con cacahuate y repollo",
+"s": [
+"Cuece el espagueti. Guarda 1 taza del agua antes de escurrir.",
+"Bate la crema de cacahuate, la soya, el vinagre, el azúcar y el ajo rallado con chorritos del agua caliente hasta que quede suave.",
+"Mezcla los fideos con la salsa, el repollo y la zanahoria rallados y la cebollita. Se come tibio o frío."
+],
+"tip": "Aguanta muy bien para el almuerzo del día siguiente."
+},
+"mugegg": {
+"t": "Burrito de huevo con espinaca en microondas",
+"s": [
+"Bate los huevos en una taza con sal y un puñito de espinaca congelada.",
+"Calienta 45 segundos, mueve y luego 30 a 45 segundos más, hasta que cuaje.",
+"Ponlo en la tortilla con el queso y la salsa y enróllalo."
+],
+"tip": "Funciona en un dormitorio o un cuarto de motel con solo microondas."
+},
+"onoats": {
+"t": "Avena remojada con plátano y cacahuate",
+"s": [
+"Mezcla la avena, la leche, la crema de cacahuate y la canela en un frasco o tazón.",
+"Tápalo y déjalo en el refri toda la noche.",
+"En la mañana, ponle el plátano en rodajas. Cómela fría o caliéntala."
+],
+"tip": "Prepara cinco frascos el domingo y el desayuno de la semana queda listo."
+},
+"burritos": {
+"t": "Burritos de frijol con queso para congelar",
+"s": [
+"Cuece el arroz. Sofríe la cebolla picada, agrega las especias y los frijoles escurridos y machácalos con un tenedor.",
+"Calienta las tortillas para que se doblen. Rellena cada una con arroz, frijol, salsa y queso, dobla los lados y enrolla apretado.",
+"Cómelos o envuelve cada uno y congélalo. Calienta congelado 2 a 3 minutos, volteándolo una vez."
+],
+"tip": "Ocho almuerzos por lo que cuesta una comida para llevar."
+},
+"chickcurry": {
+"t": "Curry de garbanzo con espinaca",
+"s": [
+"Pon el arroz. Sofríe la cebolla picada y agrega el ajo y el curry 1 minuto.",
+"Agrega el tomate, la leche de coco y los garbanzos escurridos. Hierve a fuego bajo 15 minutos.",
+"Agrega la espinaca congelada hasta que se caliente. Sala al gusto y sirve sobre el arroz."
+],
+"tip": "¿Sin leche de coco? Usa una taza de leche o yogur al final."
+},
+"tunapasta": {
+"t": "Pasta cremosa con atún y chícharos",
+"s": [
+"Cuece la pasta. Agrega los chícharos los últimos 2 minutos y escurre.",
+"En la misma olla, derrite la mantequilla, agrega la harina 1 minuto y luego bate la leche hasta que espese.",
+"Agrega el queso y luego la pasta, los chícharos y el atún escurrido. Sazona con sal y pimienta."
+],
+"tip": "Cambia el atún por una lata de frijoles blancos para hacerla vegetariana."
+},
+"splitpea": {
+"t": "Sopa de chícharo seco con papa",
+"s": [
+"Sofríe la cebolla, la zanahoria y el apio picados en el aceite 8 minutos. Agrega el ajo.",
+"Agrega los chícharos enjuagados, la papa en cubos, el consomé y 8 tazas de agua.",
+"Hierve a fuego bajo, medio tapado, como 1 hora, moviendo de vez en cuando, hasta que se deshagan."
+],
+"tip": "Se congela perfecto en porciones individuales."
+},
+"chili": {
+"t": "Chili rendidor (poca carne, muchos frijoles)",
+"s": [
+"Dora la carne con la cebolla picada 8 minutos. Agrega el ajo, el chile en polvo y el comino 1 minuto.",
+"Agrega la pasta de tomate, el tomate, los frijoles con su caldo y 1 taza de agua.",
+"Hierve a fuego bajo 25 minutos, moviendo de vez en cuando. Sala al gusto."
+],
+"tip": "Quita la carne y agrega otra lata de frijoles para hacerlo vegano."
+},
+"pancakes": {
+"t": "Hot cakes de plátano",
+"s": [
+"Machaca los plátanos en un tazón. Bate los huevos, la leche y 1 cucharada del aceite.",
+"Agrega la harina, el azúcar, el polvo para hornear y una pizca de sal, solo hasta mezclar. Los grumos están bien.",
+"Cocina ¼ de taza a la vez en un sartén con poco aceite a fuego medio, voltea cuando salgan burbujas."
+],
+"tip": "Los plátanos bien maduros, con manchas, dan los hot cakes más dulces."
+},
+"arrozpollo": {
+"t": "Arroz con pollo en una olla",
+"s": [
+"Sazona el pollo con sal, comino y pimentón. Dóralo en el aceite en una olla grande, 4 minutos por lado. Apártalo.",
+"Cocina la cebolla y el pimiento picados 5 minutos, agrega el ajo y el arroz y mueve 2 minutos.",
+"Agrega la salsa de tomate, el consomé y 3½ tazas de agua. Acomoda el pollo, tapa y cocina a fuego bajo 30 minutos.",
+"Pon los chícharos encima, tapa 5 minutos más y revisa que el pollo llegue a 165°F (74°C)."
+],
+"tip": "Una sola olla, una sola olla que lavar."
+},
+"ramenup": {
+"t": "Ramen mejorado en microondas",
+"s": [
+"Pon los fideos y un puño de verduras congeladas en un tazón grande. Cúbrelos con agua y calienta 3 minutos.",
+"Rompe el huevo encima, pica la yema una vez y calienta 45 a 60 segundos más hasta que la clara cuaje.",
+"Agrega la mitad del sobre de sazonador (es muy salado) y la cebollita."
+],
+"tip": "Usar medio sobre baja mucho la sal y no lo vas a extrañar."
+},
+"potato": {
+"t": "Papa rellena en microondas",
+"s": [
+"Lava la papa y pícala por todos lados con un tenedor.",
+"Calienta 5 minutos, voltéala y luego 3 a 5 minutos más hasta que un cuchillo entre fácil.",
+"Ábrela y ponle frijoles calientes, queso, salsa y una cucharada de yogur."
+],
+"tip": "El yogur natural sustituye a la crema y cuesta menos."
+},
+"rollup": {
+"t": "Taco de plátano con cacahuate",
+"s": [
+"Unta la crema de cacahuate en la tortilla y espolvorea canela.",
+"Pon el plátano en una orilla y enrolla apretado. Córtalo en rodajas para los más pequeños."
+],
+"tip": "Sin estufa, sin desorden, como dos minutos."
+},
+"quesadilla": {
+"t": "Quesadillas de frijol negro y elote",
+"s": [
+"Machaca los frijoles escurridos con el comino y sal. Agrega el elote escurrido.",
+"Unta en la mitad de cada tortilla, ponle queso y dóblala.",
+"Cocina en un sartén sin aceite a fuego medio, 2 a 3 minutos por lado, hasta que doren. Sirve con salsa."
+],
+"tip": "Rápidas entre semana y divertidas para que los niños ayuden."
+},
+"minestrone": {
+"t": "Minestrone con verduras congeladas",
+"s": [
+"Sofríe la cebolla picada en el aceite 5 minutos y agrega el ajo y las hierbas.",
+"Agrega el tomate, las verduras congeladas, los frijoles, el consomé y 7 tazas de agua. Deja que hierva.",
+"Agrega la pasta y cocina 10 minutos hasta que esté suave."
+],
+"tip": "Las verduras congeladas se cosechan maduras y muchas veces cuestan menos que las frescas."
+},
+"sptacos": {
+"t": "Tacos de camote y frijol negro",
+"s": [
+"Calienta el horno a 425°F (220°C). Pica el camote y la cebolla, mézclalos con aceite, especias y sal, y hornea 25 minutos.",
+"Calienta los frijoles. Mezcla el repollo rallado con jugo de limón y sal.",
+"Calienta las tortillas en un sartén y rellénalas con todo."
+],
+"tip": "Usa dos tortillas de maíz por taco para que no se rompan."
+},
+"shakshuka": {
+"t": "Huevos en salsa de tomate especiada",
+"s": [
+"Cocina la cebolla y el pimiento en tiras en el aceite 8 minutos. Agrega el ajo y las especias 1 minuto.",
+"Agrega el tomate y cocina 10 minutos hasta que espese. Sala al gusto.",
+"Haz 8 huequitos, rompe los huevos ahí, tapa y cocina a fuego bajo 6 a 8 minutos. Sirve con pan para remojar."
+],
+"tip": "Desayuno, comida o cena. Funciona para las tres."
+},
+"tofubowl": {
+"t": "Tazones de tofu dorado con brócoli",
+"s": [
+"Pon el arroz. Presiona el tofu entre trapos 10 minutos y córtalo en cubos.",
+"Fríe el tofu en el aceite a fuego medio-alto, volteándolo, hasta que dore, unos 10 minutos.",
+"Agrega el brócoli congelado y el ajo y cocina 5 minutos. Añade la soya y el azúcar hasta que brille. Sirve sobre el arroz."
+],
+"tip": "El tofu es de las proteínas más baratas por gramo en casi todas las tiendas."
+},
+"chknoodle": {
+"t": "Sopa de pollo con fideos",
+"s": [
+"Pon el pollo, el consomé, media cebolla y 10 tazas de agua en una olla grande. Hierve a fuego bajo 35 minutos.",
+"Saca el pollo. Cuando se enfríe un poco, quita la carne de los huesos y deshébrala.",
+"Agrega al caldo la zanahoria, el apio, el resto de la cebolla, el ajo y las hierbas. Cocina 10 minutos, añade los fideos hasta que estén suaves y regresa el pollo."
+],
+"tip": "Cuece los fideos aparte si lo vas a congelar."
+},
+"pinto": {
+"t": "Gallo pinto con huevo",
+"s": [
+"Cuece el arroz antes. El del día anterior es mejor.",
+"Sofríe la cebolla y el pimiento picados, agrega el ajo y luego los frijoles con unas cucharadas de su caldo.",
+"Incorpora el arroz hasta que quede pintito y caliente. Agrega cilantro picado y sirve cada plato con un huevo estrellado."
+],
+"tip": "Lo tradicional es frijol negro, pero usa el que tengas."
+},
+"tunasalad": {
+"t": "Ensalada de atún con frijol sobre pan",
+"s": [
+"Escurre y enjuaga los frijoles. Escurre el atún.",
+"Mézclalos con la cebollita picada, el vinagre, el aceite, sal y pimienta.",
+"Sírvelo sobre pan o pan tostado."
+],
+"tip": "Nada de cocinar, y dura 3 días en el refri."
+},
+"chicksmash": {
+"t": "Sándwiches de garbanzo machacado",
+"s": [
+"Escurre los garbanzos y machácalos con un tenedor, dejando algunos en trozos.",
+"Agrega la mayonesa, el apio bien picado, el vinagre, sal y pimienta.",
+"Úntalo bien grueso en el pan."
+],
+"tip": "Es como un sándwich de atún, pero sin atún."
+},
+"mugmac": {
+"t": "Macarrones con queso en taza",
+"s": [
+"Pon la pasta en una taza grande con agua que la cubra por 2 cm y una pizca de sal.",
+"Calienta en tandas de 1 minuto, moviendo cada vez, 4 a 5 minutos, hasta que esté suave. Agrega agua si se seca.",
+"Agrega la leche y el queso y calienta 30 segundos más."
+],
+"tip": "Pon la taza sobre un plato por si se desborda."
+},
+"beanpot": {
+"t": "La gran olla de frijoles",
+"s": [
+"Enjuaga los frijoles y quita las piedritas. Remójalos toda la noche en mucha agua si puedes.",
+"Escúrrelos y cúbrelos con agua limpia, 5 cm arriba. Agrega la cebolla en mitades, el ajo, el consomé y el comino.",
+"Hierve a fuego bajo, medio tapado, de 1½ a 2 horas, hasta que estén cremosos. Sala al final."
+],
+"tip": "Los frijoles secos cuestan como la mitad que los de lata. Una olla rinde para una semana de burritos, sopas y arroz."
+},
+"bftacos": {
+"t": "Tacos de papa con huevo",
+"s": [
+"Pica las papas chiquitas y fríelas en el aceite, tapadas 8 minutos y luego destapadas hasta que doren.",
+"Agrega los huevos batidos con sal y revuelve suave.",
+"Rellena tortillas calientes y ponles salsa."
+],
+"tip": "Una docena de tacos por menos que un combo de autoservicio."
+},
+"canhcai": {
+"t": "Sopa de repollo con tofu (canh)",
+"s": [
+"Corta el repollo en trozos chicos y el tofu en cubos. Rebana la cebollita.",
+"Calienta el aceite en una olla, fríe el ajo 30 segundos y agrega 6 tazas de agua y el consomé. Deja que hierva.",
+"Agrega el repollo y cocina 6 minutos. Añade el tofu y la soya y cocina 3 minutos más. Termina con cebollita y sirve con arroz."
+],
+"tip": "Una sopa ligera que acompaña cualquier comida con arroz. Si tienes camarones o un poco de carne molida, agrégalos."
+},
+"chaoga": {
+"t": "Arroz caldoso de pollo con jengibre (cháo gà, arroz caldo)",
+"s": [
+"En una olla grande, fríe la cebolla picada, el ajo y el jengibre rebanado en el aceite 3 minutos. Agrega el arroz y mueve 1 minuto.",
+"Añade el pollo, el consomé y 10 tazas de agua. Cocina a fuego bajo 40 minutos, moviendo de vez en cuando, hasta que el arroz quede suave y espeso.",
+"Saca el pollo, deshebra la carne sin hueso y regrésala a la olla. Sala al gusto y termina con cebollita."
+],
+"tip": "Suave para el estómago y bueno para quien está enfermo. Un chorrito de limón en la mesa le queda muy bien."
+},
+"tomatoegg": {
+"t": "Huevo revuelto con tomate al estilo chino",
+"s": [
+"Pon el arroz. Bate los huevos con una pizca de sal. Rebana la cebollita.",
+"Revuelve los huevos en la mitad del aceite hasta que apenas cuajen y pásalos a un plato.",
+"Agrega el resto del aceite, el tomate con su jugo y el azúcar. Cocina 4 minutos aplastando un poco. Regresa el huevo, termina con cebollita y sirve sobre arroz."
+],
+"tip": "En verano queda muy rico con 4 tomates frescos picados en lugar de la lata."
+},
+"scallion": {
+"t": "Fideos con aceite de cebollita",
+"s": [
+"Cuece los fideos o espagueti delgado hasta que estén suaves y escúrrelos.",
+"Mientras, corta la cebollita en trozos cortos. Cocínala en el aceite a fuego bajo 8 a 10 minutos, hasta que esté oscura y crujiente.",
+"Mezcla la soya y el azúcar con el aceite caliente y revuelve con los fideos."
+],
+"tip": "Ponle un huevo estrellado encima para una comida completa."
+},
+"monggo": {
+"t": "Guiso de frijol mungo con espinaca (ginisang monggo)",
+"s": [
+"Enjuaga el frijol mungo y cocínalo en 6 tazas de agua 30 a 35 minutos, hasta que esté suave y se abra.",
+"En otra sartén, fríe el ajo, la cebolla picada y el tomate en el aceite 5 minutos. Pon el arroz.",
+"Agrega la mezcla de cebolla y el consomé a los frijoles. Añade la espinaca congelada y cocina 5 minutos. Sala al gusto y sirve con arroz."
+],
+"tip": "Se come tradicionalmente los viernes. Si alcanza, se le pone encima un poco de pescado frito o puerco."
+},
+"tofuadobo": {
+"t": "Adobo de tofu con papa",
+"s": [
+"Pon el arroz. Corta el tofu y las papas en cubos y machaca el ajo.",
+"Dora el tofu en el aceite a fuego medio-alto unos 8 minutos, hazlo a un lado y fríe el ajo 1 minuto.",
+"Agrega las papas, la soya, el vinagre, el azúcar, pimienta negra y 1 taza de agua. Tapa y cocina 15 minutos, hasta que las papas estén suaves y la salsa brille."
+],
+"tip": "No muevas los primeros minutos después de agregar el vinagre. Se suaviza al cocinarse."
+},
+"mujaddara": {
+"t": "Lentejas con arroz y cebolla dorada (mujaddara)",
+"s": [
+"Rebana la cebolla delgada. Cocínala en el aceite a fuego medio, moviendo seguido, 20 a 25 minutos hasta que esté bien dorada. Aparta la mitad para el final.",
+"Mientras, cuece las lentejas cafés enjuagadas en 4 tazas de agua 15 minutos. No las escurras.",
+"Agrega a las lentejas el arroz, el comino, 1 cucharadita de sal y la cebolla que quedó en la olla. Tapa y cocina a fuego bajo 20 minutos. Sirve con la cebolla crujiente y una cucharada de yogur."
+],
+"tip": "La cebolla dorada da todo el sabor. Tómate tu tiempo."
+},
+"adas": {
+"t": "Sopa de lentejas rojas (shorbat adas)",
+"s": [
+"Pica la cebolla y la zanahoria. Sofríelas en el aceite 6 minutos y agrega el ajo y el comino 1 minuto.",
+"Añade las lentejas rojas enjuagadas, el consomé y 8 tazas de agua. Cocina 20 minutos, hasta que se deshagan.",
+"Machaca o licúa hasta que quede suave. Sala al gusto y exprime el limón. Sirve con pan."
+],
+"tip": "Espesa y llenadora por muy poco dinero. Se espesa al reposar, así que agrega agua al recalentar."
+},
+"ful": {
+"t": "Frijoles machacados con limón y ajo (ful)",
+"s": [
+"Pon los frijoles con la mitad de su caldo en un plato o una olla y caliéntalos, 3 minutos en microondas o 5 en la estufa.",
+"Machácalos un poco con el ajo machacado, el comino, el jugo de limón y una pizca de sal.",
+"Rocía el aceite y come con pan. Si tienes, agrega tomate picado, cebolla o un huevo cocido."
+],
+"tip": "Lo tradicional es con habas. También sirven frijol pinto, rojo o garbanzo."
+},
+"kichiri": {
+"t": "Arroz con frijol mungo (kichiri)",
+"s": [
+"Enjuaga el frijol mungo y el arroz. Cuece el frijol en 3 tazas de agua 15 minutos.",
+"Fríe la cebolla picada en el aceite hasta dorar y agrega el ajo y el comino 1 minuto.",
+"Añade a los frijoles el arroz, la cebolla, 1 cucharadita de sal y 2 tazas más de agua. Tapa y cocina a fuego bajo 20 minutos hasta que esté suave y un poco pegajoso. Sirve con yogur."
+],
+"tip": "Mezcla un poco de hierbabuena seca o ajo con el yogur, como se sirve en casa."
+},
+"shorwa": {
+"t": "Sopa de garbanzo con papa (shorwa)",
+"s": [
+"Sofríe la cebolla picada en el aceite 6 minutos. Agrega el ajo y el curry 1 minuto.",
+"Añade el tomate, las papas en cubos, los garbanzos escurridos, el consomé y 7 tazas de agua.",
+"Cocina 25 minutos hasta que las papas estén suaves. Sala al gusto, pon cilantro y sirve con pan para remojar."
+],
+"tip": "Lo tradicional es partir el pan en el plato y servir la sopa encima."
+},
+"bariis": {
+"t": "Arroz especiado con pollo (bariis iskukaris)",
+"s": [
+"Sazona el pollo con sal, comino y curry. Dóralo en el aceite en una olla grande, 4 minutos por lado. Apártalo.",
+"Cocina la cebolla picada 6 minutos y agrega el ajo, la pasta de tomate y la canela 1 minuto. Añade el arroz enjuagado.",
+"Agrega 3 tazas de agua y el consomé, pon el pollo encima, tapa y cocina a fuego bajo 30 minutos, hasta que el pollo llegue a 165°F (74°C). Sirve con un plátano al lado."
+],
+"tip": "Muchas familias somalíes comen el arroz con plátano. Pruébalo antes de saltártelo."
+},
+"diripwa": {
+"t": "Arroz con frijoles haitiano (diri ak pwa)",
+"s": [
+"Escurre los frijoles pero guarda su caldo. Licúa o machaca el ajo, la mitad de la cebollita y una pizca de sal con el jugo de limón. Es un epis rápido.",
+"Fríe la cebolla picada y el epis en el aceite 3 minutos. Agrega los frijoles y fríe 3 minutos más.",
+"Añade el caldo de los frijoles más agua hasta completar 4 tazas, y el consomé. Cuando hierva, agrega el arroz enjuagado, tapa y cocina a fuego bajo 20 minutos. Termina con el resto de la cebollita."
+],
+"tip": "Lo clásico es con frijol rojo. Con frijol negro también queda muy bien."
+},
+"legim": {
+"t": "Guiso haitiano de verduras (legim)",
+"s": [
+"Pon el arroz. Pica el repollo, las zanahorias y la cebolla.",
+"Fríe la cebolla y el ajo en el aceite 4 minutos y agrega la pasta de tomate 1 minuto.",
+"Añade el repollo, las zanahorias, la espinaca, el consomé y 1½ tazas de agua. Tapa y cocina 25 minutos, machacando las verduras cuando se ablanden. Sala al gusto y sirve sobre arroz."
+],
+"tip": "Si tienes, agrega un poco de pollo o res. Sin carne queda igual de rico."
+},
+"grechka": {
+"t": "Trigo sarraceno con cebolla, zanahoria y huevo (grechka)",
+"s": [
+"Enjuaga el trigo sarraceno. Ponlo en una olla con 2½ tazas de agua y sal. Cuando hierva, tapa y cocina a fuego bajo 15 minutos.",
+"Mientras, fríe la cebolla picada y la zanahoria rallada en la mantequilla hasta que se doren. Cuece o fríe los huevos.",
+"Mezcla las verduras con el trigo y sirve con un huevo en cada plato."
+],
+"tip": "El que sobra, con leche y un poco de azúcar, es un desayuno clásico."
+},
+"borscht": {
+"t": "Sopa de betabel y repollo (borsch)",
+"s": [
+"Sofríe la cebolla picada y la zanahoria rallada en el aceite 6 minutos. Agrega la pasta de tomate 1 minuto.",
+"Añade 8 tazas de agua, el consomé y las papas en cubos. Cocina 10 minutos, agrega el repollo picado fino y cocina 10 más.",
+"Agrega el betabel en tiras con su jugo, el ajo y el vinagre. Cocina 5 minutos. Sala al gusto y sirve con una cucharada de yogur."
+],
+"tip": "El yogur natural sustituye a la crema agria. Al día siguiente sabe todavía mejor."
+},
+"kimchirice": {
+"t": "Arroz frito con kimchi y huevo (kimchi bokkeumbap)",
+"s": [
+"Cuece el arroz antes. El arroz frío del día anterior se fríe mejor. Pica el kimchi.",
+"Fríe el kimchi en el aceite 3 minutos. Agrega el arroz, la soya, el azúcar y un chorrito del jugo del kimchi y fríe hasta que esté caliente.",
+"Fríe los huevos. Sirve cada plato con un huevo encima y cebollita rebanada."
+],
+"tip": "El kimchi más viejo y ácido es el mejor para esto."
+},
+"gyeranjjim": {
+"t": "Huevo al vapor en microondas (gyeran-jjim)",
+"s": [
+"Bate los huevos en una taza grande o un plato hondo con ⅓ de taza de agua, la soya y un poco de cebollita.",
+"Tapa sin apretar y calienta 1 minuto. Mueve con cuidado.",
+"Calienta 30 a 60 segundos más, hasta que se infle y apenas cuaje. Come con arroz."
+],
+"tip": "Usa un recipiente grande. Sube mucho y luego baja."
+},
+"caldoverde": {
+"t": "Sopa de papa con verdura (caldo verde)",
+"s": [
+"Sofríe la cebolla picada y el ajo en 2 cucharadas del aceite 5 minutos.",
+"Añade las papas en cubos, el consomé y 7 tazas de agua. Cocina 20 minutos y machaca hasta que esté casi suave.",
+"Agrega el repollo o col rizada picada muy fina y cocina 5 minutos. Sala al gusto y rocía el resto del aceite."
+],
+"tip": "Si tienes, rebana un poco de chorizo. Así se sirve en las fiestas."
+},
+"fideo": {
+"t": "Sopa de fideo",
+"s": [
+"Parte los fideos en trozos cortos. Fríelos en el aceite a fuego medio, moviendo, hasta que estén dorados, unos 4 minutos.",
+"Licúa o pica fino la cebolla y el ajo y agrégalos con la salsa de tomate. Cocina 2 minutos.",
+"Añade 6 tazas de agua y el consomé. Cocina 8 a 10 minutos hasta que el fideo esté suave."
+],
+"tip": "Exprime limón y ponle cilantro picado en la mesa."
+},
+"ing": {
+"rice": "Arroz blanco",
+"pasta": "Pasta",
+"flour": "Harina de trigo",
+"oats": "Avena en hojuelas",
+"lentils": "Lentejas secas",
+"dbeans": "Frijoles secos (pintos o negros)",
+"peas_d": "Chícharos secos partidos",
+"cbeans": "Frijoles de lata (negros, pintos o rojos)",
+"chick": "Garbanzos de lata",
+"ctom": "Tomate picado de lata",
+"tpaste": "Pasta de tomate",
+"tsauce": "Salsa de tomate",
+"tuna": "Atún de lata",
+"coco": "Leche de coco",
+"corn": "Elote de lata",
+"eggs": "Huevos",
+"milk": "Leche",
+"cheddar": "Queso cheddar",
+"yogurt": "Yogur natural",
+"butter": "Mantequilla",
+"oil": "Aceite vegetal",
+"pb": "Crema de cacahuate",
+"mayo": "Mayonesa",
+"chleg": "Piernas o muslos de pollo con hueso",
+"chbr": "Pechuga de pollo sin hueso",
+"beef": "Carne molida de res",
+"tofu": "Tofu firme",
+"bread": "Pan de caja",
+"ftort": "Tortillas de harina",
+"ctort": "Tortillas de maíz",
+"ramen": "Sopa instantánea (ramen)",
+"potato": "Papas",
+"sweetp": "Camotes",
+"onion": "Cebolla",
+"carrot": "Zanahorias",
+"cabbage": "Repollo",
+"garlic": "Ajo",
+"celery": "Apio",
+"pepper": "Pimiento morrón",
+"gonion": "Cebollitas de cambray",
+"cilantro": "Cilantro",
+"lime": "Limón",
+"banana": "Plátanos",
+"fmix": "Verduras mixtas congeladas",
+"fpeas": "Chícharos congelados",
+"fspin": "Espinaca congelada",
+"fbroc": "Brócoli congelado",
+"salsa": "Salsa",
+"soy": "Salsa de soya",
+"vinegar": "Vinagre",
+"sugar": "Azúcar",
+"bpowder": "Polvo para hornear",
+"bouil": "Cubos de consomé",
+"cumin": "Comino molido",
+"chili": "Chile en polvo",
+"curry": "Curry en polvo",
+"paprika": "Pimentón",
+"italian": "Hierbas italianas",
+"garpow": "Ajo en polvo",
+"cinn": "Canela molida",
+"mungb": "Frijol mungo seco",
+"buckwheat": "Trigo sarraceno (alforfón)",
+"beets": "Betabel de lata",
+"kimchi": "Kimchi",
+"ginger": "Jengibre fresco"
+},
+"units": {
+"lb": "lb",
+"oz": "oz",
+"floz": "oz líq.",
+"gal": "galón",
+"can": {
+"one": "lata",
+"other": "latas"
+},
+"egg": {
+"one": "huevo",
+"other": "huevos"
+},
+"cup": {
+"one": "taza",
+"other": "tazas"
+},
+"tbsp": "cda",
+"tsp": "cdita",
+"slice": {
+"one": "rebanada",
+"other": "rebanadas"
+},
+"tortilla": {
+"one": "tortilla",
+"other": "tortillas"
+},
+"pack": {
+"one": "paquete",
+"other": "paquetes"
+},
+"onion": {
+"one": "cebolla",
+"other": "cebollas"
+},
+"clove": {
+"one": "diente",
+"other": "dientes"
+},
+"bunch": {
+"one": "manojo",
+"other": "manojos"
+},
+"pepper": {
+"one": "pimiento",
+"other": "pimientos"
+},
+"lime": {
+"one": "limón",
+"other": "limones"
+},
+"banana": {
+"one": "plátano",
+"other": "plátanos"
+},
+"bag": {
+"one": "bolsa",
+"other": "bolsas"
+},
+"box": {
+"one": "caja",
+"other": "cajas"
+},
+"block": {
+"one": "bloque",
+"other": "bloques"
+},
+"cube": {
+"one": "cubo",
+"other": "cubos"
+},
+"head": {
+"one": "cabeza",
+"other": "cabezas"
+},
+"each": "pieza",
+"jar": {
+"one": "frasco",
+"other": "frascos"
+},
+"piece": {
+"one": "trozo",
+"other": "trozos"
+}
+}
+}
