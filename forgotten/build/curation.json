@@ -1,7 +1,7 @@
 {
  "_note": "Short names used for news queries (names), Wikipedia country articles (wiki), and HOT Tasking Manager country filters (hot_names). Anything not listed uses the FTS country name.",
  "names": {
-  "COD": "DR Congo",
+  "COD": "Congo",
   "CAF": "Central African Republic",
   "SYR": "Syria",
   "PSE": "Gaza",

@@ -107,6 +107,29 @@ for iso, c in crises.items():
     p = pin.get(iso)
     c["pin"] = p["n"] if p else None
     c["pin_year"] = p["ref"][:4] if p else None
+# Fallback: the plan's own caseload in the HPC API (flash appeals and refugee plans are not in HAPI).
+def find_in_need(o, out):
+    if isinstance(o, dict):
+        if o.get("type") == "inNeed" and isinstance(o.get("value"), (int, float)): out.append(o["value"])
+        for v in o.values(): find_in_need(v, out)
+    elif isinstance(o, list):
+        for v in o: find_in_need(v, out)
+    return out
+for iso, c in crises.items():
+    if c["pin"] is not None: continue
+    for pl in c["plans"]:
+        for u in (f"https://api.hpc.tools/v2/public/plan/{pl['id']}?content=entities,measurements",
+                  f"https://api.hpc.tools/v2/public/plan/{pl['id']}",
+                  f"https://api.hpc.tools/v1/public/plan/id/{pl['id']}?content=entities"):
+            try:
+                vals = find_in_need(jget(u, tries=2), [])
+                if vals:
+                    c["pin"] = int(max(vals)); c["pin_year"] = str(YEAR); c["pin_src"] = "plan caseload"
+                    log("PIN from plan", iso, c["pin"], u.split("hpc.tools")[1]); break
+            except Exception as e:
+                log("plan caseload miss", iso, u.split("hpc.tools")[1], e)
+            time.sleep(0.5)
+        if c["pin"] is not None: break
 log("no PIN for", sorted(iso for iso, c in crises.items() if c["pin"] is None))
 
 # ---------- 3. Recipient organisations per crisis (FTS) ----------
@@ -125,8 +148,8 @@ for iso, c in crises.items():
 # ---------- 4. News attention (GDELT) ----------
 def gdelt(q, mode, extra=""):
     u = "https://api.gdeltproject.org/api/v2/doc/doc?" + urllib.parse.urlencode({"query": q, "mode": mode, "format": "json", "timespan": "30d"}) + extra
-    time.sleep(5.5)
-    raw = get(u, tries=2, wait=5)
+    time.sleep(8)
+    raw = get(u, tries=2, wait=15)
     return json.loads(raw) if raw and raw.strip().startswith(b"{") else {}
 
 # GDELT is slow (often 30-90 s per query) and throttles shared runner IPs, so each run spends at most
@@ -287,9 +310,13 @@ links = {}
 for grp in ("pooled", "volunteer", "speak", "learn"):
     links[grp] = []
     for x in HELP[grp]:
-        test = x["url"].replace("{country}", "Sudan").replace("{iso3l}", "sdn").replace("{plan}", "1514")
-        ok, st = check(test)
-        if not ok: log("dead link", x["key"], test, st)
+        ok = False
+        for cand in x.get("urls") or [x["url"]]:
+            test = cand.replace("{country}", "Sudan").replace("{iso3l}", "sdn").replace("{plan}", "1514")
+            ok, st = check(test)
+            if ok: x = dict(x, url=cand); break
+            log("dead link", x["key"], test, st)
+        x = {k: v for k, v in x.items() if k != "urls"}
         links[grp].append(dict(x, ok=ok))
 out["links"] = links
 out["link_checks"] = {u: s for u, (ok, s) in _checked.items()}

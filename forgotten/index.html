@@ -223,7 +223,7 @@ select{background:var(--bg2);border:1px solid var(--line);color:var(--ink);borde
       <p>Every crisis here has a 2026 UN humanitarian appeal for a single country. For each one we measure two things and rank each against the others:</p>
       <ol>
         <li><strong>Money.</strong> The share of the appeal that is still unfunded, from the UN Financial Tracking Service.</li>
-        <li><strong>Attention.</strong> English-language news stories in the last 30 days for every million people in need (GDELT), averaged with Wikipedia reads per thousand people in need.</li>
+        <li><strong>Attention.</strong> English-language news articles in the last 30 days that mention the country alongside words like humanitarian, famine or displaced, counted by the GDELT Project, for every million people in need. This is averaged with Wikipedia reads of the country’s article per thousand people in need.</li>
       </ol>
       <p>The Forgotten score is the average of those two ranks, from 0 to 100. Crises with fewer than 100,000 people in need are left out of the ranking so a tiny denominator can’t dominate.</p>
       <p class="note">What this misses: news in languages other than English, money that never gets reported to the UN, and crises with no UN appeal at all. Funding reports lag by weeks. People-in-need figures are the UN’s own planning numbers for the year shown.</p>
@@ -272,9 +272,9 @@ function init(d){
     [fmtN(t.pin),"people need humanitarian aid"],[fmtUSD(t.requirements),"asked for in UN appeals"],
     [pct(t.funding/t.requirements),"of it actually funded"],[fmtUSD(gap),"still missing"]
   ].map(([b,s])=>`<div><b>${b}</b><span>${s}</span></div>`).join("");
-  const top=ranked.slice(0,3);
-  if(top.length&&spotlight){
-    $("#hero-p").innerHTML=`<strong>${fmtN(t.pin)} people</strong> need help across ${d.crises.length} crises with UN appeals this year. The press wrote <strong>${word(Math.round(spotlight.news_per_m))} stories</strong> per million people in need about ${esc(spotlight.country)} this month. For ${esc(top[0].country)} it was <strong>${word(Math.round(top[0].news_per_m||0))}</strong>.`;
+  const top=ranked.slice(0,3), quiet=ranked.find(c=>c.news_per_m!=null&&c!==spotlight);
+  if(spotlight&&quiet){
+    $("#hero-p").innerHTML=`<strong>${fmtN(t.pin)} people</strong> need help across ${d.crises.length} crises with UN appeals this year, and ${pct(1-t.funding/t.requirements)} of the money is missing. In the last 30 days the news ran <strong>${word(Math.round(spotlight.news_per_m))} stories</strong> per million people in need about ${esc(spotlight.country)}. For ${esc(quiet.country)} it was <strong>${word(Math.round(quiet.news_per_m))}</strong>.`;
   }
   renderRows("index");
   renderTrio(top);
@@ -347,9 +347,9 @@ function open(iso,push=true,tab="give"){
     <p class="plan">${c.plans.map(p=>esc(p.name)).join(" · ")}</p>
     <p class="big">${big}</p>
     <div class="stats">
-      <div><b>${fmtN(c.pin)}</b><span>people in need${c.pin_year?` (${c.pin_year})`:""}</span></div>
+      <div><b>${fmtN(c.pin)}</b><span>people in need${c.pin_year?` (${c.pin_year}${c.pin_src?", plan target":""})`:""}</span></div>
       <div><b>${pct(c.coverage)}</b><span>of the appeal funded</span></div>
-      <div><b>${c.news_30d==null?"–":word(c.news_30d)}</b><span>news stories, 30 days</span></div>
+      <div><b>${c.news_30d==null?"–":word(c.news_30d)}</b><span>news stories, 30 days${c.news_asof&&c.news_asof!==D.generated.slice(0,10)?` (as of ${c.news_asof.slice(5)})`:""}</span></div>
       <div><b>${c.wiki?fmtN(c.wiki.views_30d):"–"}</b><span>Wikipedia reads, 30 days</span></div>
     </div>
     <div class="money"><div class="bar"><i id="mf"></i></div>
@@ -392,9 +392,11 @@ function spark(a){
 }
 const L=k=>(D.links||{})[k]||[];
 function giveHTML(c){
+  const conf=(c.recipients||[]).filter(r=>/confidential/i.test(r.name)).reduce((a,r)=>a+r.usd,0), all=(c.recipients||[]).reduce((a,r)=>a+r.usd,0);
+  const confNote=all&&conf/all>.5?`<p class="note">In ${esc(c.country)} the UN keeps most aid recipients confidential to protect staff, so this list is shorter than the real response. Pooled and local options below still reach the ground.</p>`:"";
   const orgs=(c.give||[]).map(o=>`<a class="org" href="${esc(o.url)}" target="_blank" rel="noopener"><div class="t"><b>${esc(o.name)}</b><span>${esc(o.what)}</span><div class="u">UN-tracked funding here in ${D.year}: ${fmtUSD(o.usd)}</div></div><span class="go">↗</span></a>`).join("");
   const pooled=L("pooled").filter(p=>p.ok).map(p=>`<a class="org" href="${esc(p.url.replace("{country}",encodeURIComponent(c.country)))}" target="_blank" rel="noopener"><div class="t"><b>${esc(p.name)}</b><span>${esc(p.what)}</span></div><span class="go">↗</span></a>`).join("");
-  return `${orgs?`<p class="note">These groups received money for work in ${esc(c.country)} this year, according to the UN’s own tracking. Each link goes to the group’s own donation page. Most let you pick a country or emergency there.</p>${orgs}`:`<p class="note">The UN hasn’t recorded funding to any group on our list in ${esc(c.country)} yet this year. The options below fund local groups directly.</p>`}
+  return confNote+`${orgs?`<p class="note">These groups received money for work in ${esc(c.country)} this year, according to the UN’s own tracking. Each link goes to the group’s own donation page. Most let you pick a country or emergency there.</p>${orgs}`:`<p class="note">The UN hasn’t recorded funding to any group on our list in ${esc(c.country)} yet this year. The options below fund local groups directly.</p>`}
    <h4>Local and pooled</h4>${pooled}
    <p class="note">Tip: unrestricted gifts let aid groups move money to wherever it is short, which is often exactly crises like this one. Check whether a gift is tax-deductible where you live before you give.</p>`;
 }
