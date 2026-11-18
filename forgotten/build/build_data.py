@@ -73,7 +73,8 @@ crises = {}
 for p in plans:
     if len(p["iso3"]) != 1 or not p["requirements"]: continue
     iso = p["iso3"][0]
-    c = crises.setdefault(iso, {"iso3": iso, "country": p["countries"][0], "lat": p["lat"], "lon": p["lon"], "plans": []})
+    c = crises.setdefault(iso, {"iso3": iso, "country": CUR["display"].get(iso, p["countries"][0]), "fts_country": p["countries"][0],
+                                "short": CUR["short"].get(iso, CUR["display"].get(iso, p["countries"][0])), "lat": p["lat"], "lon": p["lon"], "plans": []})
     c["plans"].append({k: p[k] for k in ("id", "name", "type", "requirements", "funding", "code")})
 regional = [ {k: p[k] for k in ("id","name","type","requirements","funding","countries")} for p in plans if len(p["iso3"]) != 1 and p["requirements"] ]
 for c in crises.values():
@@ -106,6 +107,7 @@ for iso, c in crises.items():
     p = pin.get(iso)
     c["pin"] = p["n"] if p else None
     c["pin_year"] = p["ref"][:4] if p else None
+log("no PIN for", sorted(iso for iso, c in crises.items() if c["pin"] is None))
 
 # ---------- 3. Recipient organisations per crisis (FTS) ----------
 for iso, c in crises.items():
@@ -124,32 +126,51 @@ for iso, c in crises.items():
 def gdelt(q, mode, extra=""):
     u = "https://api.gdeltproject.org/api/v2/doc/doc?" + urllib.parse.urlencode({"query": q, "mode": mode, "format": "json", "timespan": "30d"}) + extra
     time.sleep(5.5)
-    return json.loads(get(u, tries=2, wait=10) or b"{}")
+    raw = get(u, tries=2, wait=5)
+    return json.loads(raw) if raw and raw.strip().startswith(b"{") else {}
 
-gdelt_ok = 0; gdelt_fail = 0
-for iso, c in crises.items():
-    if gdelt_fail >= 6 and gdelt_ok == 0:
-        c["news_30d"] = None; c["news_daily"] = None; c["headlines"] = []; continue
-    name = CUR.get("names", {}).get(iso, c["country"])
+# GDELT is slow (often 30-90 s per query) and throttles shared runner IPs, so each run spends at most
+# 18 minutes here, refreshes the stalest crises first, and carries earlier values forward for the rest.
+PREV = {}
+try:
+    PREV = {c["iso3"]: c for c in json.load(open(OUT)).get("crises", [])}
+except Exception:
+    pass
+today = dt.date.today().isoformat()
+gdelt_ok = 0; gdelt_fail = 0; gdelt_deadline = time.time() + 18 * 60
+def staleness(iso):
+    p = PREV.get(iso) or {}
+    return p.get("news_asof") or "0000"
+order = sorted(crises, key=lambda iso: (staleness(iso), -crises[iso]["requirements"]))
+for iso in order:
+    c = crises[iso]; p = PREV.get(iso) or {}
+    for k in ("news_30d", "news_daily", "headlines", "news_asof"):
+        c[k] = p.get(k)
+    c["headlines"] = c["headlines"] or []
+    if (gdelt_fail >= 6 and gdelt_ok == 0) or time.time() > gdelt_deadline:
+        continue
+    name = CUR.get("names", {}).get(iso, c["short"])
     q = f'"{name}" (humanitarian OR famine OR displaced OR refugees OR aid OR crisis) sourcelang:english'
-    c["news_30d"] = None; c["news_daily"] = None; c["headlines"] = []
     try:
         d = gdelt(q, "timelinevolraw")
         series = d.get("timeline", [{}])[0].get("data", [])
-        c["news_daily"] = [int(x["value"]) for x in series]
-        c["news_30d"] = sum(c["news_daily"])
-        gdelt_ok += 1
+        if series:
+            c["news_daily"] = [int(x["value"]) for x in series]
+            c["news_30d"] = sum(c["news_daily"]); c["news_asof"] = today
+            gdelt_ok += 1
     except Exception as e:
-        gdelt_fail += 1; log("GDELT vol failed", iso, e)
+        gdelt_fail += 1; log("GDELT vol failed", iso, e); continue
+    if time.time() > gdelt_deadline: continue
     try:
         d = gdelt(q, "artlist", "&maxrecords=8&sort=datedesc")
-        seen = set()
+        seen, hl = set(), []
         for a in d.get("articles", []):
             t = a.get("title", "").strip()
             if not t or t.lower() in seen: continue
             seen.add(t.lower())
-            c["headlines"].append({"title": t, "url": a.get("url"), "source": a.get("domain"), "date": a.get("seendate", "")[:8]})
-            if len(c["headlines"]) == 4: break
+            hl.append({"title": t, "url": a.get("url"), "source": a.get("domain"), "date": a.get("seendate", "")[:8]})
+            if len(hl) == 4: break
+        if hl: c["headlines"] = hl
     except Exception as e:
         gdelt_fail += 1; log("GDELT art failed", iso, e)
 log("GDELT ok", gdelt_ok, "of", len(crises))
@@ -176,7 +197,7 @@ for iso, c in crises.items():
 for base in ("https://tasking-manager-production-api.hotosm.org/api/v2", "https://tasks.hotosm.org/api/v2"):
     try:
         for iso, c in crises.items():
-            name = CUR.get("hot_names", {}).get(iso, c["country"])
+            name = CUR.get("hot_names", {}).get(iso, c["fts_country"])
             d = jget(f"{base}/projects/?" + urllib.parse.urlencode({"country": name, "projectStatuses": "PUBLISHED", "orderBy": "priority"}), tries=2)
             for pr in d.get("results", [])[:4]:
                 c["map_tasks"].append({"id": pr["projectId"], "name": pr.get("name"), "priority": pr.get("priority"),
@@ -218,7 +239,7 @@ for i, c in enumerate(ranked, 1): c["rank"] = i
 
 out = {
     "generated": dt.datetime.utcnow().replace(microsecond=0).isoformat() + "Z", "year": YEAR,
-    "sources_ok": {"fts": True, "hapi": bool(pin), "gdelt": gdelt_ok, "wikipedia": sum(1 for c in L if c.get("wiki")), "hot": hot_ok},
+    "sources_ok": {"fts": True, "hapi": bool(pin), "gdelt": sum(1 for c in L if c.get("news_30d") is not None), "gdelt_fresh": gdelt_ok, "wikipedia": sum(1 for c in L if c.get("wiki")), "hot": hot_ok},
     "totals": {"requirements": sum(c["requirements"] for c in L), "funding": sum(c["funding"] for c in L),
                "pin": sum(c["pin"] or 0 for c in L), "news": sum(c["news_30d"] or 0 for c in L)},
     "crises": sorted(L, key=lambda c: c.get("rank", 999)), "regional": regional, "log": LOG[-60:],

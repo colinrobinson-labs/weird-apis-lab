@@ -29,7 +29,7 @@ button{font:inherit;color:inherit}
 /* ---------- stage ---------- */
 #stage{position:relative;height:min(92vh,860px);min-height:600px;overflow:hidden;border-bottom:1px solid var(--line)}
 #sky{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
-.bill{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:flex-start;padding:18px var(--pad);pointer-events:none;z-index:2}
+.bill{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:flex-start;padding:18px var(--pad);pointer-events:none;z-index:4}
 .bill b{font:800 13px var(--sans);letter-spacing:.32em;text-transform:uppercase}
 .bill span{font:12px var(--mono);color:var(--mute);text-align:right}
 .bill .live::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--light);margin-right:7px;vertical-align:1px;box-shadow:0 0 10px var(--light);animation:pulse 2.4s infinite}
@@ -37,8 +37,9 @@ button{font:inherit;color:inherit}
 .headline{position:absolute;left:0;right:0;bottom:0;padding:0 var(--pad) clamp(28px,6vh,64px);z-index:2;pointer-events:none;
   background:linear-gradient(transparent,rgba(13,12,10,.85) 45%,var(--bg))}
 .headline .wrap{padding:0}
-.headline h1{font:500 clamp(40px,8.6vw,118px)/.92 var(--serif);letter-spacing:-.025em;margin:0 0 18px;max-width:12ch}
+.headline h1{font:500 clamp(40px,7.4vw,104px)/.92 var(--serif);letter-spacing:-.025em;margin:0 0 18px;max-width:12ch}
 .headline h1 em{font-style:italic;color:var(--light)}
+@media (min-width:980px){.headline{top:0;display:flex;align-items:flex-end;background:linear-gradient(90deg,rgba(13,12,10,.9) 0,rgba(13,12,10,.6) 38%,transparent 60%),linear-gradient(transparent 70%,var(--bg))}.headline .wrap{margin:0;max-width:44vw}.headline h1{font-size:clamp(56px,6.2vw,96px)}}
 .headline p{margin:0;max-width:60ch;font-size:clamp(16px,2vw,19px);color:#d8cfc1}
 .headline p strong{color:var(--ink)}
 .headline .cta{pointer-events:auto;display:inline-flex;gap:10px;margin-top:22px;flex-wrap:wrap}
@@ -50,7 +51,7 @@ button{font:inherit;color:inherit}
 #tip{position:absolute;z-index:3;pointer-events:none;background:rgba(21,19,15,.94);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px;line-height:1.35;opacity:0;transform:translate(-50%,calc(-100% - 14px));transition:opacity .15s;white-space:nowrap}
 #tip b{display:block;font-size:15px}
 #tip .mono{color:var(--mute);font-size:11px}
-.legend{position:absolute;right:var(--pad);top:62px;z-index:2;font:11px/1.6 var(--mono);color:var(--mute);text-align:right;pointer-events:none}
+.legend{position:absolute;right:var(--pad);top:62px;z-index:4;font:11px/1.6 var(--mono);color:var(--mute);text-align:right;pointer-events:none}
 .legend i{display:inline-block;border-radius:50%;vertical-align:-2px;margin-left:6px}
 
 /* ---------- sections ---------- */
@@ -82,7 +83,7 @@ h2 em{font-style:italic}
 .row .nm b{display:block;font-size:18px;font-weight:600;line-height:1.2}
 .row .nm span{font-size:13px;color:var(--mute)}
 .row .v{font:14px var(--mono)}
-.row .v small{display:block;font:11px var(--sans);color:var(--faint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.row .v small{display:none;font:11px var(--sans);color:var(--faint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
 .fbar{height:8px;border-radius:4px;background:var(--gap);position:relative;overflow:hidden;margin-top:6px;opacity:.9}
 .fbar i{position:absolute;inset:0 auto 0 0;background:var(--ok);border-radius:4px 0 0 4px}
 .idx{font:500 26px/1 var(--serif);text-align:right}
@@ -96,6 +97,7 @@ h2 em{font-style:italic}
   .row .c-fund{grid-column:2/4;grid-row:2}
   .row .idx{grid-column:3;grid-row:1}
   .head{display:none}
+  .row .v small{display:block}
 }
 
 /* explainer */
@@ -439,27 +441,29 @@ const Sky=(()=>{
   const cv=$("#sky"),ctx=cv.getContext("2d"),tip=$("#tip");
   let W=0,H=0,DPR=1,nodes=[],beam={x:.5,y:.4,tx:.5,ty:.4,r:0},focusIso=null,hover=null,t0=performance.now(),dust=[];
   function resize(){DPR=Math.min(devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);layout()}
-  function proj(lat,lon){ // equirectangular, cropped to where crises are (lat -40..55)
-    const top=H*.13, bot=H*.62, x=(lon+170)/340, y=(55-lat)/95;
-    return [W*.04+x*W*.92, top+y*(bot-top)];
+  const wide=()=>W>=980;
+  function box(){return wide()?{l:W*.40,r:W*.97,t:H*.12,b:H*.80}:{l:W*.04,r:W*.96,t:H*.12,b:H*.50}}
+  function proj(lat,lon){ // equirectangular over the band where crises are: lon -95..130, lat -30..55
+    const B=box(), x=(lon+95)/225, y=(55-lat)/85;
+    return [B.l+Math.max(0,Math.min(1,x))*(B.r-B.l), B.t+Math.max(0,Math.min(1,y))*(B.b-B.t)];
   }
   function layout(){
-    const maxPin=Math.max(...nodes.map(n=>n.pin||0),1), base=Math.min(W,H)*(W<700?.085:.07);
+    const maxPin=Math.max(...nodes.map(n=>n.pin||0),1), base=Math.min(W,H)*(W<700?.075:.062)*Math.sqrt(16/Math.max(nodes.length,16));
     nodes.forEach(n=>{[n.x,n.y]=proj(n.lat,n.lon);n.r=4+Math.sqrt((n.pin||1e5)/maxPin)*base});
     // relax overlaps so every crisis stays visible
     for(let k=0;k<120;k++)for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
       const a=nodes[i],b=nodes[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||.01,m=a.r+b.r+3;
       if(d<m){const p=(m-d)/2,ux=dx/d,uy=dy/d;a.x-=ux*p;a.y-=uy*p;b.x+=ux*p;b.y+=uy*p}
     }
-    nodes.forEach(n=>{n.x=Math.max(n.r+4,Math.min(W-n.r-4,n.x));n.y=Math.max(n.r+50,Math.min(H*.72,n.y))});
+    const B=box();nodes.forEach(n=>{n.x=Math.max(B.l-20+n.r,Math.min(W-n.r-4,n.x));n.y=Math.max(n.r+50,Math.min(B.b+20,n.y))});
     dust=Array.from({length:Math.round(W*H/9000)},()=>({x:Math.random()*W,y:Math.random()*H*.8,a:Math.random()*.5,s:Math.random()*.6+.2,p:Math.random()*6}));
   }
   function load(cs){
     const L=cs.filter(c=>c.lat!=null&&c.lon!=null&&c.pin);
     const atts=L.map(c=>c.news_per_m).filter(v=>v!=null).sort((a,b)=>a-b);
-    nodes=L.map(c=>{
+    nodes=L.map(c=>{const nm=c.short||c.country;
       const r=c.news_per_m==null?0:(atts.filter(v=>v<=c.news_per_m).length/atts.length);
-      return {iso:c.iso3,name:c.country,lat:c.lat,lon:c.lon,pin:c.pin,cov:c.coverage,npm:c.news_per_m,rank:c.rank,glow:Math.pow(r,1.6),cur:0}
+      return {iso:c.iso3,name:nm,lat:c.lat,lon:c.lon,pin:c.pin,cov:c.coverage,npm:c.news_per_m,rank:c.rank,glow:Math.pow(r,1.6),cur:0}
     });
     resize();
     const lit=nodes.slice().sort((a,b)=>b.glow-a.glow);
@@ -495,9 +499,10 @@ const Sky=(()=>{
       ctx.lineWidth=hot?2:1;ctx.strokeStyle=hot?"#efe8dc":`rgba(154,145,131,${.55-.35*L})`;ctx.stroke();
       // the forgotten get a slow, faint breath so they are not invisible
       if(n.rank&&n.rank<=5&&!RM){ctx.beginPath();ctx.arc(n.x,n.y,n.r+4+3*Math.sin(s*1.3+n.r),0,7);ctx.strokeStyle=`rgba(224,88,60,${.35+.2*Math.sin(s*1.3)})`;ctx.lineWidth=1;ctx.stroke()}
-      if(n.r>16||hot||(n.rank&&n.rank<=5)){ctx.font=`${hot?600:500} ${W<700?10:12}px "Public Sans",sans-serif`;ctx.textAlign="center";ctx.fillStyle=L>.5?"rgba(27,18,6,.9)":"rgba(239,232,220,.78)";
-        const label=n.r>22?n.name.split(" ")[0]:n.name;
-        if(n.r>22)ctx.fillText(label.length>11?n.iso:label,n.x,n.y+4);else{ctx.fillStyle="rgba(239,232,220,.7)";ctx.fillText(n.name.length>14?n.iso:n.name,n.x,n.y+n.r+13)}}
+      if(n.r>13||hot||(n.rank&&n.rank<=5)){ctx.font=`${hot?600:500} ${W<700?10:12}px "Public Sans",sans-serif`;ctx.textAlign="center";
+        const tw=ctx.measureText(n.name).width;
+        if(tw<n.r*2-8){ctx.fillStyle=L>.5?"rgba(27,18,6,.9)":"rgba(239,232,220,.8)";ctx.fillText(n.name,n.x,n.y+4)}
+        else{ctx.fillStyle="rgba(239,232,220,.72)";ctx.fillText(n.name,n.x,n.y+n.r+13)}}
     }
   }
   function hit(x,y){let best=null,bd=1e9;for(const n of nodes){const d=Math.hypot(n.x-x,n.y-y);if(d<n.r+8&&d<bd){bd=d;best=n}}return best}
