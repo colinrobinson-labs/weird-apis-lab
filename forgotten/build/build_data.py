@@ -169,7 +169,8 @@ for iso in order:
     c = crises[iso]; p = PREV.get(iso) or {}
     for k in ("news_30d", "news_daily", "headlines", "news_asof"):
         c[k] = p.get(k)
-    c["headlines"] = c["headlines"] or []
+    name = CUR.get("names", {}).get(iso, c["short"])
+    c["headlines"] = [h for h in (c["headlines"] or []) if re.search(r"\b" + re.escape(name), h.get("title", ""), re.I)]
     if (gdelt_fail >= 6 and gdelt_ok == 0) or time.time() > gdelt_deadline:
         continue
     name = CUR.get("names", {}).get(iso, c["short"])
