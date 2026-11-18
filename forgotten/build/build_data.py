@@ -190,7 +190,7 @@ for iso in order:
         for a in d.get("articles", []):
             t = a.get("title", "").strip()
             if not t or t.lower() in seen: continue
-            if not re.search(r"\b" + re.escape(name.split()[0]), t, re.I): continue  # headline must name the place
+            if not re.search(r"\b" + re.escape(name), t, re.I): continue  # headline must name the place
             seen.add(t.lower())
             hl.append({"title": t, "url": a.get("url"), "source": a.get("domain"), "date": a.get("seendate", "")[:8]})
             if len(hl) == 4: break
