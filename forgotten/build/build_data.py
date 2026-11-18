@@ -107,7 +107,8 @@ for iso, c in crises.items():
     p = pin.get(iso)
     c["pin"] = p["n"] if p else None
     c["pin_year"] = p["ref"][:4] if p else None
-# Fallback: the plan's own caseload in the HPC API (flash appeals and refugee plans are not in HAPI).
+# Fallback: the plan-level caseload in the HPC API (flash appeals and refugee plans are not in HAPI).
+# Only data.attachments (plan level) is used: cluster caseloads overlap and can contain entry errors.
 def find_in_need(o, out):
     if isinstance(o, dict):
         if o.get("type") == "inNeed" and isinstance(o.get("value"), (int, float)): out.append(o["value"])
@@ -118,18 +119,17 @@ def find_in_need(o, out):
 for iso, c in crises.items():
     if c["pin"] is not None: continue
     for pl in c["plans"]:
-        for u in (f"https://api.hpc.tools/v2/public/plan/{pl['id']}?content=entities,measurements",
-                  f"https://api.hpc.tools/v2/public/plan/{pl['id']}",
-                  f"https://api.hpc.tools/v1/public/plan/id/{pl['id']}?content=entities"):
-            try:
-                vals = find_in_need(jget(u, tries=2), [])
-                if vals:
-                    c["pin"] = int(max(vals)); c["pin_year"] = str(YEAR); c["pin_src"] = "plan caseload"
-                    log("PIN from plan", iso, c["pin"], u.split("hpc.tools")[1]); break
-            except Exception as e:
-                log("plan caseload miss", iso, u.split("hpc.tools")[1], e)
-            time.sleep(0.5)
-        if c["pin"] is not None: break
+        try:
+            d = jget(f"https://api.hpc.tools/v1/public/plan/id/{pl['id']}?content=entities", tries=2)["data"]
+            vals = []
+            for a in d.get("attachments", []):
+                if a.get("type") == "caseLoad": find_in_need(a, vals)
+            if vals:
+                c["pin"] = int(max(vals)); c["pin_year"] = str(YEAR); c["pin_src"] = "plan caseload"
+                log("PIN from plan", iso, c["pin"]); break
+        except Exception as e:
+            log("plan caseload miss", iso, e)
+        time.sleep(0.5)
 log("no PIN for", sorted(iso for iso, c in crises.items() if c["pin"] is None))
 
 # ---------- 3. Recipient organisations per crisis (FTS) ----------
