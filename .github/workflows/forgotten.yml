@@ -10,7 +10,7 @@ permissions:
   contents: write
   actions: write
 concurrency:
-  group: forgotten-data
+  group: forgotten-data-${{ github.ref_name }}-v2
   cancel-in-progress: false
 jobs:
   build:

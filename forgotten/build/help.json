@@ -1,0 +1,60 @@
+{
+ "_note": "Organisations shown under Give only when UN FTS records funding to them in that crisis this year. match = regex against FTS recipient names. urls = candidates, first one that resolves wins (checked every build).",
+ "orgs": [
+  {"key":"msf","name":"Doctors Without Borders (MSF)","match":"M[ée]decins Sans Fronti[èe]res|Doctors Without Borders|\\bMSF\\b","what":"Emergency medical care, run independently of governments","urls":["https://www.msf.org/donate","https://www.doctorswithoutborders.org/"]},
+  {"key":"icrc","name":"International Committee of the Red Cross","match":"International Committee of the Red Cross|\\bICRC\\b","what":"Aid and protection in war zones","urls":["https://www.icrc.org/en/donate","https://www.icrc.org/en"]},
+  {"key":"ifrc","name":"IFRC and local Red Cross / Red Crescent","match":"International Federation of Red Cross|\\bIFRC\\b|Red Crescent Society|Red Cross Society","what":"Local volunteers who are already there when a disaster hits","urls":["https://www.ifrc.org/donate","https://www.ifrc.org/"]},
+  {"key":"irc","name":"International Rescue Committee","match":"International Rescue Committee","what":"Health, safety and cash for people uprooted by conflict","urls":["https://help.rescue.org/donate","https://www.rescue.org/"]},
+  {"key":"nrc","name":"Norwegian Refugee Council","match":"Norwegian Refugee Council","what":"Shelter, water, schooling and legal help for displaced people","urls":["https://www.nrc.no/donate/","https://www.nrc.no/"]},
+  {"key":"stc","name":"Save the Children","match":"Save the Children","what":"Food, health and protection for children","urls":["https://www.savethechildren.net/donate","https://www.savethechildren.net/"]},
+  {"key":"care","name":"CARE","match":"\\bCARE\\b|Cooperative for Assistance and Relief","what":"Emergency aid with a focus on women and girls","urls":["https://www.care-international.org/donate","https://www.care-international.org/"]},
+  {"key":"mercy","name":"Mercy Corps","match":"Mercy Corps","what":"Cash, water and recovery in fragile places","urls":["https://www.mercycorps.org/donate","https://www.mercycorps.org/"]},
+  {"key":"aah","name":"Action Against Hunger","match":"Action (Against|contre la) (Hunger|Faim)|Acci[óo]n contra el Hambre","what":"Treats and prevents malnutrition","urls":["https://www.actionagainsthunger.org/donate/","https://www.actionagainsthunger.org/"]},
+  {"key":"concern","name":"Concern Worldwide","match":"Concern Worldwide","what":"Nutrition, cash and livelihoods in the poorest places","urls":["https://www.concern.net/donate","https://www.concern.net/"]},
+  {"key":"irw","name":"Islamic Relief Worldwide","match":"Islamic Relief","what":"Food, water and health aid","urls":["https://islamic-relief.org/donate/","https://islamic-relief.org/"]},
+  {"key":"imc","name":"International Medical Corps","match":"International Medical Corps","what":"Clinics, surgery and mental health care","urls":["https://internationalmedicalcorps.org/donate/","https://internationalmedicalcorps.org/"]},
+  {"key":"drc","name":"Danish Refugee Council","match":"Danish Refugee Council","what":"Protection, shelter and mine clearance","urls":["https://www.drc.ngo/support-us/","https://www.drc.ngo/"]},
+  {"key":"oxfam","name":"Oxfam","match":"\\bOxfam","what":"Clean water, sanitation and food","urls":["https://www.oxfam.org/en/donate","https://www.oxfam.org/en"]},
+  {"key":"plan","name":"Plan International","match":"Plan International","what":"Protection and schooling for children, especially girls","urls":["https://plan-international.org/donate/","https://plan-international.org/"]},
+  {"key":"pui","name":"Première Urgence Internationale","match":"Premi[èe]re Urgence","what":"Health, food and shelter in crisis zones","urls":["https://www.premiere-urgence.org/en/","https://www.premiere-urgence.org/"]},
+  {"key":"alima","name":"ALIMA","match":"\\bALIMA\\b|Alliance for International Medical Action","what":"Medical care run with African doctors and nurses","urls":["https://alima.ngo/en/donate/","https://alima.ngo/en/"]},
+  {"key":"medair","name":"Medair","match":"\\bMedair\\b","what":"Health, nutrition and shelter in hard-to-reach places","urls":["https://www.medair.org/donate/","https://www.medair.org/"]},
+  {"key":"hi","name":"Humanity & Inclusion","match":"Humanity (&|and) Inclusion|Handicap International","what":"Rehabilitation, disability and mine clearance","urls":["https://www.hi.org/en/donate","https://www.hi.org/en/index"]},
+  {"key":"acted","name":"ACTED","match":"\\bACTED\\b|Agency for Technical Cooperation","what":"Emergency response and camp management","urls":["https://www.acted.org/en/donate/","https://www.acted.org/en/"]},
+  {"key":"solid","name":"Solidarités International","match":"Solidarit[ée]s International","what":"Water, sanitation and food","urls":["https://www.solidarites.org/en/donate/","https://www.solidarites.org/en/"]},
+  {"key":"ri","name":"Relief International","match":"Relief International","what":"Health, education and livelihoods","urls":["https://www.ri.org/donate/","https://www.ri.org/"]},
+  {"key":"goal","name":"GOAL","match":"^GOAL\\b|\\bGOAL Global","what":"Emergency response and long-term resilience","urls":["https://www.goalglobal.org/donate/","https://www.goalglobal.org/"]},
+  {"key":"whh","name":"Welthungerhilfe","match":"Welthungerhilfe|Deutsche Welthungerhilfe","what":"Food security and agriculture","urls":["https://www.welthungerhilfe.org/donate","https://www.welthungerhilfe.org/"]},
+  {"key":"crs","name":"Catholic Relief Services","match":"Catholic Relief Services","what":"Emergency aid and recovery","urls":["https://www.crs.org/donate","https://www.crs.org/"]},
+  {"key":"wv","name":"World Vision","match":"World Vision","what":"Food, water and child protection","urls":["https://www.wvi.org/","https://www.worldvision.org/"]},
+  {"key":"helpage","name":"HelpAge International","match":"HelpAge","what":"Support for older people in emergencies","urls":["https://www.helpage.org/donate/","https://www.helpage.org/"]},
+  {"key":"wfp","name":"World Food Programme","match":"World Food Programme|\\bWFP\\b","what":"Food and cash at the largest scale","urls":["https://www.wfp.org/support-us","https://www.wfp.org/"]},
+  {"key":"unicef","name":"UNICEF","match":"United Nations Children's Fund|\\bUNICEF\\b","what":"Vaccines, nutrition, water and school for children","urls":["https://www.unicef.org/take-action","https://www.unicef.org/"]},
+  {"key":"unhcr","name":"UNHCR, the UN Refugee Agency","match":"United Nations High Commissioner for Refugees|\\bUNHCR\\b","what":"Shelter and protection for refugees and displaced people","urls":["https://donate.unhcr.org/","https://www.unhcr.org/"]},
+  {"key":"unfpa","name":"UNFPA","match":"United Nations Population Fund|\\bUNFPA\\b","what":"Safe births and protection for women and girls","urls":["https://www.unfpa.org/donate","https://www.unfpa.org/"]},
+  {"key":"unrwa","name":"UNRWA","match":"United Nations Relief and Works Agency|\\bUNRWA\\b","what":"Health, food and schools for Palestine refugees","urls":["https://donate.unrwa.org/","https://www.unrwa.org/"]},
+  {"key":"who","name":"World Health Organization (via WHO Foundation)","match":"World Health Organization|\\bWHO\\b","what":"Disease outbreaks, medicines and health systems","urls":["https://who.foundation/en/donate","https://who.foundation/en/"]}
+ ],
+ "pooled": [
+  {"key":"gg","name":"GlobalGiving: local projects","what":"Vetted local and grassroots groups, searchable by country","url":"https://www.globalgiving.org/search/?keywords={country}"},
+  {"key":"cdp","name":"Center for Disaster Philanthropy","what":"Pooled crisis funds that re-grant to local organisations","url":"https://disasterphilanthropy.org/our-funds/"}
+ ],
+ "volunteer": [
+  {"key":"hot","name":"Map it from your couch","what":"Trace roads and buildings on satellite images so aid teams can find people. Takes 10 minutes, no experience needed.","url":"https://tasks.hotosm.org/explore"},
+  {"key":"clear","name":"Translate for aid workers","what":"CLEAR Global needs volunteers who speak the languages of the people affected.","url":"https://clearglobal.org/volunteer/"},
+  {"key":"unv","name":"UN online volunteering","what":"Remote tasks for UN and NGO teams: research, writing, design, data.","url":"https://app.unv.org/"}
+ ],
+ "speak": [
+  {"key":"us","label":"United States","url":"https://www.congress.gov/members/find-your-member"},
+  {"key":"uk","label":"United Kingdom","url":"https://members.parliament.uk/FindYourMP"},
+  {"key":"ca","label":"Canada","url":"https://www.ourcommons.ca/members/en"},
+  {"key":"au","label":"Australia","url":"https://www.aph.gov.au/Senators_and_Members"},
+  {"key":"eu","label":"European Union","url":"https://www.europarl.europa.eu/meps/en/home"}
+ ],
+ "learn": [
+  {"key":"tnh","name":"The New Humanitarian","url":"https://www.thenewhumanitarian.org/"},
+  {"key":"rw","name":"ReliefWeb country page","url":"https://reliefweb.int/country/{iso3l}"},
+  {"key":"fts","name":"UN funding tracker for this appeal","url":"https://fts.unocha.org/plans/{plan}/summary"},
+  {"key":"hdx","name":"Raw data on HDX","url":"https://data.humdata.org/group/{iso3l}"}
+ ]
+}

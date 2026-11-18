@@ -123,11 +123,13 @@ for iso, c in crises.items():
 # ---------- 4. News attention (GDELT) ----------
 def gdelt(q, mode, extra=""):
     u = "https://api.gdeltproject.org/api/v2/doc/doc?" + urllib.parse.urlencode({"query": q, "mode": mode, "format": "json", "timespan": "30d"}) + extra
-    time.sleep(6)
-    return json.loads(get(u, tries=5, wait=8) or b"{}")
+    time.sleep(5.5)
+    return json.loads(get(u, tries=2, wait=10) or b"{}")
 
-gdelt_ok = 0
+gdelt_ok = 0; gdelt_fail = 0
 for iso, c in crises.items():
+    if gdelt_fail >= 6 and gdelt_ok == 0:
+        c["news_30d"] = None; c["news_daily"] = None; c["headlines"] = []; continue
     name = CUR.get("names", {}).get(iso, c["country"])
     q = f'"{name}" (humanitarian OR famine OR displaced OR refugees OR aid OR crisis) sourcelang:english'
     c["news_30d"] = None; c["news_daily"] = None; c["headlines"] = []
@@ -138,7 +140,7 @@ for iso, c in crises.items():
         c["news_30d"] = sum(c["news_daily"])
         gdelt_ok += 1
     except Exception as e:
-        log("GDELT vol failed", iso, e)
+        gdelt_fail += 1; log("GDELT vol failed", iso, e)
     try:
         d = gdelt(q, "artlist", "&maxrecords=8&sort=datedesc")
         seen = set()
@@ -149,7 +151,7 @@ for iso, c in crises.items():
             c["headlines"].append({"title": t, "url": a.get("url"), "source": a.get("domain"), "date": a.get("seendate", "")[:8]})
             if len(c["headlines"]) == 4: break
     except Exception as e:
-        log("GDELT art failed", iso, e)
+        gdelt_fail += 1; log("GDELT art failed", iso, e)
 log("GDELT ok", gdelt_ok, "of", len(crises))
 
 # ---------- 5. Wikipedia reads ----------
@@ -223,3 +225,53 @@ out = {
 }
 json.dump(out, open(OUT, "w"), ensure_ascii=False, separators=(",", ":"))
 log("wrote", OUT, os.path.getsize(OUT), "bytes;", len(ranked), "ranked")
+
+# ---------- 8. Ways to help: match recipients to vetted directory, check every link ----------
+HELP = json.load(open(os.path.join(HERE, "help.json")))
+BROWSER_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
+_checked = {}
+def check(url):
+    if url in _checked: return _checked[url]
+    st = None
+    for method in ("HEAD", "GET"):
+        try:
+            req = urllib.request.Request(url, method=method, headers={"User-Agent": BROWSER_UA, "Accept": "text/html,*/*"})
+            with urllib.request.urlopen(req, timeout=30) as r: st = r.status
+            break
+        except urllib.error.HTTPError as e:
+            st = e.code
+            if method == "GET" or e.code not in (403, 405, 400, 429, 501): break
+        except Exception as e:
+            st = "err:" + type(e).__name__
+    # 401/403/429 = a bot wall, the page exists for people; 404/410/DNS errors = dead
+    ok = isinstance(st, int) and (st < 400 or st in (401, 403, 429))
+    _checked[url] = (ok, st); return ok, st
+
+org_url = {}
+for o in HELP["orgs"]:
+    o["rx"] = re.compile(o["match"], re.I)
+    for u in o["urls"]:
+        ok, st = check(u)
+        if ok: org_url[o["key"]] = u; break
+        log("dead link", o["key"], u, st)
+for c in out["crises"]:
+    give, seen = [], set()
+    for r in c.get("recipients", []):
+        for o in HELP["orgs"]:
+            if o["key"] in seen or o["key"] not in org_url: continue
+            if o["rx"].search(r["name"]):
+                seen.add(o["key"]); give.append({"key": o["key"], "name": o["name"], "what": o["what"], "url": org_url[o["key"]], "usd": r["usd"], "fts_name": r["name"]}); break
+    c["give"] = give[:8]
+links = {}
+for grp in ("pooled", "volunteer", "speak", "learn"):
+    links[grp] = []
+    for x in HELP[grp]:
+        test = x["url"].replace("{country}", "Sudan").replace("{iso3l}", "sdn").replace("{plan}", "1514")
+        ok, st = check(test)
+        if not ok: log("dead link", x["key"], test, st)
+        links[grp].append(dict(x, ok=ok))
+out["links"] = links
+out["link_checks"] = {u: s for u, (ok, s) in _checked.items()}
+out["log"] = LOG[-80:]
+json.dump(out, open(OUT, "w"), ensure_ascii=False, separators=(",", ":"))
+log("help matched; wrote again", os.path.getsize(OUT))

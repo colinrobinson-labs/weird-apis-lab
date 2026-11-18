@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Forgotten · the crises the world isn't watching</title>
+<meta name="description" content="A live ranking of humanitarian crises by how little money and news coverage they get per person in need, with vetted ways to help.">
+<meta name="theme-color" content="#0d0c0a">
+<meta property="og:title" content="Forgotten">
+<meta property="og:description" content="The crises the world isn't watching, ranked live from UN funding data and global news coverage.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,800;1,6..96,500&family=Public+Sans:ital,wght@0,400;0,600;0,800;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0c0a;--bg2:#15130f;--bg3:#1d1a15;--ink:#efe8dc;--mute:#9a9183;--faint:#5d564c;--line:#2a261f;
+  --light:#ffc061;--light2:#ffdca3;--gap:#e0583c;--ok:#8fb88a;
+  --serif:"Bodoni Moda",Didot,"Times New Roman",serif;--sans:"Public Sans",system-ui,sans-serif;--mono:"DM Mono",ui-monospace,monospace;
+  --pad:clamp(16px,4vw,40px);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);overflow-x:hidden}
+a{color:inherit}
+button{font:inherit;color:inherit}
+::selection{background:var(--light);color:#000}
+.mono{font-family:var(--mono);letter-spacing:.02em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 var(--pad)}
+
+/* ---------- stage ---------- */
+#stage{position:relative;height:min(92vh,860px);min-height:600px;overflow:hidden;border-bottom:1px solid var(--line)}
+#sky{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
+.bill{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:flex-start;padding:18px var(--pad);pointer-events:none;z-index:2}
+.bill b{font:800 13px var(--sans);letter-spacing:.32em;text-transform:uppercase}
+.bill span{font:12px var(--mono);color:var(--mute);text-align:right}
+.bill .live::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--light);margin-right:7px;vertical-align:1px;box-shadow:0 0 10px var(--light);animation:pulse 2.4s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.headline{position:absolute;left:0;right:0;bottom:0;padding:0 var(--pad) clamp(28px,6vh,64px);z-index:2;pointer-events:none;
+  background:linear-gradient(transparent,rgba(13,12,10,.85) 45%,var(--bg))}
+.headline .wrap{padding:0}
+.headline h1{font:500 clamp(40px,8.6vw,118px)/.92 var(--serif);letter-spacing:-.025em;margin:0 0 18px;max-width:12ch}
+.headline h1 em{font-style:italic;color:var(--light)}
+.headline p{margin:0;max-width:60ch;font-size:clamp(16px,2vw,19px);color:#d8cfc1}
+.headline p strong{color:var(--ink)}
+.headline .cta{pointer-events:auto;display:inline-flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:999px;border:1px solid var(--line);background:var(--bg2);text-decoration:none;font-weight:600;font-size:15px;cursor:pointer;transition:border-color .2s,background .2s,transform .15s}
+.btn:hover{border-color:var(--light)}
+.btn:active{transform:scale(.97)}
+.btn.hot{background:var(--light);color:#1b1206;border-color:var(--light)}
+.btn.hot:hover{background:var(--light2)}
+#tip{position:absolute;z-index:3;pointer-events:none;background:rgba(21,19,15,.94);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px;line-height:1.35;opacity:0;transform:translate(-50%,calc(-100% - 14px));transition:opacity .15s;white-space:nowrap}
+#tip b{display:block;font-size:15px}
+#tip .mono{color:var(--mute);font-size:11px}
+.legend{position:absolute;right:var(--pad);top:62px;z-index:2;font:11px/1.6 var(--mono);color:var(--mute);text-align:right;pointer-events:none}
+.legend i{display:inline-block;border-radius:50%;vertical-align:-2px;margin-left:6px}
+
+/* ---------- sections ---------- */
+section{padding:clamp(56px,9vw,110px) 0}
+.kicker{font:500 12px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--light);margin:0 0 14px}
+h2{font:500 clamp(32px,5vw,60px)/1 var(--serif);letter-spacing:-.02em;margin:0 0 14px}
+h2 em{font-style:italic}
+.lede{color:var(--mute);max-width:62ch;margin:0 0 30px;font-size:17px}
+
+/* totals strip */
+.totals{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.totals div{padding:22px 18px 20px 0}
+.totals div+div{padding-left:18px;border-left:1px solid var(--line)}
+.totals b{display:block;font:500 clamp(28px,4vw,46px)/1 var(--serif);margin-bottom:6px;font-variant-numeric:lining-nums}
+.totals span{font-size:13px;color:var(--mute)}
+@media (max-width:720px){.totals{grid-template-columns:1fr 1fr}.totals div:nth-child(3){padding-left:0;border-left:0}.totals div:nth-child(n+3){border-top:1px solid var(--line)}}
+
+/* sort */
+.sorts{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px}
+.sorts button{background:none;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:14px;cursor:pointer;color:var(--mute)}
+.sorts button[aria-pressed=true]{color:#1b1206;background:var(--ink);border-color:var(--ink)}
+
+/* list */
+.list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:64px minmax(0,1.6fr) 1fr 1.25fr 1fr 70px;gap:18px;align-items:center;padding:16px 4px;border-bottom:1px solid var(--line);cursor:pointer;width:100%;text-align:left;background:none;border-left:0;border-right:0;border-top:0;transition:background .2s}
+.row:hover,.row:focus-visible{background:var(--bg2);outline:none}
+.row .rk{font:500 34px/1 var(--serif);color:var(--faint)}
+.row:nth-child(-n+3) .rk{color:var(--light)}
+.row .nm b{display:block;font-size:18px;font-weight:600;line-height:1.2}
+.row .nm span{font-size:13px;color:var(--mute)}
+.row .v{font:14px var(--mono)}
+.row .v small{display:block;font:11px var(--sans);color:var(--faint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.fbar{height:8px;border-radius:4px;background:var(--gap);position:relative;overflow:hidden;margin-top:6px;opacity:.9}
+.fbar i{position:absolute;inset:0 auto 0 0;background:var(--ok);border-radius:4px 0 0 4px}
+.idx{font:500 26px/1 var(--serif);text-align:right}
+.idx small{display:block;font:10px var(--mono);color:var(--faint);letter-spacing:.08em;margin-top:4px}
+.head{cursor:default;padding:10px 4px;font:11px var(--mono);color:var(--faint);text-transform:uppercase;letter-spacing:.1em}
+.head:hover{background:none}
+@media (max-width:820px){
+  .row{grid-template-columns:44px 1fr 74px;gap:8px 12px;padding:16px 2px}
+  .row .rk{font-size:26px}
+  .row .c-pin,.row .c-news{display:none}
+  .row .c-fund{grid-column:2/4;grid-row:2}
+  .row .idx{grid-column:3;grid-row:1}
+  .head{display:none}
+}
+
+/* explainer */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,5vw,72px)}
+@media (max-width:820px){.two{grid-template-columns:1fr}}
+.method p,.method li{color:#cfc6b7}
+.method ol{padding-left:20px}
+.method li{margin-bottom:10px}
+.src{border:1px solid var(--line);border-radius:14px;padding:20px;background:var(--bg2)}
+.src h3{margin:0 0 12px;font-size:15px}
+.src li{list-style:none;margin:0 0 12px;padding:0;font-size:14px}
+.src ul{margin:0;padding:0}
+.src .st{font:11px var(--mono);padding:2px 7px;border-radius:5px;margin-left:6px}
+.st.y{background:rgba(143,184,138,.15);color:var(--ok)}.st.n{background:rgba(224,88,60,.15);color:var(--gap)}
+
+/* help-the-top strip */
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media (max-width:820px){.trio{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:16px;padding:22px;background:var(--bg2);display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:border-color .2s,transform .2s;text-align:left}
+.card:hover{border-color:var(--light);transform:translateY(-2px)}
+.card .n{font:500 13px var(--mono);color:var(--light)}
+.card h3{font:500 30px/1.05 var(--serif);margin:0}
+.card p{margin:0;color:var(--mute);font-size:14px}
+
+footer{border-top:1px solid var(--line);padding:40px 0 60px;color:var(--mute);font-size:13px}
+footer a{color:var(--ink)}
+
+/* ---------- sheet ---------- */
+#scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .3s;z-index:20;backdrop-filter:blur(2px)}
+#sheet{position:fixed;z-index:21;background:var(--bg);border-left:1px solid var(--line);top:0;right:0;bottom:0;width:min(640px,100vw);transform:translateX(102%);transition:transform .42s cubic-bezier(.2,.8,.2,1);overflow-y:auto;overscroll-behavior:contain}
+body.open #scrim{opacity:1;pointer-events:auto}
+body.open #sheet{transform:none}
+body.open{overflow:hidden}
+@media (max-width:720px){
+  #sheet{top:auto;left:0;width:100%;height:92vh;border-left:0;border-top:1px solid var(--line);border-radius:20px 20px 0 0;transform:translateY(102%)}
+  #sheet::before{content:"";display:block;width:44px;height:5px;border-radius:3px;background:var(--faint);margin:10px auto 0}
+}
+.sh{padding:22px var(--pad) 60px}
+.sh .x{position:sticky;top:12px;float:right;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg2);cursor:pointer;font-size:20px;line-height:1;z-index:2}
+.sh .rank{font:500 12px var(--mono);color:var(--light);letter-spacing:.14em;text-transform:uppercase}
+.sh h2{font-size:clamp(40px,8vw,64px);margin:8px 0 6px}
+.sh .plan{color:var(--mute);font-size:14px;margin:0 0 22px}
+.big{font:500 clamp(22px,3.4vw,28px)/1.25 var(--serif);margin:0 0 26px}
+.big em{color:var(--light);font-style:normal}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:26px}
+.stats div{background:var(--bg2);padding:16px}
+.stats b{display:block;font:500 28px/1.1 var(--serif)}
+.stats span{font-size:12px;color:var(--mute)}
+.money{margin:0 0 28px}
+.money .bar{height:16px;border-radius:8px;background:repeating-linear-gradient(-45deg,rgba(224,88,60,.85) 0 6px,rgba(224,88,60,.6) 6px 12px);position:relative;overflow:hidden}
+.money .bar i{position:absolute;inset:0 auto 0 0;background:var(--ok);width:0;transition:width 1.2s cubic-bezier(.2,.8,.2,1) .2s}
+.money .lab{display:flex;justify-content:space-between;font:13px var(--mono);margin-top:8px;color:var(--mute);gap:10px}
+.money .lab b{color:var(--ink);font-weight:500}
+h4{font:600 12px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin:30px 0 12px}
+.spark{width:100%;height:64px;display:block}
+.hl{list-style:none;margin:0;padding:0}
+.hl li{padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.hl a{text-decoration:none}.hl a:hover{text-decoration:underline}
+.hl span{display:block;font:11px var(--mono);color:var(--faint);margin-top:2px}
+.tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:4px;margin:30px 0 16px;position:sticky;top:8px;z-index:1}
+.tabs button{flex:1;border:0;background:none;padding:10px 6px;border-radius:999px;cursor:pointer;font-size:14px;font-weight:600;color:var(--mute)}
+.tabs button[aria-selected=true]{background:var(--light);color:#1b1206}
+.pane{display:none}.pane.on{display:block;animation:fade .3s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}}
+.org{display:flex;gap:14px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:14px;margin-bottom:10px;text-decoration:none;transition:border-color .2s}
+.org:hover{border-color:var(--light)}
+.org .t{flex:1;min-width:0}
+.org b{display:block;font-size:16px}
+.org span{display:block;font-size:13px;color:var(--mute)}
+.org .u{font:11px var(--mono);color:var(--faint);margin-top:4px}
+.org .go{font-size:20px;color:var(--light)}
+.note{font-size:13px;color:var(--mute);border-left:2px solid var(--light);padding:2px 0 2px 12px;margin:14px 0}
+textarea{width:100%;min-height:190px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;color:var(--ink);font:14px/1.5 var(--sans);padding:14px;resize:vertical}
+select{background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:11px 14px;font:inherit}
+.rowb{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,30px);opacity:0;background:var(--ink);color:#111;padding:10px 16px;border-radius:999px;font-weight:600;font-size:14px;z-index:40;transition:.25s}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.skel{color:var(--faint);padding:30px 0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header id="stage" aria-label="Map of crises, lit by news attention">
+  <canvas id="sky" aria-hidden="true"></canvas>
+  <div class="bill"><b>Forgotten</b><span id="stamp" class="live">loading live data</span></div>
+  <div class="legend" aria-hidden="true">size = people in need <i style="width:12px;height:12px;border:1px solid var(--mute)"></i><br>light = news per person <i style="width:9px;height:9px;background:var(--light);box-shadow:0 0 8px var(--light)"></i></div>
+  <div id="tip"></div>
+  <div class="headline"><div class="wrap">
+    <h1>The crises the world <em>isn’t watching.</em></h1>
+    <p id="hero-p">Every humanitarian crisis with a UN appeal, ranked by how little money and news coverage it gets for each person who needs help.</p>
+    <div class="cta"><a class="btn hot" href="#list">See the list</a><a class="btn" href="#help-now">Help the top three</a></div>
+  </div></div>
+</header>
+
+<main>
+  <section id="list"><div class="wrap">
+    <p class="kicker">The forgotten list · <span id="yr"></span></p>
+    <h2>Ranked by <em>neglect</em></h2>
+    <p class="lede">A crisis rises up this list when its UN appeal is badly underfunded and the press writes little about it relative to how many people need help. Tap any crisis for the full picture and ways to help.</p>
+    <div class="totals" id="totals"></div>
+    <div style="height:28px"></div>
+    <div class="sorts" role="group" aria-label="Sort by">
+      <button aria-pressed="true" data-s="index">Most forgotten</button>
+      <button aria-pressed="false" data-s="gap">Biggest funding gap</button>
+      <button aria-pressed="false" data-s="silence">Quietest press</button>
+      <button aria-pressed="false" data-s="pin">Most people in need</button>
+    </div>
+    <ol class="list" id="rows"><li class="skel">Loading the latest UN and news data…</li></ol>
+  </div></section>
+
+  <section id="help-now" style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)"><div class="wrap">
+    <p class="kicker">Where help goes furthest</p>
+    <h2>Start with <em>these three</em></h2>
+    <p class="lede">Money and attention both follow the headlines. A dollar or a share for one of these goes to people almost nobody else is helping right now.</p>
+    <div class="trio" id="trio"></div>
+  </div></section>
+
+  <section id="method"><div class="wrap two">
+    <div class="method">
+      <p class="kicker">How it works</p>
+      <h2>No opinions. <em>Just the gap.</em></h2>
+      <p>Every crisis here has a 2026 UN humanitarian appeal for a single country. For each one we measure two things and rank each against the others:</p>
+      <ol>
+        <li><strong>Money.</strong> The share of the appeal that is still unfunded, from the UN Financial Tracking Service.</li>
+        <li><strong>Attention.</strong> English-language news stories in the last 30 days for every million people in need (GDELT), averaged with Wikipedia reads per thousand people in need.</li>
+      </ol>
+      <p>The Forgotten score is the average of those two ranks, from 0 to 100. Crises with fewer than 100,000 people in need are left out of the ranking so a tiny denominator can’t dominate.</p>
+      <p class="note">What this misses: news in languages other than English, money that never gets reported to the UN, and crises with no UN appeal at all. Funding reports lag by weeks. People-in-need figures are the UN’s own planning numbers for the year shown.</p>
+      <p><strong>How we pick where to give.</strong> An organisation only appears under a crisis if the UN recorded money reaching it there this year, and it is an established international group we list by name. We link straight to its own donation page. No middlemen, no affiliate links, no tracking, nothing we earn.</p>
+    </div>
+    <div>
+      <div class="src"><h3>Live sources, refreshed daily</h3><ul id="srcs"></ul></div>
+    </div>
+  </div></section>
+</main>
+
+<footer><div class="wrap">
+  Forgotten is a free public-good project in the <a href="../">Weird APIs Lab</a>. Data: UN OCHA FTS, HDX HAPI, the GDELT Project, Wikimedia, HOT Tasking Manager. No ads, no cookies, no tracking. <span id="gen"></span>
+</div></footer>
+
+<div id="scrim"></div>
+<aside id="sheet" role="dialog" aria-modal="true" aria-label="Crisis details"><div class="sh" id="sh"></div></aside>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtN=n=>n==null?"–":n>=1e9?(n/1e9).toFixed(1)+"B":n>=1e6?(n/1e6).toFixed(n>=1e7?0:1)+"M":n>=1e3?Math.round(n/1e3)+"K":String(Math.round(n));
+const fmtUSD=n=>n==null?"–":"$"+(n>=1e9?(n/1e9).toFixed(2)+"B":n>=1e6?(n/1e6).toFixed(n>=1e8?0:1)+"M":n>=1e3?Math.round(n/1e3)+"K":Math.round(n));
+const pct=x=>x==null?"–":Math.round(x*100)+"%";
+const word=n=>n.toLocaleString("en-US");
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let D=null, ranked=[], spotlight=null;
+
+fetch("data.json?"+Date.now().toString(36).slice(0,-3)).then(r=>r.json()).then(init).catch(e=>{
+  $("#rows").innerHTML='<li class="skel">Could not load data right now. Try again in a minute.</li>';$("#stamp").textContent="offline";console.error(e);
+});
+
+function init(d){
+  D=d;
+  ranked=d.crises.filter(c=>c.rank);
+  const withNews=ranked.filter(c=>c.news_per_m!=null);
+  spotlight=withNews.slice().sort((a,b)=>b.news_per_m-a.news_per_m)[0]||null;
+  const g=new Date(d.generated);
+  $("#stamp").textContent="updated "+g.toLocaleDateString(undefined,{month:"short",day:"numeric"})+", "+g.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});
+  $("#yr").textContent=d.year+" appeals";
+  $("#gen").textContent="Data built "+g.toUTCString().replace(" GMT"," UTC")+".";
+  const t=d.totals, gap=t.requirements-t.funding;
+  $("#totals").innerHTML=[
+    [fmtN(t.pin),"people need humanitarian aid"],[fmtUSD(t.requirements),"asked for in UN appeals"],
+    [pct(t.funding/t.requirements),"of it actually funded"],[fmtUSD(gap),"still missing"]
+  ].map(([b,s])=>`<div><b>${b}</b><span>${s}</span></div>`).join("");
+  const top=ranked.slice(0,3);
+  if(top.length&&spotlight){
+    $("#hero-p").innerHTML=`<strong>${fmtN(t.pin)} people</strong> need help across ${d.crises.length} crises with UN appeals this year. The press wrote <strong>${word(Math.round(spotlight.news_per_m))} stories</strong> per million people in need about ${esc(spotlight.country)} this month. For ${esc(top[0].country)} it was <strong>${word(Math.round(top[0].news_per_m||0))}</strong>.`;
+  }
+  renderRows("index");
+  renderTrio(top);
+  renderSources();
+  Sky.load(d.crises);
+  document.querySelectorAll(".sorts button").forEach(b=>b.onclick=()=>{
+    document.querySelectorAll(".sorts button").forEach(x=>x.setAttribute("aria-pressed",x===b));renderRows(b.dataset.s);
+  });
+  const h=location.hash.slice(1).toUpperCase();
+  if(h.length===3&&d.crises.find(c=>c.iso3===h))open(h,false);
+}
+
+function sorter(s){
+  const L=ranked.slice();
+  if(s==="gap")L.sort((a,b)=>(a.coverage??1)-(b.coverage??1));
+  else if(s==="silence")L.sort((a,b)=>(a.news_per_m??1e9)-(b.news_per_m??1e9));
+  else if(s==="pin")L.sort((a,b)=>(b.pin||0)-(a.pin||0));
+  return L;
+}
+function renderRows(s){
+  const L=sorter(s);
+  $("#rows").innerHTML=`<li class="row head" aria-hidden="true"><span>#</span><span>Crisis</span><span class="c-pin">People in need</span><span class="c-fund">Appeal funded</span><span class="c-news">Stories / 1M in need</span><span style="text-align:right">Score</span></li>`+
+  L.map((c,i)=>`<li><button class="row" data-iso="${c.iso3}" style="animation:fade .4s ${Math.min(i*25,600)}ms both">
+    <span class="rk">${s==="index"?c.rank:i+1}</span>
+    <span class="nm"><b>${esc(c.country)}</b><span>${esc(planLabel(c))}</span></span>
+    <span class="v c-pin"><small>In need</small>${fmtN(c.pin)}</span>
+    <span class="v c-fund"><small>Funded · ${fmtUSD(c.gap)} missing</small>${pct(c.coverage)}<div class="fbar"><i style="width:${Math.min(100,(c.coverage||0)*100)}%"></i></div></span>
+    <span class="v c-news"><small>Stories per 1M</small>${c.news_per_m==null?"–":word(Math.round(c.news_per_m))}</span>
+    <span class="idx">${c.index}<small>SCORE</small></span>
+  </button></li>`).join("");
+  $("#rows").querySelectorAll(".row[data-iso]").forEach(b=>b.onclick=()=>open(b.dataset.iso));
+}
+function planLabel(c){
+  const p=c.plans[0]; if(!p)return"";
+  const t=(p.type||"").toLowerCase().includes("flash")?"Flash appeal":"Response plan";
+  return c.plans.length>1?`${c.plans.length} UN appeals`:t;
+}
+function renderTrio(top){
+  $("#trio").innerHTML=top.map(c=>`<button class="card" data-iso="${c.iso3}">
+    <span class="n">#${c.rank} · score ${c.index}</span><h3>${esc(c.country)}</h3>
+    <p>${fmtN(c.pin)} people in need. ${pct(c.coverage)} funded. ${c.give?.length||0} groups the UN tracked working there.</p>
+    <span class="btn hot" style="align-self:flex-start;margin-top:auto">Ways to help →</span></button>`).join("");
+  $("#trio").querySelectorAll(".card").forEach(b=>b.onclick=()=>open(b.dataset.iso,true,"give"));
+}
+function renderSources(){
+  const s=D.sources_ok, n=D.crises.length;
+  const L=[["UN OCHA Financial Tracking Service","Appeals, requirements, funding and which organisations received it",s.fts],
+    ["HDX HAPI","People in need, national totals",s.hapi],
+    ["GDELT Project",`News volume and headlines (${s.gdelt}/${n} crises)`,s.gdelt>0],
+    ["Wikimedia pageviews",`30-day reads (${s.wikipedia}/${n} crises)`,s.wikipedia>0],
+    ["HOT Tasking Manager","Open remote-mapping tasks",s.hot]];
+  $("#srcs").innerHTML=L.map(([a,b,ok])=>`<li><strong>${a}</strong><span class="st ${ok?"y":"n"}">${ok?"live":"unavailable"}</span><br><span style="color:var(--mute)">${b}</span></li>`).join("");
+}
+
+/* ---------- detail sheet ---------- */
+let lastFocus=null;
+function open(iso,push=true,tab="give"){
+  const c=D.crises.find(x=>x.iso3===iso); if(!c)return;
+  lastFocus=document.activeElement;
+  const sp=spotlight&&spotlight.iso3!==c.iso3?spotlight:null;
+  const plan=c.plans.slice().sort((a,b)=>b.requirements-a.requirements)[0];
+  const ratio=sp&&c.news_per_m?Math.round(sp.news_per_m/c.news_per_m):null;
+  const big=c.news_per_m!=null
+    ? `For every million people in need here, English-language outlets ran <em>${word(Math.round(c.news_per_m))} stories</em> in 30 days.`+(sp&&ratio>1?` ${esc(sp.country)} got ${word(Math.round(sp.news_per_m))}, about ${word(ratio)} times more.`:"")
+    : `${pct(c.coverage)} of this appeal is funded.`;
+  $("#sh").innerHTML=`
+    <button class="x" aria-label="Close" onclick="closeSheet()">×</button>
+    <div class="rank">${c.rank?`#${c.rank} most forgotten · score ${c.index}`:"Not ranked"}</div>
+    <h2>${esc(c.country)}</h2>
+    <p class="plan">${c.plans.map(p=>esc(p.name)).join(" · ")}</p>
+    <p class="big">${big}</p>
+    <div class="stats">
+      <div><b>${fmtN(c.pin)}</b><span>people in need${c.pin_year?` (${c.pin_year})`:""}</span></div>
+      <div><b>${pct(c.coverage)}</b><span>of the appeal funded</span></div>
+      <div><b>${c.news_30d==null?"–":word(c.news_30d)}</b><span>news stories, 30 days</span></div>
+      <div><b>${c.wiki?fmtN(c.wiki.views_30d):"–"}</b><span>Wikipedia reads, 30 days</span></div>
+    </div>
+    <div class="money"><div class="bar"><i id="mf"></i></div>
+      <div class="lab"><span><b>${fmtUSD(c.funding)}</b> received</span><span><b>${fmtUSD(c.gap)}</b> missing of ${fmtUSD(c.requirements)}</span></div></div>
+    ${c.news_daily&&c.news_daily.length?`<h4>News stories per day, last 30 days</h4>${spark(c.news_daily)}`:""}
+    ${c.headlines&&c.headlines.length?`<h4>What little coverage there is</h4><ul class="hl">${c.headlines.map(h=>`<li><a href="${esc(h.url)}" target="_blank" rel="noopener">${esc(h.title)}</a><span>${esc(h.source)} · ${h.date.slice(0,4)}-${h.date.slice(4,6)}-${h.date.slice(6,8)}</span></li>`).join("")}</ul>`:""}
+    <div class="tabs" role="tablist">
+      ${[["give","Give"],["do","Do"],["speak","Speak up"],["learn","Learn"]].map(([k,l])=>`<button role="tab" data-t="${k}" aria-selected="${k===tab}">${l}</button>`).join("")}
+    </div>
+    <div class="pane" data-p="give">${giveHTML(c)}</div>
+    <div class="pane" data-p="do">${doHTML(c)}</div>
+    <div class="pane" data-p="speak">${speakHTML(c,plan)}</div>
+    <div class="pane" data-p="learn">${learnHTML(c,plan)}</div>`;
+  const sh=$("#sh");
+  sh.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>setTab(b.dataset.t));
+  setTab(tab);
+  document.body.classList.add("open");
+  $("#sheet").scrollTop=0;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{const m=$("#mf");if(m)m.style.width=Math.min(100,(c.coverage||0)*100)+"%"}));
+  setTimeout(()=>sh.querySelector(".x").focus({preventScroll:true}),50);
+  if(push)history.replaceState(null,"","#"+iso.toLowerCase());
+  Sky.focus(iso);
+  const sel=sh.querySelector("#rep"); if(sel){sel.onchange=()=>{const o=sel.selectedOptions[0];$("#repgo").href=o.value}}
+}
+function setTab(t){document.querySelectorAll("#sh .tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t));document.querySelectorAll("#sh .pane").forEach(p=>p.classList.toggle("on",p.dataset.p===t))}
+function closeSheet(){document.body.classList.remove("open");history.replaceState(null,"",location.pathname);Sky.focus(null);if(lastFocus)lastFocus.focus({preventScroll:true})}
+$("#scrim").onclick=closeSheet;
+addEventListener("keydown",e=>{if(e.key==="Escape"&&document.body.classList.contains("open"))closeSheet()});
+// swipe down to close on phones
+(()=>{let y0=null;const s=$("#sheet");s.addEventListener("touchstart",e=>{y0=s.scrollTop<=0?e.touches[0].clientY:null},{passive:true});
+ s.addEventListener("touchend",e=>{if(y0!=null&&e.changedTouches[0].clientY-y0>110)closeSheet();y0=null},{passive:true})})();
+
+function spark(a){
+  const w=600,h=64,m=Math.max(...a,1),n=a.length;
+  const pts=a.map((v,i)=>[(i/(n-1||1))*w,h-4-(v/m)*(h-10)]);
+  const d=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join("");
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="Peak ${m} stories in one day">
+   <path d="${d} L${w} ${h} L0 ${h}Z" fill="rgba(255,192,97,.13)"/><path d="${d}" fill="none" stroke="var(--light)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
+   <div class="mono" style="display:flex;justify-content:space-between;font-size:11px;color:var(--faint)"><span>30 days ago</span><span>peak ${m}/day</span><span>today</span></div>`;
+}
+const L=k=>(D.links||{})[k]||[];
+function giveHTML(c){
+  const orgs=(c.give||[]).map(o=>`<a class="org" href="${esc(o.url)}" target="_blank" rel="noopener"><div class="t"><b>${esc(o.name)}</b><span>${esc(o.what)}</span><div class="u">UN-tracked funding here in ${D.year}: ${fmtUSD(o.usd)}</div></div><span class="go">↗</span></a>`).join("");
+  const pooled=L("pooled").filter(p=>p.ok).map(p=>`<a class="org" href="${esc(p.url.replace("{country}",encodeURIComponent(c.country)))}" target="_blank" rel="noopener"><div class="t"><b>${esc(p.name)}</b><span>${esc(p.what)}</span></div><span class="go">↗</span></a>`).join("");
+  return `${orgs?`<p class="note">These groups received money for work in ${esc(c.country)} this year, according to the UN’s own tracking. Each link goes to the group’s own donation page. Most let you pick a country or emergency there.</p>${orgs}`:`<p class="note">The UN hasn’t recorded funding to any group on our list in ${esc(c.country)} yet this year. The options below fund local groups directly.</p>`}
+   <h4>Local and pooled</h4>${pooled}
+   <p class="note">Tip: unrestricted gifts let aid groups move money to wherever it is short, which is often exactly crises like this one. Check whether a gift is tax-deductible where you live before you give.</p>`;
+}
+function doHTML(c){
+  const tasks=(c.map_tasks||[]).map(t=>`<a class="org" href="${esc(t.url)}" target="_blank" rel="noopener"><div class="t"><b>${esc(t.name)}</b><span>Remote mapping task${t.mapped!=null?` · ${t.mapped}% mapped`:""}${t.priority?` · ${esc(t.priority.toLowerCase())} priority`:""}</span></div><span class="go">↗</span></a>`).join("");
+  const vol=L("volunteer").filter(v=>v.ok&&!(v.key==="hot"&&tasks)).map(v=>`<a class="org" href="${esc(v.url)}" target="_blank" rel="noopener"><div class="t"><b>${esc(v.name)}</b><span>${esc(v.what)}</span></div><span class="go">↗</span></a>`).join("");
+  return `${tasks?`<p class="note">Open mapping tasks for ${esc(c.country)} right now. Aid teams use these maps to find villages and plan routes.</p>${tasks}`:""}${vol}
+  <h4>Share it</h4><p style="color:var(--mute);font-size:14px;margin-top:0">The cheapest help is attention. One share puts this crisis in front of people who have never heard of it.</p>
+  <div class="rowb"><button class="btn hot" onclick="share('${c.iso3}')">Share ${esc(c.country)}</button><button class="btn" onclick="copyLink('${c.iso3}')">Copy link</button></div>`;
+}
+function letter(c){
+  return `Dear [name],
+
+I'm writing as a constituent about the humanitarian crisis in ${c.country}. The UN says ${fmtN(c.pin)} people there need aid this year, yet its appeal is only ${pct(c.coverage)} funded, with ${fmtUSD(c.gap)} still missing. It gets very little news coverage, which makes it easy to overlook.
+
+Please support full funding for humanitarian aid to ${c.country}, and speak about it publicly so it stays on the agenda.
+
+Thank you,
+[your name]
+[your town or postcode]`;
+}
+function speakHTML(c){
+  return `<p style="color:var(--mute);font-size:14px;margin-top:0">Governments give most humanitarian money, and they fund what voters mention. A short note to your representative takes two minutes. Here is one with today’s numbers. Edit it however you like.</p>
+  <textarea id="letter" aria-label="Letter">${esc(letter(c))}</textarea>
+  <div class="rowb"><button class="btn hot" onclick="copyText($('#letter').value,'Letter copied')">Copy letter</button>
+  <select id="rep" aria-label="Your country">${L("speak").filter(s=>s.ok).map(s=>`<option value="${esc(s.url)}">${esc(s.label)}</option>`).join("")}</select>
+  <a class="btn" id="repgo" target="_blank" rel="noopener" href="${esc((L("speak").find(s=>s.ok)||{}).url||"#")}">Find my representative ↗</a></div>`;
+}
+function learnHTML(c,plan){
+  const f=u=>u.replace("{iso3l}",c.iso3.toLowerCase()).replace("{plan}",plan?plan.id:"").replace("{country}",encodeURIComponent(c.country));
+  return L("learn").filter(x=>x.ok).map(x=>`<a class="org" href="${esc(f(x.url))}" target="_blank" rel="noopener"><div class="t"><b>${esc(x.name)}</b></div><span class="go">↗</span></a>`).join("")
+   +`<h4>Who the UN tracked receiving money here</h4><ul class="hl">${(c.recipients||[]).slice(0,10).map(r=>`<li>${esc(r.name)}<span>${fmtUSD(r.usd)}</span></li>`).join("")||"<li>No flows recorded yet.</li>"}</ul>`;
+}
+function shareText(c){return `${c.country}: ${fmtN(c.pin)} people need aid, the UN appeal is ${pct(c.coverage)} funded, and it barely makes the news. #${c.rank} on Forgotten.`}
+function linkFor(iso){return location.origin+location.pathname+"#"+iso.toLowerCase()}
+function share(iso){const c=D.crises.find(x=>x.iso3===iso);const data={title:"Forgotten: "+c.country,text:shareText(c),url:linkFor(iso)};
+  if(navigator.share)navigator.share(data).catch(()=>{});else copyText(data.text+" "+data.url,"Copied, paste it anywhere")}
+function copyLink(iso){copyText(linkFor(iso),"Link copied")}
+function copyText(t,msg){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(msg)).catch(()=>{const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");toast(msg)}catch(e){}a.remove()})}
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),1800)}
+
+/* ---------- the stage: crises as stars, lit by attention ---------- */
+const Sky=(()=>{
+  const cv=$("#sky"),ctx=cv.getContext("2d"),tip=$("#tip");
+  let W=0,H=0,DPR=1,nodes=[],beam={x:.5,y:.4,tx:.5,ty:.4,r:0},focusIso=null,hover=null,t0=performance.now(),dust=[];
+  function resize(){DPR=Math.min(devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);layout()}
+  function proj(lat,lon){ // equirectangular, cropped to where crises are (lat -40..55)
+    const top=H*.13, bot=H*.62, x=(lon+170)/340, y=(55-lat)/95;
+    return [W*.04+x*W*.92, top+y*(bot-top)];
+  }
+  function layout(){
+    const maxPin=Math.max(...nodes.map(n=>n.pin||0),1), base=Math.min(W,H)*(W<700?.085:.07);
+    nodes.forEach(n=>{[n.x,n.y]=proj(n.lat,n.lon);n.r=4+Math.sqrt((n.pin||1e5)/maxPin)*base});
+    // relax overlaps so every crisis stays visible
+    for(let k=0;k<120;k++)for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+      const a=nodes[i],b=nodes[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||.01,m=a.r+b.r+3;
+      if(d<m){const p=(m-d)/2,ux=dx/d,uy=dy/d;a.x-=ux*p;a.y-=uy*p;b.x+=ux*p;b.y+=uy*p}
+    }
+    nodes.forEach(n=>{n.x=Math.max(n.r+4,Math.min(W-n.r-4,n.x));n.y=Math.max(n.r+50,Math.min(H*.72,n.y))});
+    dust=Array.from({length:Math.round(W*H/9000)},()=>({x:Math.random()*W,y:Math.random()*H*.8,a:Math.random()*.5,s:Math.random()*.6+.2,p:Math.random()*6}));
+  }
+  function load(cs){
+    const L=cs.filter(c=>c.lat!=null&&c.lon!=null&&c.pin);
+    const atts=L.map(c=>c.news_per_m).filter(v=>v!=null).sort((a,b)=>a-b);
+    nodes=L.map(c=>{
+      const r=c.news_per_m==null?0:(atts.filter(v=>v<=c.news_per_m).length/atts.length);
+      return {iso:c.iso3,name:c.country,lat:c.lat,lon:c.lon,pin:c.pin,cov:c.coverage,npm:c.news_per_m,rank:c.rank,glow:Math.pow(r,1.6),cur:0}
+    });
+    resize();
+    const lit=nodes.slice().sort((a,b)=>b.glow-a.glow);
+    if(lit[0]){beam.x=beam.tx=lit[0].x/W;beam.y=beam.ty=lit[0].y/H}
+    tour=lit.slice(0,4);
+    if(!RM)requestAnimationFrame(frame);else{nodes.forEach(n=>n.cur=n.glow);draw(performance.now())}
+  }
+  let tour=[],tourI=0,nextT=0;
+  function frame(t){draw(t);requestAnimationFrame(frame)}
+  function draw(t){
+    const s=(t-t0)/1000;
+    // beam target: focused crisis, else tour the most-covered ones (that's where the world looks)
+    if(focusIso){const n=nodes.find(n=>n.iso===focusIso);if(n){beam.tx=n.x/W;beam.ty=n.y/H}}
+    else if(tour.length&&t>nextT){const n=tour[tourI++%tour.length];beam.tx=n.x/W;beam.ty=n.y/H;nextT=t+3800}
+    beam.x+=(beam.tx-beam.x)*.03;beam.y+=(beam.ty-beam.y)*.03;
+    ctx.clearRect(0,0,W,H);
+    // dust in the air
+    for(const d of dust){const a=d.a*(.5+.5*Math.sin(s*d.s+d.p));ctx.fillStyle=`rgba(239,232,220,${a*.35})`;ctx.fillRect(d.x,d.y,1,1)}
+    // spotlight cone from top center
+    const bx=beam.x*W,by=beam.y*H,br=Math.max(70,Math.min(W,H)*.16);
+    const g=ctx.createRadialGradient(bx,by,0,bx,by,br*1.4);g.addColorStop(0,"rgba(255,214,150,.20)");g.addColorStop(1,"rgba(255,214,150,0)");
+    ctx.save();ctx.beginPath();ctx.moveTo(W*.5-14,-10);ctx.lineTo(W*.5+14,-10);ctx.lineTo(bx+br,by);ctx.lineTo(bx-br,by);ctx.closePath();
+    const cg=ctx.createLinearGradient(W*.5,0,bx,by);cg.addColorStop(0,"rgba(255,220,163,.10)");cg.addColorStop(1,"rgba(255,220,163,.035)");ctx.fillStyle=cg;ctx.fill();ctx.restore();
+    ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(bx,by,br*1.4,br*1.1,0,0,7);ctx.fill();
+    // crises
+    for(const n of nodes){
+      const inBeam=Math.max(0,1-Math.hypot(n.x-bx,n.y-by)/(br*1.2));
+      n.cur+=((n.glow*.85+inBeam*.25)-n.cur)*.05;
+      const L=n.cur, hot=hover===n||focusIso===n.iso;
+      if(L>.04){const gg=ctx.createRadialGradient(n.x,n.y,n.r*.4,n.x,n.y,n.r*2.6);gg.addColorStop(0,`rgba(255,192,97,${.35*L})`);gg.addColorStop(1,"rgba(255,192,97,0)");ctx.fillStyle=gg;ctx.beginPath();ctx.arc(n.x,n.y,n.r*2.6,0,7);ctx.fill()}
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,7);
+      ctx.fillStyle=`rgba(${Math.round(40+215*L)},${Math.round(36+156*L)},${Math.round(30+67*L)},${.55+.45*L})`;ctx.fill();
+      ctx.lineWidth=hot?2:1;ctx.strokeStyle=hot?"#efe8dc":`rgba(154,145,131,${.55-.35*L})`;ctx.stroke();
+      // the forgotten get a slow, faint breath so they are not invisible
+      if(n.rank&&n.rank<=5&&!RM){ctx.beginPath();ctx.arc(n.x,n.y,n.r+4+3*Math.sin(s*1.3+n.r),0,7);ctx.strokeStyle=`rgba(224,88,60,${.35+.2*Math.sin(s*1.3)})`;ctx.lineWidth=1;ctx.stroke()}
+      if(n.r>16||hot||(n.rank&&n.rank<=5)){ctx.font=`${hot?600:500} ${W<700?10:12}px "Public Sans",sans-serif`;ctx.textAlign="center";ctx.fillStyle=L>.5?"rgba(27,18,6,.9)":"rgba(239,232,220,.78)";
+        const label=n.r>22?n.name.split(" ")[0]:n.name;
+        if(n.r>22)ctx.fillText(label.length>11?n.iso:label,n.x,n.y+4);else{ctx.fillStyle="rgba(239,232,220,.7)";ctx.fillText(n.name.length>14?n.iso:n.name,n.x,n.y+n.r+13)}}
+    }
+  }
+  function hit(x,y){let best=null,bd=1e9;for(const n of nodes){const d=Math.hypot(n.x-x,n.y-y);if(d<n.r+8&&d<bd){bd=d;best=n}}return best}
+  function showTip(n,x,y){
+    if(!n){tip.style.opacity=0;return}
+    tip.innerHTML=`<b>${esc(n.name)}</b>${fmtN(n.pin)} in need · ${pct(n.cov)} funded<br><span class="mono">${n.rank?"#"+n.rank+" most forgotten · ":""}tap for more</span>`;
+    tip.style.left=Math.max(90,Math.min(W-90,x))+"px";tip.style.top=y+"px";tip.style.opacity=1;
+  }
+  cv.addEventListener("pointermove",e=>{const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,n=hit(x,y);hover=n;cv.style.cursor=n?"pointer":"default";if(e.pointerType==="mouse")showTip(n,n?n.x:x,n?n.y-n.r:y)});
+  cv.addEventListener("pointerleave",()=>{hover=null;showTip(null)});
+  cv.addEventListener("click",e=>{const r=cv.getBoundingClientRect(),n=hit(e.clientX-r.left,e.clientY-r.top);if(n)open(n.iso)});
+  let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{if(nodes.length)resize()},120)});
+  return {load,focus:iso=>{focusIso=iso;nextT=performance.now()+1500}};
+})();
+</script>
+</body>
+</html>
