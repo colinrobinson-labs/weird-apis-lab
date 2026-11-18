@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main, claude/project-thread-0hm42t]
-    paths: ["forgotten/build/**", ".github/workflows/forgotten.yml"]
+    paths: ["forgotten/build/*.py", "forgotten/build/*.json", ".github/workflows/forgotten.yml"]
 permissions:
   contents: write
   actions: write
