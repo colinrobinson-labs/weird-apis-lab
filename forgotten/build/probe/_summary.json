@@ -1,0 +1,46 @@
+{
+ "fts_plans_2026": {
+  "status": 200,
+  "bytes": 199875
+ },
+ "fts_flow_byplan_2026": {
+  "status": 200,
+  "bytes": 64824
+ },
+ "fts_flow_country_sdn": {
+  "status": 200,
+  "bytes": 129070
+ },
+ "hapi_needs": {
+  "status": 200,
+  "bytes": 169807
+ },
+ "hapi_version": {
+  "status": 200,
+  "bytes": 66
+ },
+ "gdelt_sudan": {
+  "status": 429,
+  "bytes": 444
+ },
+ "wiki_pv": {
+  "status": 200,
+  "bytes": 5343
+ },
+ "hot_tasks": {
+  "status": 403,
+  "bytes": 1873
+ },
+ "reliefweb": {
+  "status": 403,
+  "bytes": 218
+ },
+ "globalgiving": {
+  "status": 400,
+  "bytes": 122
+ },
+ "crisisrelief": {
+  "status": 200,
+  "bytes": 620272
+ }
+}
