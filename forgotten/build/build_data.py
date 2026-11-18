@@ -185,11 +185,12 @@ for iso in order:
         gdelt_fail += 1; log("GDELT vol failed", iso, e); continue
     if time.time() > gdelt_deadline: continue
     try:
-        d = gdelt(q, "artlist", "&maxrecords=8&sort=datedesc")
+        d = gdelt(q, "artlist", "&maxrecords=40&sort=datedesc")
         seen, hl = set(), []
         for a in d.get("articles", []):
             t = a.get("title", "").strip()
             if not t or t.lower() in seen: continue
+            if not re.search(r"\b" + re.escape(name.split()[0]), t, re.I): continue  # headline must name the place
             seen.add(t.lower())
             hl.append({"title": t, "url": a.get("url"), "source": a.get("domain"), "date": a.get("seendate", "")[:8]})
             if len(hl) == 4: break
