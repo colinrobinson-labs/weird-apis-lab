@@ -18,6 +18,20 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Add Plenty Map tiles from the data branch
+        run: |
+          set -e
+          if git fetch --depth 1 origin plenty-map-data; then
+            mkdir -p /tmp/pmdata plenty-map/data/tiles
+            git archive FETCH_HEAD tiles | tar -x -C /tmp/pmdata
+            day=$(jq -r '.built' /tmp/pmdata/tiles/info.json | cut -c1-10 | tr -d '-')
+            cp /tmp/pmdata/tiles/san-diego.pmtiles "plenty-map/data/tiles/san-diego-$day.pmtiles"
+            cp -r /tmp/pmdata/tiles/fonts plenty-map/data/tiles/fonts
+            printf '{"file":"san-diego-%s.pmtiles","built":"%s"}\n' "$day" "$day" > plenty-map/data/tiles/tiles.json
+            ls -la plenty-map/data/tiles
+          else
+            echo "No data branch yet; the map will be missing until the data job runs."
+          fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

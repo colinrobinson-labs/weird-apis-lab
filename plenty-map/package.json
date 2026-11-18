@@ -1,0 +1,25 @@
+{
+  "name": "plenty-map",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Find food. Cook cheap. Get help. In your language.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build:www": "node tools/build-www.mjs",
+    "native:assets": "node tools/native-assets.mjs",
+    "dev": "node tools/dev-server.mjs 8080"
+  },
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "@capacitor/android": "8.6.2",
+    "@capacitor/browser": "8.0.5",
+    "@capacitor/core": "8.6.2",
+    "@capacitor/geolocation": "8.2.5",
+    "@capacitor/ios": "8.6.2",
+    "@capacitor/share": "8.0.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.2"
+  }
+}

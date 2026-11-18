@@ -1,0 +1,132 @@
+name: Plenty Map apps
+# Builds the iPhone and Android apps from plenty-map/. No one needs to run anything on a computer.
+# Every run makes test builds. Store-ready signed builds are made only when the signing secrets exist:
+#   Android: PM_ANDROID_KEYSTORE_B64, PM_ANDROID_KEYSTORE_PASSWORD, PM_ANDROID_KEY_ALIAS, PM_ANDROID_KEY_PASSWORD
+#   iOS:     PM_ASC_KEY_ID, PM_ASC_ISSUER_ID, PM_ASC_KEY_P8_B64, PM_APPLE_TEAM_ID  (uploads to TestFlight)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, plenty-map]
+    paths: ["plenty-map/**", ".github/workflows/plenty-map-apps.yml"]
+permissions:
+  contents: read
+concurrency:
+  group: plenty-map-apps-${{ github.ref }}
+  cancel-in-progress: true
+defaults:
+  run:
+    working-directory: plenty-map
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      HAS_SIGNING: ${{ secrets.PM_ANDROID_KEYSTORE_B64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - uses: android-actions/setup-android@v3
+      - name: Install
+        run: npm install --no-audit --no-fund
+      - name: Web files
+        run: node tools/build-www.mjs
+      - name: Android project
+        run: |
+          npx cap add android
+          node tools/native-assets.mjs android
+          npx cap sync android
+      - name: Version
+        run: |
+          code=$(( $(date -u +%s) / 600 ))
+          sed -i "s/versionCode [0-9]*/versionCode $code/; s/versionName \"[^\"]*\"/versionName \"$(node -p 'require(`./package.json`).version')\"/" android/app/build.gradle
+      - name: Test build (APK you can install on any Android phone)
+        working-directory: plenty-map/android
+        run: ./gradlew --no-daemon assembleDebug
+      - name: Signed store build (AAB)
+        if: env.HAS_SIGNING == 'true'
+        env:
+          KS: ${{ secrets.PM_ANDROID_KEYSTORE_B64 }}
+          KS_PASS: ${{ secrets.PM_ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.PM_ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.PM_ANDROID_KEY_PASSWORD }}
+        working-directory: plenty-map/android
+        run: |
+          echo "$KS" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          ./gradlew --no-daemon bundleRelease \
+            -Pandroid.injected.signing.store.file="$RUNNER_TEMP/upload.jks" \
+            -Pandroid.injected.signing.store.password="$KS_PASS" \
+            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$KEY_PASS"
+          rm -f "$RUNNER_TEMP/upload.jks"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plenty-map-android
+          path: |
+            plenty-map/android/app/build/outputs/apk/debug/*.apk
+            plenty-map/android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: warn
+
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 50
+    env:
+      HAS_SIGNING: ${{ secrets.PM_ASC_KEY_P8_B64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install
+        run: npm install --no-audit --no-fund && npm install --no-save xcode@3
+      - name: Web files
+        run: node tools/build-www.mjs
+      - name: iOS project
+        run: |
+          npx cap add ios
+          node tools/native-assets.mjs ios
+          npx cap sync ios
+      - name: Test build (Simulator)
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO build | tail -n 40
+          (cd build/Build/Products/Debug-iphonesimulator && zip -qr "$GITHUB_WORKSPACE/plenty-map-simulator.zip" App.app)
+      - name: Signed build to TestFlight
+        if: env.HAS_SIGNING == 'true'
+        env:
+          ASC_KEY: ${{ secrets.PM_ASC_KEY_P8_B64 }}
+          ASC_KEY_ID: ${{ secrets.PM_ASC_KEY_ID }}
+          ASC_ISSUER: ${{ secrets.PM_ASC_ISSUER_ID }}
+          TEAM: ${{ secrets.PM_APPLE_TEAM_ID }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$ASC_KEY" | base64 -d > ~/.appstoreconnect/private_keys/AuthKey_$ASC_KEY_ID.p8
+          build=$(( $(date -u +%s) / 600 ))
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release -sdk iphoneos \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" -allowProvisioningUpdates \
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_$ASC_KEY_ID.p8 \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER" \
+            DEVELOPMENT_TEAM="$TEAM" CODE_SIGN_STYLE=Automatic CURRENT_PROJECT_VERSION=$build archive | tail -n 40
+          cat > "$RUNNER_TEMP/export.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$TEAM</string>
+            <key>signingStyle</key><string>automatic</string>
+          </dict></plist>
+          EOF
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
+            -exportPath "$RUNNER_TEMP/export" -allowProvisioningUpdates \
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_$ASC_KEY_ID.p8 \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER" | tail -n 20
+          rm -rf ~/.appstoreconnect/private_keys
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plenty-map-ios-simulator
+          path: plenty-map-simulator.zip
+          if-no-files-found: warn

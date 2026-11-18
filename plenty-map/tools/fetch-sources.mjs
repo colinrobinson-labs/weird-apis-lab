@@ -51,20 +51,19 @@ await step("fsd", async () => {
   await save("fsd.json", j);
 });
 
-// 3. OpenStreetMap: grocery stores, markets, food banks, soup kitchens, community fridges, place names.
+// 3. OpenStreetMap: food banks, soup kitchens, community fridges, and place names (for search).
 await step("osm", async () => {
   const b = `${BBOX.s},${BBOX.w},${BBOX.n},${BBOX.e}`;
   const q = `[out:json][timeout:170];
 (
   nwr["amenity"~"^(food_bank|community_fridge|food_sharing|soup_kitchen)$"](${b});
   nwr["amenity"="social_facility"]["social_facility"~"^(food_bank|soup_kitchen)$"](${b});
-  nwr["amenity"="marketplace"](${b});
 );
 out center tags;
 (
   node["place"~"^(city|town|village|suburb|neighbourhood|quarter|hamlet)$"](${b});
 );
-out tags;`;
+out body qt;`;
   const eps = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter", "https://overpass.private.coffee/api/interpreter"];
   let last;
   for (const ep of eps) {
