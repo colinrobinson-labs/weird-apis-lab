@@ -1,0 +1,23 @@
+{
+ "_note": "Short names used for news queries (names), Wikipedia country articles (wiki), and HOT Tasking Manager country filters (hot_names). Anything not listed uses the FTS country name.",
+ "names": {
+  "COD": "DR Congo", "CAF": "Central African Republic", "SYR": "Syria", "PSE": "Gaza", "VEN": "Venezuela",
+  "IRN": "Iran", "BOL": "Bolivia", "TZA": "Tanzania", "LAO": "Laos", "PRK": "North Korea", "MMR": "Myanmar",
+  "UKR": "Ukraine", "BGD": "Rohingya", "TUR": "Turkey", "RUS": "Russia", "MDA": "Moldova"
+ },
+ "wiki": {
+  "AFG": ["Afghanistan"], "BFA": ["Burkina Faso"], "BDI": ["Burundi"], "CMR": ["Cameroon"], "CAF": ["Central African Republic"],
+  "TCD": ["Chad"], "COL": ["Colombia"], "COD": ["Democratic Republic of the Congo"], "SLV": ["El Salvador"], "ETH": ["Ethiopia"],
+  "GTM": ["Guatemala"], "HTI": ["Haiti"], "HND": ["Honduras"], "LBN": ["Lebanon"], "LBY": ["Libya"], "MLI": ["Mali"],
+  "MOZ": ["Mozambique"], "MMR": ["Myanmar"], "NER": ["Niger"], "NGA": ["Nigeria"], "PSE": ["Gaza Strip", "State of Palestine"],
+  "SOM": ["Somalia"], "SSD": ["South Sudan"], "SDN": ["Sudan"], "SYR": ["Syria"], "UKR": ["Ukraine"], "VEN": ["Venezuela"],
+  "YEM": ["Yemen"], "BGD": ["Rohingya refugees in Bangladesh", "Bangladesh"], "IRQ": ["Iraq"], "PAK": ["Pakistan"],
+  "ZWE": ["Zimbabwe"], "CUB": ["Cuba"], "JAM": ["Jamaica"], "MWI": ["Malawi"], "ZMB": ["Zambia"], "KEN": ["Kenya"],
+  "MDG": ["Madagascar"], "PHL": ["Philippines"], "NPL": ["Nepal"], "AGO": ["Angola"], "LKA": ["Sri Lanka"], "IRN": ["Iran"],
+  "PRK": ["North Korea"], "LSO": ["Lesotho"], "NAM": ["Namibia"], "BOL": ["Bolivia"], "ECU": ["Ecuador"], "PER": ["Peru"],
+  "MEX": ["Mexico"], "TUR": ["Turkey"], "SEN": ["Senegal"], "MRT": ["Mauritania"], "UGA": ["Uganda"], "RWA": ["Rwanda"],
+  "COG": ["Republic of the Congo"], "DJI": ["Djibouti"], "ERI": ["Eritrea"], "VUT": ["Vanuatu"], "PNG": ["Papua New Guinea"],
+  "MMR_": []
+ },
+ "hot_names": { "COD": "Democratic Republic of the Congo", "PSE": "Palestine", "SYR": "Syria", "VEN": "Venezuela" }
+}

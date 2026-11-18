@@ -16,13 +16,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - name: Probe sources
-        if: hashFiles('forgotten/build/probe.py') != ''
-        run: python forgotten/build/probe.py
+      - name: Build data
+        run: python forgotten/build/build_data.py
       - name: Commit
         run: |
           git config user.name "forgotten-bot"
@@ -31,3 +32,4 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m "forgotten: data refresh [skip ci]"
           git push
+          if [ "$GITHUB_REF_NAME" = "main" ]; then gh workflow run pages.yml --ref main; fi
