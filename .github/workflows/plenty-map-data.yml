@@ -1,0 +1,111 @@
+name: Plenty Map data
+# Nightly: pulls public food-help data for San Diego County, builds the static
+# region file the app reads, and (monthly, or when missing) cuts the
+# self-hosted map tiles. The phone never calls any of these sources.
+on:
+  schedule:
+    - cron: "17 10 * * *"   # ~2-3am Pacific
+  workflow_dispatch:
+    inputs:
+      tiles:
+        description: "Rebuild the map tiles too"
+        type: boolean
+        default: false
+  push:
+    branches: [plenty-map]
+    paths:
+      - "plenty-map/tools/**"
+      - ".github/workflows/plenty-map-data.yml"
+permissions:
+  contents: write
+  actions: write
+concurrency: plenty-map-data
+jobs:
+  data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Get the current data branch
+        run: |
+          git fetch --depth=1 origin plenty-map-data:plenty-map-data || true
+          mkdir -p /tmp/databranch
+          if git rev-parse --verify plenty-map-data >/dev/null 2>&1; then
+            git --work-tree=/tmp/databranch checkout plenty-map-data -- . 2>/dev/null || true
+            git reset -q
+          fi
+          ls -la /tmp/databranch || true
+
+      - name: Fetch public sources
+        run: node plenty-map/tools/fetch-sources.mjs /tmp/databranch/raw
+
+      - name: Cut map tiles (monthly, on request, or when missing)
+        env:
+          WANT: ${{ inputs.tiles }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          T=/tmp/databranch/tiles/san-diego.pmtiles
+          if [ -f "$T" ] && [ "$WANT" != "true" ] && [ "$(date -u +%d)" != "01" ]; then echo "tiles kept"; exit 0; fi
+          URL=$(gh release view -R protomaps/go-pmtiles --json assets --jq '.assets[] | select(.name | test("Linux_x86_64.tar.gz$")) | .url' | head -1)
+          echo "pmtiles cli: $URL"
+          curl -fsSL -o /tmp/pm.tgz "$URL"
+          tar -xzf /tmp/pm.tgz -C /tmp pmtiles
+          mkdir -p /tmp/databranch/tiles
+          SRC=""
+          for d in 0 1 2 3 4 5 6; do
+            day=$(date -u -d "-$d day" +%Y%m%d)
+            if curl -fsI "https://build.protomaps.com/$day.pmtiles" >/dev/null; then SRC="https://build.protomaps.com/$day.pmtiles"; break; fi
+          done
+          [ -n "$SRC" ] || { echo "no protomaps build found"; exit 1; }
+          echo "source: $SRC"
+          /tmp/pmtiles extract "$SRC" /tmp/sd.pmtiles --bbox=-117.62,32.53,-116.08,33.51 --maxzoom=15
+          SIZE=$(stat -c %s /tmp/sd.pmtiles)
+          echo "z15 size: $SIZE"
+          if [ "$SIZE" -gt 94000000 ]; then
+            /tmp/pmtiles extract "$SRC" /tmp/sd.pmtiles --bbox=-117.62,32.53,-116.08,33.51 --maxzoom=14
+          fi
+          mv /tmp/sd.pmtiles "$T"
+          echo "{\"source\":\"$SRC\",\"built\":\"$(date -u +%FT%TZ)\"}" > /tmp/databranch/tiles/info.json
+          # Label fonts (Latin, Latin-1, Latin Extended, general punctuation) for the map.
+          for f in "Noto Sans Regular" "Noto Sans Medium" "Noto Sans Italic"; do
+            mkdir -p "/tmp/databranch/tiles/fonts/$f"
+            for r in 0-255 256-511 512-767 7680-7935 8192-8447; do
+              curl -fsSL -o "/tmp/databranch/tiles/fonts/$f/$r.pbf" "https://raw.githubusercontent.com/protomaps/basemaps-assets/main/fonts/${f// /%20}/$r.pbf" || echo "missing $f $r"
+            done
+          done
+          ls -la /tmp/databranch/tiles
+
+      - name: Save raw data and tiles to the data branch
+        run: |
+          cd /tmp/databranch
+          git init -q -b plenty-map-data
+          git config user.name "plenty-map-data"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Plenty Map source data $(date -u +%F)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" plenty-map-data
+
+      - name: Build the region file
+        run: node plenty-map/tools/build-region.mjs /tmp/databranch/raw plenty-map/data/regions
+
+      - name: Commit the region file if it changed
+        id: commit
+        run: |
+          git config user.name "plenty-map-data"
+          git config user.email "actions@users.noreply.github.com"
+          git add plenty-map/data/regions
+          if git diff --cached --quiet; then echo "changed=no" >> "$GITHUB_OUTPUT"; exit 0; fi
+          git commit -q -m "Plenty Map: refresh San Diego food-help data"
+          git push origin HEAD:${{ github.ref_name }}
+          echo "changed=yes" >> "$GITHUB_OUTPUT"
+
+      - name: Redeploy the site
+        if: github.ref_name == 'main' && (steps.commit.outputs.changed == 'yes' || inputs.tiles)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main
