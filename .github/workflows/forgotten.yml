@@ -1,0 +1,33 @@
+name: Forgotten data
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main, claude/project-thread-0hm42t]
+    paths: ["forgotten/build/**", ".github/workflows/forgotten.yml"]
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: forgotten-data
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Probe sources
+        if: hashFiles('forgotten/build/probe.py') != ''
+        run: python forgotten/build/probe.py
+      - name: Commit
+        run: |
+          git config user.name "forgotten-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add forgotten
+          git diff --cached --quiet && exit 0
+          git commit -m "forgotten: data refresh [skip ci]"
+          git push
