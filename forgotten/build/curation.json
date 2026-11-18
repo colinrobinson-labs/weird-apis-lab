@@ -16,7 +16,8 @@
   "BGD": "Rohingya",
   "TUR": "Turkey",
   "RUS": "Russia",
-  "MDA": "Moldova"
+  "MDA": "Moldova",
+  "VNM": "Vietnam"
  },
  "wiki": {
   "AFG": [
@@ -201,7 +202,9 @@
   "PNG": [
    "Papua New Guinea"
   ],
-  "MMR_": []
+  "VNM": [
+   "Vietnam"
+  ]
  },
  "hot_names": {
   "COD": "Democratic Republic of the Congo",
@@ -222,7 +225,8 @@
   "RUS": "Russia",
   "TUR": "Türkiye",
   "COD": "DR Congo",
-  "CAF": "Central African Republic"
+  "CAF": "Central African Republic",
+  "VNM": "Vietnam"
  },
  "short": {
   "COD": "DR Congo",
