@@ -184,7 +184,7 @@ select{background:var(--bg2);border:1px solid var(--line);color:var(--ink);borde
 <header id="stage" aria-label="Map of crises, lit by news attention">
   <canvas id="sky" aria-hidden="true"></canvas>
   <div class="bill"><b>Forgotten</b><span id="stamp" class="live">loading live data</span></div>
-  <div class="legend" aria-hidden="true">size = people in need <i style="width:12px;height:12px;border:1px solid var(--mute)"></i><br>light = news per person <i style="width:9px;height:9px;background:var(--light);box-shadow:0 0 8px var(--light)"></i></div>
+  <div class="legend" aria-hidden="true">size = people in need <i style="width:12px;height:12px;border:1px solid var(--mute)"></i><br>light = attention per person <i style="width:9px;height:9px;background:var(--light);box-shadow:0 0 8px var(--light)"></i></div>
   <div id="tip"></div>
   <div class="headline"><div class="wrap">
     <h1>The crises the world <em>isn’t watching.</em></h1>
@@ -339,7 +339,7 @@ function open(iso,push=true,tab="give"){
   const ratio=sp&&c.news_per_m?Math.round(sp.news_per_m/c.news_per_m):null;
   const big=c.news_per_m!=null
     ? `For every million people in need here, English-language outlets ran <em>${word(Math.round(c.news_per_m))} stories</em> in 30 days.`+(sp&&ratio>1?` ${esc(sp.country)} got ${word(Math.round(sp.news_per_m))}, about ${word(ratio)} times more.`:"")
-    : `${pct(c.coverage)} of this appeal is funded.`;
+    : `${fmtUSD(c.gap)} of the ${fmtUSD(c.requirements)} the UN asked for here this year <em>hasn’t arrived</em>.`;
   $("#sh").innerHTML=`
     <button class="x" aria-label="Close" onclick="closeSheet()">×</button>
     <div class="rank">${c.rank?`#${c.rank} most forgotten · score ${c.index}`:"Not ranked"}</div>
@@ -444,7 +444,7 @@ const Sky=(()=>{
   let W=0,H=0,DPR=1,nodes=[],beam={x:.5,y:.4,tx:.5,ty:.4,r:0},focusIso=null,hover=null,t0=performance.now(),dust=[];
   function resize(){DPR=Math.min(devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);layout()}
   const wide=()=>W>=980;
-  function box(){return wide()?{l:W*.40,r:W*.97,t:H*.12,b:H*.80}:{l:W*.04,r:W*.96,t:H*.12,b:H*.50}}
+  function box(){return wide()?{l:W*.50,r:W*.97,t:H*.12,b:H*.80}:{l:W*.04,r:W*.96,t:H*.12,b:H*.50}}
   function proj(lat,lon){ // equirectangular over the band where crises are: lon -95..130, lat -30..55
     const B=box(), x=(lon+95)/225, y=(55-lat)/85;
     return [B.l+Math.max(0,Math.min(1,x))*(B.r-B.l), B.t+Math.max(0,Math.min(1,y))*(B.b-B.t)];
@@ -462,10 +462,9 @@ const Sky=(()=>{
   }
   function load(cs){
     const L=cs.filter(c=>c.lat!=null&&c.lon!=null&&c.pin);
-    const atts=L.map(c=>c.news_per_m).filter(v=>v!=null).sort((a,b)=>a-b);
     nodes=L.map(c=>{const nm=c.short||c.country;
-      const r=c.news_per_m==null?0:(atts.filter(v=>v<=c.news_per_m).length/atts.length);
-      return {iso:c.iso3,name:nm,lat:c.lat,lon:c.lon,pin:c.pin,cov:c.coverage,npm:c.news_per_m,rank:c.rank,glow:Math.pow(r,1.6),cur:0}
+      const att=c.s_attention==null?0:1-c.s_attention; // 1 = most attention per person in need
+      return {iso:c.iso3,name:nm,lat:c.lat,lon:c.lon,pin:c.pin,cov:c.coverage,npm:c.news_per_m,rank:c.rank,glow:Math.pow(att,1.8),cur:0}
     });
     resize();
     const lit=nodes.slice().sort((a,b)=>b.glow-a.glow);
@@ -491,7 +490,10 @@ const Sky=(()=>{
     const cg=ctx.createLinearGradient(W*.5,0,bx,by);cg.addColorStop(0,"rgba(255,220,163,.10)");cg.addColorStop(1,"rgba(255,220,163,.035)");ctx.fillStyle=cg;ctx.fill();ctx.restore();
     ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(bx,by,br*1.4,br*1.1,0,0,7);ctx.fill();
     // crises
-    for(const n of nodes){
+    const placed=[];
+    const free=(x,y,w,h)=>{for(const r of placed)if(x<r[0]+r[2]&&x+w>r[0]&&y<r[1]+r[3]&&y+h>r[1])return false;placed.push([x,y,w,h]);return true};
+    const order=nodes.slice().sort((a,b)=>(a===hover||a.iso===focusIso?-1:0)-(b===hover||b.iso===focusIso?-1:0)||(a.rank||99)-(b.rank||99));
+    for(const n of order){
       const inBeam=Math.max(0,1-Math.hypot(n.x-bx,n.y-by)/(br*1.2));
       n.cur+=((n.glow*.85+inBeam*.25)-n.cur)*.05;
       const L=n.cur, hot=hover===n||focusIso===n.iso;
@@ -501,10 +503,13 @@ const Sky=(()=>{
       ctx.lineWidth=hot?2:1;ctx.strokeStyle=hot?"#efe8dc":`rgba(154,145,131,${.55-.35*L})`;ctx.stroke();
       // the forgotten get a slow, faint breath so they are not invisible
       if(n.rank&&n.rank<=5&&!RM){ctx.beginPath();ctx.arc(n.x,n.y,n.r+4+3*Math.sin(s*1.3+n.r),0,7);ctx.strokeStyle=`rgba(224,88,60,${.35+.2*Math.sin(s*1.3)})`;ctx.lineWidth=1;ctx.stroke()}
+
+    }
+    for(const n of order){const L=n.cur, hot=hover===n||focusIso===n.iso;
       if(n.r>13||hot||(n.rank&&n.rank<=5)){ctx.font=`${hot?600:500} ${W<700?10:12}px "Public Sans",sans-serif`;ctx.textAlign="center";
         const tw=ctx.measureText(n.name).width;
-        if(tw<n.r*2-8){ctx.fillStyle=L>.5?"rgba(27,18,6,.9)":"rgba(239,232,220,.8)";ctx.fillText(n.name,n.x,n.y+4)}
-        else{ctx.fillStyle="rgba(239,232,220,.72)";ctx.fillText(n.name,n.x,n.y+n.r+13)}}
+        if(tw<n.r*2-8){if(free(n.x-tw/2,n.y-6,tw,12)){ctx.fillStyle=L>.5?"rgba(27,18,6,.9)":"rgba(239,232,220,.8)";ctx.fillText(n.name,n.x,n.y+4)}}
+        else if(free(n.x-tw/2-2,n.y+n.r+2,tw+4,14)||hot){ctx.fillStyle=hot?"#efe8dc":"rgba(239,232,220,.72)";ctx.fillText(n.name,n.x,n.y+n.r+13)}}
     }
   }
   function hit(x,y){let best=null,bd=1e9;for(const n of nodes){const d=Math.hypot(n.x-x,n.y-y);if(d<n.r+8&&d<bd){bd=d;best=n}}return best}
