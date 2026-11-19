@@ -1,0 +1,35 @@
+name: Forgotten data
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main, claude/project-thread-0hm42t]
+    paths: ["forgotten/build/*.py", "forgotten/build/*.json", ".github/workflows/forgotten.yml"]
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: forgotten-data-${{ github.ref_name }}-v2
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Build data
+        run: python forgotten/build/build_data.py
+      - name: Commit
+        run: |
+          git config user.name "forgotten-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add forgotten
+          git diff --cached --quiet && exit 0
+          git commit -m "forgotten: data refresh [skip ci]"
+          for i in 1 2 3; do git pull --rebase -X theirs origin "$GITHUB_REF_NAME" && git push && break; sleep 5; done
+          if [ "$GITHUB_REF_NAME" = "main" ]; then gh workflow run pages.yml --ref main; fi
